@@ -1,0 +1,220 @@
+﻿* {
+    margin: 0px;
+    padding: 0px;
+    font-size: 12px;
+}
+body {
+    
+/*    background:#1f293a;*/
+}
+/*星星闪烁*/
+.sparkley {
+    background: #3a4250;
+    color: white;
+    border: none;
+    padding: 1px 1px;
+    font-weight: normal;
+    border-radius: 3px;
+    transition: all 0.25s ease;
+    box-shadow: 0 38px 32px -23px black;
+    margin: 0 1em 1em;
+}
+/*星星闪烁*/
+.sparkley:hover {
+    background: #3a4250;
+    color: rgba(255, 255, 255, 0.2);
+}
+/**主页**/
+#center_nav a:hover{
+    text-decoration: none;
+    color: red;
+}
+#top_nav_a a:hover{
+    text-decoration: none;
+    color: red;
+}
+a.ibt_link:link,a.ibt_link:visited {
+    text-decoration: none;
+    color: #fff;
+}
+#top {
+    background: #1f293a;
+    padding-top: 15px;
+}
+#top_nav {
+    height: 120px;
+    background: url("../img/scau_sky.png") no-repeat;
+}
+#top_nav_a {
+    margin-top: 50px;
+    width: 900px;
+    float: right;
+}
+#top_nav_a a{
+    width: 145px;
+    color: #eee;
+    text-align: center;
+    font-size: 32px;
+    font-style: oblique;
+    margin-right: 10px;
+    border-right: 1px solid #fff;
+    float: right;
+}
+#top_pic {
+    height: 508px;
+    margin: 0;
+    background: url("../img/img_top.jpg")  no-repeat;
+    background-size:100% 100%;
+}
+#container {
+    position: relative;
+    background-color: #3f4553;
+    height: 1000px;
+}
+#center_nav {
+    position: relative;
+    float: left;
+    height: 48px;
+    border-bottom-style:dashed;
+    width: 1345px;
+    padding-top: 12px;
+}
+#center_nav a {
+    color: #dde0f2;
+    font-size: 26px;
+    margin: 15px 50px;
+    float: right;
+}
+#xktj{
+    position: absolute;
+}
+#upload{
+    width: 160px;
+    float: right;
+}
+div.datas ul li {
+    float: left;
+    margin-top: 10px;
+    margin-left: 25px;
+    display: list-item;
+}
+li {
+    list-style: none;
+}
+/*底部*/
+#footer{
+    position: relative;
+    border-top:1px solid #fff;
+    background: #1f1f1f;
+    color: #fff;
+    height: 128px;
+    left:0;
+    bottom:0;
+}
+#index_bottom_center {
+    margin-top: 40px;
+    text-align: center;
+}
+#index_bottom {
+    width: 1340px;
+    margin-bottom: 10px;
+}
+/*登录页面*/
+#login_container {
+    margin-top: 0px;
+    height: 350px;
+    background: rgba(198, 218, 196, 0.8);
+}
+.panel_body {
+    margin-top: 15px;
+}
+.reg_body {
+    margin-top: 0px;
+}
+#login_panel {
+    border-style: groove;
+    text-align: center;
+    width: 380px;
+    height: 320px;
+    margin: 40px auto;
+}
+.panel_head{
+    font-size: 20px;
+    color: #FFFFFF;
+    margin: 0px 0px;
+    position: relative;
+    padding: 15px 0px;
+    background: #2f393f;
+}
+.input_group {
+    position: relative;
+    float: right;
+    text-align: right;
+    margin: 15px 25px;
+    border: 1px solid #2f393f;
+    font-size: 20px;
+    width: 100px;
+    border: none;
+    white-space:nowrap;
+}
+.input_text {
+    position: relative;
+    height: 5px;
+    padding: 10px 5px;
+    border-radius: 10px;
+    width: 180px;
+}
+.input_gen {
+    text-align: left;
+    width: 80px;
+    margin-left: 0px;
+}
+.img_gen {
+    float: right;
+    width: 70px;
+    height: 30px;
+}
+.btn {
+    margin-top: 18px;
+    font-size: 20px;
+    background: #4e5774;
+    width: 62px;
+    height: 40px;
+    border: 5px solid #dedede;
+    -moz-border-radius: 15px;      /* Gecko browsers */
+    -webkit-border-radius: 15px;   /* Webkit browsers */
+    border-radius:15px;            /* W3C syntax */
+}
+.btn_span {
+    font-size: 20px;
+    color: #ffffff;
+}
+.checkbox {
+    height: 12px;
+    width: 12px;
+}
+.img_word {
+    position: absolute;
+    z-index: 2;
+    display: none;
+    color: #ffffff;
+    font-size: 14px;
+}
+strong {
+    font-size: 25px;
+}
+/***********************AboutMe*/
+.aboutMe_container {
+    height: 135px;
+}
+.aboutMe_text {
+    margin-top: 20%;
+    text-align: center;
+    position: relative;
+}
+.guin_guo {
+    position: relative;
+    margin-top: 19px;
+    float: right;
+    margin-right: 5%;
+}

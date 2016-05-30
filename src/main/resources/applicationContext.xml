@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+         http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context-4.1.xsd
+         http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+         http://www.springframework.org/schema/tx 
+         http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+
+
+    <!-- 打开Spring的Annotation支持 -->
+    <context:annotation-config/>
+    <!-- 设定Spring 去哪些包中找Annotation -->
+    <!--<context:component-scan base-package="com.guinguo">
+        &lt;!&ndash;通过exclude-filter 把所有 @Controller注解的表现层控制器组件排除&ndash;&gt;
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>-->
+    <!-- 导入相应的properties文件 -->
+    <!--<context:property-placeholder location="classpath*:jdbc.properties"/>-->
+
+    <!-- 配置datasource 也就是对于数据可链接的配置 -->
+    <!--<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        &lt;!&ndash; 数据库用户账号和密码 &ndash;&gt;
+
+        &lt;!&ndash; 配置连接池的一些属性 &ndash;&gt;
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        &lt;!&ndash; 初始化连接数量 &ndash;&gt;
+
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        &lt;!&ndash; 最小等待连接中的数量,设 0 为没有限制 &ndash;&gt;
+        <property name="maxIdle" value="${jdbc.maxIdle}"/>
+        &lt;!&ndash; 最大等待连接中的数量,设 0 为没有限制 &ndash;&gt;
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+        &lt;!&ndash; 连接池的最大数据库连接数。设为0表示无限制。 &ndash;&gt;
+        <property name="maxWait" value="${jdbc.maxWait}"/>
+        &lt;!&ndash; 最大建立连接等待时间。如果超过此时间将接到异常。设为-1表示无限制。 &ndash;&gt;
+    </bean>-->
+
+    <!-- 配置sessionFactory -->
+    <!--<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan">
+            <value>com.etop.info.entities</value>
+        </property>
+
+        <property name="hibernateProperties">
+            &lt;!&ndash; 配置hibernate &ndash;&gt;
+            <props>
+                &lt;!&ndash;设置数据库的方言&ndash;&gt;
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                &lt;!&ndash;设置是否显示SQL语句&ndash;&gt;
+                <prop key="hibernate.show_sql">true</prop>
+                &lt;!&ndash;设置是否自动更新数据库的表结构及是否自动创建表&ndash;&gt;
+                &lt;!&ndash;<prop key="hibernate.hbm2ddl.auto">update</prop>&ndash;&gt;
+                &lt;!&ndash;设置是否将SQL语句转化为良好的SQL语句&ndash;&gt;
+                <prop key="hibernate.format_sql">false</prop>
+
+                &lt;!&ndash;设置二级缓存为true&ndash;&gt;
+                <prop key="hibernate.cache.use_second_level_cache">true</prop>
+                &lt;!&ndash;设置相应的查询缓存&ndash;&gt;
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                &lt;!&ndash;设置二级缓存所提供的类&ndash;&gt;
+                &lt;!&ndash;<prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</prop>&ndash;&gt;
+                &lt;!&ndash;在hibernate4.0之后需要设置facotory_class&ndash;&gt;
+                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+                &lt;!&ndash;缓存加载的文件，不支持classpath:xxx&ndash;&gt;
+                <prop key="net.sf.ehcache.configurationResourceName">/ehcache-hibernate.xml</prop>
+
+                &lt;!&ndash; 强制Hibernate以更人性化的格式将数据存入二级缓存 &ndash;&gt;
+                &lt;!&ndash;<prop key="hibernate.cache.use_structured_entries">true</prop>&ndash;&gt;
+                &lt;!&ndash; Hibernate将收集有助于性能调节的统计数据 &ndash;&gt;
+                &lt;!&ndash;<prop key="hibernate.generate_statistics">true</prop>&ndash;&gt;
+            </props>
+        </property>
+    </bean>-->
+
+    <!-- 声明一个事务管理器来管理sessionFactory -->
+    <!--<bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>-->
+
+    <!-- 建立一个切面，指明什么时候要调用事务管理器 -->
+    <!--<aop:config>
+        <aop:pointcut id="productServiceMethods" expression="execution(* com.etop.info.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="productServiceMethods"/>
+    </aop:config>
+
+    &lt;!&ndash; 估计是为事务管理器做某些说明，指明一些方法的权限（只读OR读写） &ndash;&gt;
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED" read-only="true"/>
+            &lt;!&ndash; 以下方法都是可能涉及修改的方法，就无法设置为只读 &ndash;&gt;
+            <tx:method name="save*" propagation="REQUIRED"/>
+            <tx:method name="add*" propagation="REQUIRED"/>
+            <tx:method name="del*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="handle*" propagation="REQUIRED"/>
+            <tx:method name="import*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>-->
+
+    <!--做一些初始化操作，比如把导航栏的数据放到application中-->
+    <!--<bean id="initFilter" class="com.etop.info.filter.InitFilter"/>-->
+</beans>
