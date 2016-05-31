@@ -91,7 +91,7 @@ public class TestController {
         String filepath = realpath + File.separator + name;
 		System.out.println("delete--->"+filepath);
         File file = new File(filepath);
-		System.out.println("directry--->"+file.isdirectory());
+		System.out.println("directry--->"+file.isDirectory());
         if (file.exists()) {
             file.delete();
             return "ok";
