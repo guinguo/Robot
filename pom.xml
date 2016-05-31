@@ -339,9 +339,9 @@
         <configuration>
           <uriEncoding>${encoding}</uriEncoding>
           <!-- http port -->
-          <port>8080</port>
+          <port>80</port>
           <!-- application path always starts with /-->
-          <path>/</path>
+          <path>/robot</path>
         </configuration>
       </plugin>
     </plugins>

@@ -56,7 +56,7 @@
                               action="${pageContext.request.contextPath}/file" >
     <input type="file" name="file" style="length:200px">
     <input type="submit" value="上传"/>&nbsp;&nbsp;&nbsp;&nbsp;
-	<a href="/ScauSky/download" target="_blank">去下载</a>
+	<a href="${pageContext.request.contextPath}/list" >去下载</a>
   </form>
  
 </div>
