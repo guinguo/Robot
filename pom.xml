@@ -7,9 +7,9 @@
   <packaging>war</packaging>
   <url>http://maven.apache.org</url>
 
-  <name>Robot</name>
+  <name>robot</name>
   <groupId>top.guinguo</groupId>
-  <artifactId>Robot</artifactId>
+  <artifactId>robot</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
@@ -18,6 +18,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
     <encoding>UTF-8</encoding>
+    <fileName>robot</fileName>
   </properties>
 
   <repositories>
@@ -331,20 +332,87 @@
           </execution>
         </executions>
       </plugin>
+        <!--<plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <version>1.4.9</version>
+            <configuration>
+                <container>
+                    <containerId>tomcat8x</containerId>
+                    <home>E:/Tomcat/apache-tomcat-8.0.21</home>
+                </container>
+                <configuration>
+                    <type>existing</type>
+                    <home>E:/Tomcat/apache-tomcat-8.0.21</home>
+                </configuration>
+            </configuration>
+        </plugin>-->
       <!-- tomcat7插件 -->
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
         <artifactId>tomcat7-maven-plugin</artifactId>
         <version>2.2</version>
-        <configuration>
+          <configuration>
+              <url>http://localhost:8080/manager/html</url>
+              <uriEncoding>${encoding}</uriEncoding>
+              <server>tomcat8x</server>
+              <username>tomcat</username>
+              <password>guinguo</password>
+              <path>/${project.artifactId}</path>
+          </configuration>
+          <!--<configuration>
           <uriEncoding>${encoding}</uriEncoding>
-          <!-- http port -->
+          &lt;!&ndash; http port &ndash;&gt;
           <port>80</port>
-          <!-- application path always starts with /-->
+          &lt;!&ndash; application path always starts with /&ndash;&gt;
           <path>/robot</path>
-        </configuration>
+        </configuration>-->
       </plugin>
+
+        <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <version>1.4.9</version>
+            <configuration>
+                <container>
+                    <containerId>tomcat8x</containerId>
+                    <type>remote</type>
+                </container>
+                <configuration>
+                    <type>runtime</type>
+                    <properties>
+                        <cargo.tomcat.manager.url>http://localhost:8080/manager/html</cargo.tomcat.manager.url>
+                        <cargo.remote.username>tomcat</cargo.remote.username>
+                        <cargo.remote.password>guinguo</cargo.remote.password>
+                    </properties>
+                </configuration>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>verify-deployer</id>
+                    <phase>install</phase>
+                    <goals>
+                        <goal>deployer-redeploy</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>clean-deployer</id>
+                    <phase>clean</phase>
+                    <goals>
+                        <goal>deployer-undeploy</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+
+
     </plugins>
   </build>
-
+    <distributionManagement>
+        <repository>
+            <id>my-deploy-respository</id>
+            <name>cdc-plugin-respository</name>
+            <url>http://localhost:8080/manager</url>
+        </repository>
+    </distributionManagement>
 </project>
