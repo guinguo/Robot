@@ -87,11 +87,9 @@ public class TestController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     public String delete(String name, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String realpath = req.getSession().getServletContext().getRealPath("download");
+        String realpath = req.getSession().getServletContext().getRealPath("/download");
         String filepath = realpath + File.separator + name;
-		System.out.println("delete--->"+filepath);
         File file = new File(filepath);
-		System.out.println("directry--->"+file.isDirectory());
         if (file.exists()) {
             file.delete();
             return "ok";
