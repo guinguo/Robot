@@ -24,6 +24,7 @@ public class TestController {
     @RequestMapping("/file")
     public String file(@RequestParam("file")CommonsMultipartFile file,
                        HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        System.out.println(req.getCharacterEncoding()+"===============");
         String realpath = req.getSession().getServletContext().getRealPath("/download");
         System.out.println(realpath);
         if (file.getOriginalFilename().isEmpty()) {
@@ -34,6 +35,7 @@ public class TestController {
                 req.getSession().setAttribute("msg","文件太大了！！");
                 return "error";
             }
+            System.out.println(file.getOriginalFilename() + "==============" + file.getName());
             java.io.File f = new java.io.File(realpath + File.separator + file.getOriginalFilename());
             FileUtils.copyInputStreamToFile(file.getInputStream(), f);
             req.getSession().setAttribute("msg","上传成功");
