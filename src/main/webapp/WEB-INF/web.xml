@@ -10,7 +10,7 @@
   <filter>
     <filter-name>Encoding</filter-name>
     <filter-class>
-      org.springframework.web.filter.CharacterEncodingFilter
+      top.guinguo.filter.MyFilter
     </filter-class>
     <init-param>
       <param-name>encoding</param-name>
