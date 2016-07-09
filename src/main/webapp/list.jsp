@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<html lang="zh-cn">
 <head>
     <title>下载</title>
     <script type="text/javascript" src="${pageContext.request.contextPath}/front/js/jquery-2.1.1.min.js"></script>

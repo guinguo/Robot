@@ -2,7 +2,7 @@
 <%@ page import="
     java.util.*"
         %>
-<html>
+<html lang="zh-cn">
 <head>
   <title>data</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
