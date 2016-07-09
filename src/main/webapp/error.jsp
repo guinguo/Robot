@@ -12,6 +12,6 @@
 </head>
 <body>
   <h1>${msg}</h1>
-<a href="/a.jsp">返回</a>
+<a href="${pageContext.request.contextPath}/a.jsp">返回</a>
 </body>
 </html>
