@@ -46,7 +46,7 @@
   out.println("<tr>");
   for(int i=datas.size()-1;i>=0;i--){
     out.println("<td>"+datas.get(i)+"</td>"
-	+"&nbsp;&nbsp;&nbsp;<td><a href='http://guinguo.top/ScauSky/a.jsp?rm="+i+"'>"+"remove"+"</a></td><br>");
+	+"&nbsp;&nbsp;&nbsp;<td><a href='http://guinguo.top/robot/a.jsp?rm="+i+"'>"+"remove"+"</a></td><br>");
   }
   out.println("</tr>");
 %>
