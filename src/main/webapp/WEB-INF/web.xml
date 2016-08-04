@@ -6,7 +6,7 @@
         version="3.0"
         metadata-complete="false">
 
-  <!-- 设置servlet编码开始 -->
+  <!-- 设置servlet编码开始
   <filter>
     <filter-name>Encoding</filter-name>
     <filter-class>
@@ -20,7 +20,7 @@
   <filter-mapping>
     <filter-name>Encoding</filter-name>
     <url-pattern>/*</url-pattern>
-  </filter-mapping>
+  </filter-mapping>-->
   <!-- 设置servlet编码结束 -->
 
   <!--log4j配置文件开始-->
@@ -30,6 +30,9 @@
   </context-param>
   <listener>
     <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
   </listener>
   <!--log4j配置文件结束-->
 
@@ -62,7 +65,6 @@
     <servlet-name>spring</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
-
 
 </web-app>
         

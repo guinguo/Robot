@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import top.guinguo.utils.Constant;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,15 +20,14 @@ import java.util.List;
  */
 @Controller
 public class TestController {
-    public static final String CATALINA_HOME = System.getProperty("catalina.home");
-    public static final String  REALPATH = CATALINA_HOME+File.separator+"download";
+    
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     @RequestMapping("/file")
     public String file(@RequestParam("file")CommonsMultipartFile file,
                        HttpServletRequest req, HttpServletResponse resp) throws IOException {
         System.out.println(req.getCharacterEncoding()+"===============");
-        System.out.println("tomcat home--->" + CATALINA_HOME);
-        System.out.println(REALPATH);
+        System.out.println("tomcat home--->" + Constant.CATALINA_HOME);
+        System.out.println(Constant.DOWNPATH);
         if (file.getOriginalFilename().isEmpty()) {
             req.getSession().setAttribute("msg","文件是空的！！");
             return "error";
@@ -37,7 +37,7 @@ public class TestController {
                 return "error";
             }
             System.out.println(file.getOriginalFilename() + "==============" + file.getName());
-            java.io.File f = new java.io.File(REALPATH + File.separator + file.getOriginalFilename());
+            java.io.File f = new java.io.File(Constant.DOWNPATH + File.separator + file.getOriginalFilename());
             FileUtils.copyInputStreamToFile(file.getInputStream(), f);
             req.getSession().setAttribute("msg","上传成功");
             return "redirect:list";
@@ -46,7 +46,7 @@ public class TestController {
 
     @RequestMapping("/list")
     public String list(Model model, HttpServletRequest req){
-        File downloads = new File(REALPATH);
+        File downloads = new File(Constant.DOWNPATH);
         String[] files = downloads.list();
         List<String> list = Arrays.asList(files);
         list.forEach(v -> System.out.println(v));
@@ -61,7 +61,7 @@ public class TestController {
         req.setCharacterEncoding("UTF-8");
         java.io.BufferedInputStream bis = null;
         java.io.BufferedOutputStream bos = null;
-        String downLoadPath = REALPATH + java.io.File.separator + name;
+        String downLoadPath = Constant.DOWNPATH + java.io.File.separator + name;
         try {
             long fileLength = new java.io.File(downLoadPath).length();
             resp.setHeader("Content-disposition", "attachment; filename="
@@ -88,7 +88,7 @@ public class TestController {
     @RequestMapping(value = "/delete")
     @ResponseBody
     public String delete(String name, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String filepath = REALPATH + File.separator + name;
+        String filepath = Constant.DOWNPATH + File.separator + name;
         File file = new File(filepath);
         if (file.exists()) {
             file.delete();
