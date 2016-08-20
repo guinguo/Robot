@@ -7,6 +7,7 @@ import top.guinguo.utils.Constant;
 
 import javax.servlet.ServletContext;
 import java.io.*;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class List2File implements ServletContextAware {
             String line = br.readLine();
             System.out.println("compare" + val + "==?" + line);
             if (!StringUtils.equals(val, line)) {
-                File file2Disk = new File(Constant.StoreFilePATH + File.separator + "2016-08-03.txt");
+                File file2Disk = new File(Constant.StoreFilePATH + File.separator + getNowDate());
                 file2Disk.createNewFile();
                 FileUtils.copyFile(file, file2Disk);
                 file.delete();
@@ -44,6 +45,10 @@ public class List2File implements ServletContextAware {
         br.close();
     }
 
+    public static String getNowDate(){
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.YEAR)+"-"+(calendar.get(Calendar.MONTH)+1)+"-"+calendar.get(Calendar.DAY_OF_MONTH)+".txt";
+    }
     private void createFile(File file, List<String> datas) throws IOException {
         if (!file.exists()) {
             file.createNewFile();
