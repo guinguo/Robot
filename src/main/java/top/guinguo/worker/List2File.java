@@ -21,24 +21,36 @@ public class List2File implements ServletContextAware {
         List<String> datas;
         datas = (List<String>) servletContext.getAttribute("datas");
 
-        if (datas == null) {
+        if (datas == null || datas.size() == 0) {
             System.out.println("--------------datas is null");
             return;
         }
         File file = new File(Constant.StoreFilePATH + File.separator + "current.txt");
-        createFile(file, datas);
+        if (isCreateFile(file, datas)) {
+            //current.txt not exists
+            return;
+        }
 
+        //current.txt exists
         BufferedReader br = new BufferedReader(new FileReader(file));
         for (String val : datas) {
             String line = br.readLine();
-            System.out.println("compare" + val + "==?" + line);
-            if (!StringUtils.equals(val, line)) {
+            System.out.println(val + "=?=" + line);
+            if (line == null || !StringUtils.equals(val, line)) {
+                //if (line == null || !val.equals(line)) {
+                // current.txt --> yyyy-MM-dd.txt
                 File file2Disk = new File(Constant.StoreFilePATH + File.separator + getNowDate());
                 file2Disk.createNewFile();
                 FileUtils.copyFile(file, file2Disk);
-                file.delete();
+                //datas --> current.txt
+                if (line == null) {
+                    br.close();
+                }
+                if (file.delete()) {
+                    System.out.println("删除文件-->旧的current.txt");
+                }
                 File list2File = new File(Constant.StoreFilePATH + File.separator + "current.txt");
-                createFile(list2File, datas);
+                isCreateFile(list2File, datas);
                 break;
             }
         }
@@ -49,7 +61,7 @@ public class List2File implements ServletContextAware {
         Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR)+"-"+(calendar.get(Calendar.MONTH)+1)+"-"+calendar.get(Calendar.DAY_OF_MONTH)+".txt";
     }
-    private void createFile(File file, List<String> datas) throws IOException {
+    private boolean isCreateFile(File file, List<String> datas) throws IOException {
         if (!file.exists()) {
             file.createNewFile();
             System.out.println("创建文件"+file.getName());
@@ -61,7 +73,9 @@ public class List2File implements ServletContextAware {
             }
             bw.flush();
             bw.close();
+            return true;
         }
+        return false;
     }
 
     @Override
