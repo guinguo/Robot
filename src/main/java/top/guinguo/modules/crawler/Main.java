@@ -9,6 +9,10 @@ import java.util.concurrent.BlockingQueue;
  * @作者: guin_guo
  * @日期: 2017-04-14 11:02
  * @版本: v1.0
+ * reference:
+ * http://programdolt.iteye.com/blog/605184
+ * http://tonl.iteye.com/blog/1936391
+ * http://blog.csdn.net/lubeijing2008xu/article/details/8019712
  */
 public class Main {
     public static void main(String[] args) {
