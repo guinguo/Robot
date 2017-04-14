@@ -37,8 +37,9 @@ public class HttpUtil {
     public static final String regEx_space = "\t|\r|\n";
     // 获取div的正则表达式
     public static final String regEx_div = "<div class=\"job_list_box\">.*?</div>";
-    public static String USER_AGEN = "Mozilla/5.0 (Linux; U; Android 2.1-update1; de-de; HTC Desire 1.19.161.5 Build/ERE27) " +
-            "AppleWebKit/530.17 (KHTML, like Gecko) Version/4.0 Mobile Safari/530.17";
+//    public static String USER_AGEN = "Mozilla/5.0 (Linux; U; Android 2.1-update1; de-de; HTC Desire 1.19.161.5 Build/ERE27) " +
+//    "AppleWebKit/530.17 (KHTML, like Gecko) Version/4.0 Mobile Safari/530.17";
+    public static String USER_AGEN = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
     /**
      * 自定义HttpClient，可以模拟手机请求
      */
