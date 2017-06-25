@@ -246,7 +246,11 @@
             <version>1.1.35</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+        </dependency>
         <!--shiro-->
         <!--<dependency>
             <groupId>org.apache.shiro</groupId>
@@ -294,12 +298,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
             <scope>test</scope>
         </dependency>
         &lt;!&ndash;模块间的调用测试&ndash;&gt;
