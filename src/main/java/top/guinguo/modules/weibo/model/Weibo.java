@@ -47,6 +47,10 @@ public class Weibo implements java.io.Serializable {
     /**
      * 微博内容
      */
+    private String htmlContent;
+    /**
+     * 微博内容
+     */
     private String content;
     /**
      * 微博内容包含的话题 空格分隔
@@ -148,6 +152,14 @@ public class Weibo implements java.io.Serializable {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getHtmlContent() {
+        return htmlContent;
+    }
+
+    public void setHtmlContent(String htmlContent) {
+        this.htmlContent = htmlContent;
     }
 
     public String getContent() {

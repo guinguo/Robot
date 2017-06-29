@@ -40,6 +40,9 @@ public class HttpUtil {
 //    public static String USER_AGEN = "Mozilla/5.0 (Linux; U; Android 2.1-update1; de-de; HTC Desire 1.19.161.5 Build/ERE27) " +
 //    "AppleWebKit/530.17 (KHTML, like Gecko) Version/4.0 Mobile Safari/530.17";
     public static String USER_AGEN = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
+
+    // 定义script的正则表达式
+    private static final String wb_script = "<script[^>]*?>!(^(\\s+))<\\/script>";
     /**
      * 自定义HttpClient，可以模拟手机请求
      */
@@ -221,7 +224,8 @@ public class HttpUtil {
             String responseString = null;
             try {
                 responseString = EntityUtils.toString(entity);//.replaceAll("\r\n", "");
-                responseString = replaceHtml(regEx_script, responseString,"");
+//                responseString = replaceHtml(regEx_script, responseString,"");
+                responseString = replaceHtml(wb_script, responseString,"");
                 responseString = replaceHtml(regEx_style, responseString,"");
                 return responseString;
             } catch (IOException e) {

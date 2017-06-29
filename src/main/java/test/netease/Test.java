@@ -1,4 +1,4 @@
-package org.gux.controller;
+package test.netease;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
