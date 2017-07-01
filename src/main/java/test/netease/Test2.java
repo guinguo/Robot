@@ -2,10 +2,13 @@ package test.netease;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import top.guinguo.modules.weibo.model.Weibo;
 
@@ -42,7 +45,7 @@ public class Test2 {
                 wbsmap.put(prepage + page + "0", getWb(page, page, 1));
                 System.out.println("---------");
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -68,12 +71,6 @@ public class Test2 {
             }
             Collections.reverse(last);
             System.out.println("---------");
-            //array.reverse();
-
-
-
-
-//            System.out.println(wbs);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -109,10 +106,12 @@ public class Test2 {
             System.out.println("转发：" + isforward);
             if (isforward) {
                 String minfo = feed.attr("minfo");
-                System.out.println("原up主：" + minfo.split("&")[0].split("=")[1]);
-                System.out.println("原id：" + minfo.split("&")[1].split("=")[1]);
-                weibo.setForwarduid(minfo.split("&")[0].split("=")[1]);
-                weibo.setForwardmid(minfo.split("&")[1].split("=")[1]);
+                String ru = getValue(minfo, "ru");
+                String rm = getValue(minfo, "rm");
+                System.out.println("原up主：" + ru);
+                System.out.println("原id：" + rm);
+                weibo.setForwarduid(ru);
+                weibo.setForwardmid(rm);
             }
             String tbinfo = feed.attr("tbinfo");
             System.out.println("ouid：" + (isforward ? tbinfo.split("&")[0].split("=")[1] : tbinfo.split("=")[1]));
@@ -129,18 +128,113 @@ public class Test2 {
 
             Element content = feed.select("div[node-type=feed_list_content]").get(0);
 //                System.out.println(content.html());
+            Elements unfold = content.select("a[action-type=fl_unfold]");
+            if (unfold.size() > 0) {
+                if (unfold.get(0).text().startsWith("展开全文")) {
+                    System.out.print("展开全文：");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Element newContent = getLongText(weibo.getId());
+                    if (newContent != null) {
+                        content = newContent;
+                    }
+                }
+            }
             weibo.setHtmlContent(content.html());
             String contentText = content.text();
             weibo.setContent(contentText);
             System.out.println("内容：" + contentText);
-            String topicreg = "#(\\S*)#";
+            if (isforward) {
+                JSONObject originWeibo = new JSONObject();
+                Element forwardContentElem = feed.select(".WB_feed_expand div[node-type=feed_list_forwardContent]").get(0);
+                Elements titleA = forwardContentElem.select(".WB_info a[node-type=feed_list_originNick]");
+                String originNick = "";
+                if (titleA.size() > 0) {
+                    originNick = titleA.get(0).attr("title");
+                }
+                originWeibo.put("originNick", originNick);
+                Element feedReasonElem = forwardContentElem.select("div[node-type=feed_list_reason]").get(0);
+                Elements unfoldA = feedReasonElem.select("a[action-type=fl_unfold]");
+                if (unfoldA.size() > 0) {
+                    if (unfoldA.get(0).text().startsWith("展开全文")) {
+                        System.out.print("原微博 展开全文：");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        Element newElem = getLongText(weibo.getForwardmid());
+                        if (newElem != null) {
+                            feedReasonElem = newElem;
+                        }
+                    }
+                }
+                String originContent = feedReasonElem.text();
+                String originContentHtml = feedReasonElem.html();
+                System.out.println("   原内容 " + originContent);
+                originWeibo.put("originContent", originContent);
+                originWeibo.put("originContentHtml", originContentHtml);
+                Element pics = feed.select(".WB_media_wrap .media_box .WB_media_a").first();
+                String originPicIds = "";
+                if (pics != null) {
+                    if (!(pics.attr("node-type").isEmpty())) {
+                        originPicIds = getValue(pics.attr("action-data"), "pic_ids");
+                        System.out.println("原来微博的图片：" + originPicIds);
+                    } else {
+                        pics = pics.select(".WB_pic").first();
+                        if (pics != null) {
+                            originPicIds = getValue(pics.attr("action-data"), "pic_ids");
+                            System.out.println("原来微博的图片：" + originPicIds);
+                        }
+                    }
+                }
+                originWeibo.put("picids", originPicIds);
+
+                Element WB_func = forwardContentElem.select(".WB_func").first();
+                Elements lis = WB_func.select("ul a");
+                if (lis.size() == 3) {
+                    Element forwardA = lis.get(0);
+                    String forwardCommandLink = forwardA.attr("href");
+                    forwardCommandLink = forwardCommandLink.substring(0, forwardCommandLink.indexOf("?"));
+                    String forwardCount = forwardA.select("em").get(1).html();
+                    if (!StringUtils.isNumeric(forwardCount)) {
+                        forwardCount = "0";
+                    }
+                    originWeibo.put("forwardNumber", (Long.parseLong(forwardCount)));
+                    originWeibo.put("forwardUrl", (forwardCommandLink + "?type=repost"));
+                    System.out.println("原转发：" + forwardCount + "  链接：" + forwardCommandLink+"?type=repost");
+
+                    Element commentA = lis.get(1);
+                    String commentCount = commentA.select("em").get(1).html();
+                    if (!StringUtils.isNumeric(commentCount)) {
+                        commentCount = "0";
+                    }
+                    originWeibo.put("commentNumber", Long.parseLong(commentCount));
+                    originWeibo.put("forwardUrl", forwardCommandLink + "?type=comment");
+                    System.out.println("原评论：" + commentCount + "  链接：" + forwardCommandLink+"?type=comment");
+
+                    Element likeA = lis.get(2);
+                    String likeCount = likeA.select("em").get(1).html();
+                    if (!StringUtils.isNumeric(likeCount)) {
+                        likeCount = "0";
+                    }
+                    originWeibo.put("likeNumber", Long.parseLong(likeCount));
+                    System.out.println("原赞：" + likeCount + "  链接：" + forwardCommandLink+"?type=like");
+                }
+                weibo.setJSONMeta(originWeibo);
+            }
+            String topicreg = "#([\\S|\\s]*?)#";
             Pattern pattern = Pattern.compile(topicreg);
             Matcher m = pattern.matcher(contentText);
             String tps = "";
             while (m.find()) {
-                tps += "#" + m.group(1);
+                tps += "#";
+                tps += m.group(1);
             }
-            System.out.println("话题：" + tps.replace("#", ""));
+            System.out.println("话题：" + tps.replaceFirst("#", ""));
             weibo.setTopics(tps.replaceFirst("#", ""));
             Elements video = feed.select(".WB_detail .WB_video");
             if (video.size() > 0) {
@@ -155,18 +249,27 @@ public class Test2 {
             Element forwardA = WB_row_line.select("li a[action-type=fl_forward]").first();
             String forwardCommandLink = getValue(forwardA.attr("action-data"), "url");
             String forwardCount = forwardA.select("em").get(1).html();
+            if (!StringUtils.isNumeric(forwardCount)) {
+                forwardCount = "0";
+            }
             weibo.setForwardNumber(Long.parseLong(forwardCount));
             weibo.setForwardUrl(forwardCommandLink + "?type=repost");
             System.out.println("转发：" + forwardCount + "  链接：" + forwardCommandLink+"?type=repost");
 
             Element commentA = WB_row_line.select("li a[action-type=fl_comment]").first();
             String commentCount = commentA.select("em").get(1).html();
+            if (!StringUtils.isNumeric(commentCount)) {
+                commentCount = "0";
+            }
             weibo.setCommentNumber(Long.parseLong(commentCount));
             weibo.setForwardUrl(forwardCommandLink + "?type=comment");
             System.out.println("评论：" + commentCount + "  链接：" + forwardCommandLink+"?type=comment");
 
             Element likeA = WB_row_line.select("li span[node-type=like_status]").first();
             String likeCount = likeA.select("em").get(1).html();
+            if (!StringUtils.isNumeric(likeCount)) {
+                likeCount = "0";
+            }
             weibo.setLikeNumber(Long.parseLong(likeCount));
             System.out.println("赞：" + likeCount + "  链接：" + forwardCommandLink+"?type=like");
 
@@ -191,6 +294,12 @@ public class Test2 {
         return list;
     }
 
+    /**
+     * 从类似httpget请求参数中获取name=key的值
+     * @param source a=1&b=4
+     * @param key a
+     * @return 1
+     */
     public static String getValue(String source, String key) {
         String[] kvs = source.split("&");
         for (String s : kvs) {
@@ -199,6 +308,45 @@ public class Test2 {
             }
         }
         return "";
+    }
+
+    /**
+     * 获取微博id为mid的全文，组装成一个div节点返回
+     * @param mid
+     * @return
+     * @throws IOException
+     */
+    public static Element getLongText(String mid) throws IOException {
+        Connection.Response document = Jsoup.connect(
+                "http://weibo.com/p/aj/mblog/getlongtext?mid=" + mid)
+                .header("Cache-Control", "max-age=0")
+                .header("Accept", "text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8")
+                .header("Accept-Language", "zh-CN,zhq=0.8")
+                .header("Accept-Encoding", "gzip, deflate, sdch")
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("DNT", "1")
+                .header("Connection", "keep-alive")
+                .cookie("YF-Page-G0", "abc")
+                .cookie("SUBP", "abc")
+                .cookie("SUB", "abc")
+                .ignoreContentType(true).execute();
+        if (!document.body().isEmpty()) {
+            JSONObject json = JSON.parseObject(document.body());
+            /**
+             * "100000" -->ok
+             * "100001" -->error
+             */
+            if ("100000" .equals(json.getString("code"))) {
+                String html = json.getJSONObject("data").getString("html");
+                Attributes attrs =  new Attributes();
+                attrs.put("node-type", "feed_list_reason_full");
+                Element div = new Element(Tag.valueOf("div"),"",attrs);
+                div.append(html);
+                return div;
+            }
+        }
+        return null;
     }
 }
 
