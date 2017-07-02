@@ -3,6 +3,9 @@ package test.netease;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
@@ -11,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import top.guinguo.modules.weibo.model.Weibo;
+import top.guinguo.utils.HttpUtil;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -77,21 +81,20 @@ public class Test2 {
     }
 
     private static List<Weibo> getWb(String prepage, String page, int pagebar) throws IOException {
-        Connection.Response document = Jsoup.connect(
-                "http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=1005055652557385&" +
-                        "pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar)
-                .header("Cache-Control", "max-age=0")
-                .header("Accept", "text/html,application/xhtml+xml,application/xmlq=0.9,image/webp,*/*q=0.8")
-                .header("Accept-Language", "zh-CN,zhq=0.8")
-                .header("Accept-Encoding", "gzip, deflate, sdch")
-                .header("X-Requested-With", "XMLHttpRequest")
-                .header("DNT", "1")
-                .header("Connection", "keep-alive")
-                .cookie("YF-Page-G0", "abc")
-                .cookie("SUBP", "abc")
-                .cookie("SUB", "abc")
-                .ignoreContentType(true).execute();
-        JSONObject json = JSON.parseObject(document.body());
+        HttpGet get = new HttpGet("http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=1005055652557385&" +
+                "pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar);
+        get.addHeader("Cache-Control","max-age=0");
+        get.addHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        get.addHeader("Accept-Language","zh-CN,zh;q=0.8");
+        get.addHeader("Accept-Encoding","gzip, deflate, sdch");
+        get.addHeader("X-Requested-With","XMLHttpRequest");
+        get.addHeader("DNT","1");
+        get.addHeader("Connection","keep-alive");
+        get.addHeader("Cookie","YF-Page-G0=abc; SUBP=abc; SUB=abc;");
+
+        CloseableHttpClient client = HttpUtil.httpClient;
+        CloseableHttpResponse response = client.execute(get);
+        JSONObject json = JSON.parseObject(HttpUtil.getRespString(response));
         String html = json.getString("data");
         Document wbs = Jsoup.parse(html);
         Elements feedlist = wbs.select("div[action-type=feed_list_item]");

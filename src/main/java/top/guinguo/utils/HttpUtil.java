@@ -55,6 +55,16 @@ public class HttpUtil {
                                     CookieSpecs.BROWSER_COMPATIBILITY
                             ).build()).build();
     /**
+     * 自定义wb HttpClient
+     */
+    public static CloseableHttpClient wbClient = HttpClients.custom().setUserAgent(USER_AGEN).build();
+
+    /**
+     * 自定义longtext wb HttpClient
+     */
+    public static CloseableHttpClient wbLongTextClient = HttpClients.custom().setUserAgent(USER_AGEN).build();
+
+    /**
      * 向指定URL发送GET方法的请求
      *
      * @param url
@@ -224,8 +234,7 @@ public class HttpUtil {
             String responseString = null;
             try {
                 responseString = EntityUtils.toString(entity);//.replaceAll("\r\n", "");
-//                responseString = replaceHtml(regEx_script, responseString,"");
-                responseString = replaceHtml(wb_script, responseString,"");
+                responseString = replaceHtml(regEx_script, responseString,"");
                 responseString = replaceHtml(regEx_style, responseString,"");
                 return responseString;
             } catch (IOException e) {
@@ -272,5 +281,54 @@ public class HttpUtil {
             list.add(ma.group().trim());
         }
         return list;
+    }
+
+
+    /**
+     * 从response中抽取出内容返回，分离出css跟js
+     *
+     * @param response
+     *          HttpResponse
+     * @return
+     */
+    public static String getWeiboMainResp(HttpResponse response) {
+        HttpEntity entity = response.getEntity();
+        //判断相应是否为空
+        if (entity != null) {
+            String responseString = null;
+            try {
+                responseString = EntityUtils.toString(entity);
+                responseString = replaceHtml(regEx_style, responseString,"");
+                responseString = replaceHtml(wb_script, responseString,"");
+                return responseString;
+            } catch (IOException e) {
+                System.out.println("出现IO异常");
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 从response中抽取出内容返回，分离出css跟js
+     *
+     * @param response
+     *          HttpResponse
+     * @return
+     */
+    public static String getRespString(HttpResponse response) {
+        HttpEntity entity = response.getEntity();
+        //判断相应是否为空
+        if (entity != null) {
+            String responseString = null;
+            try {
+                responseString = EntityUtils.toString(entity);//.replaceAll("\r\n", "");
+                return responseString;
+            } catch (IOException e) {
+                System.out.println("出现IO异常");
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 }

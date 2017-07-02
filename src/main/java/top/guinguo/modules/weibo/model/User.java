@@ -24,6 +24,12 @@ public class User implements java.io.Serializable {
      */
     private String nickname;
     /**
+     * 性别，
+     * male：男
+     * female：女
+     */
+    private String sex;
+    /**
      * 头像
      * 可以考虑存字符串数据
      */
@@ -65,6 +71,13 @@ public class User implements java.io.Serializable {
      */
     private String tags;
     /**
+     * 认证类型 int
+     * 比如微博会员5
+     * member = 5
+     * 不是会员 member = 0
+     */
+    private int member;
+    /**
      * 预留字段，json格式
      */
     private String meta;
@@ -91,6 +104,14 @@ public class User implements java.io.Serializable {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
     }
 
     public String getAvatar() {
@@ -171,6 +192,14 @@ public class User implements java.io.Serializable {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public int getMember() {
+        return member;
+    }
+
+    public void setMember(int member) {
+        this.member = member;
     }
 
     public String getMeta() {

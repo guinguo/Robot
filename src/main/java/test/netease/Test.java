@@ -77,16 +77,16 @@ public class Test {
                 "<script>FM.view({\"ns\":\"\",\"domid\":\"Pl_Core_T8CustomTriColumn__3\",\"css\":[\"style/css/module/pagecard/PCD_counter.css?version=63e1665afe69dee4\"],\"html\":\"\\t<div class=\\\"WB_cardwrap S_bg2\\\" >\\r\\n\\t\\t\\t\\t\\t\\t<div class=\\\"PCD_counter\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t<div class=\\\"WB_innerwrap\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t<table class=\\\"tb_counter\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t<tbody>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<tr>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<td class=\\\"S_line1\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<a bpfilter=\\\"page_frame\\\"  class=\\\"t_link S_txt1\\\" href=\\\"http:\\/\\/weibo.com\\/p\\/1005055652557385\\/follow?from=page_100505&wvr=6&mod=headfollow#place\\\" ><strong class=\\\"W_f16\\\">11<\\/strong><span class=\\\"S_txt2\\\">关注<\\/span><\\/a><\\/td>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<td class=\\\"S_line1\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<a bpfilter=\\\"page_frame\\\"  class=\\\"t_link S_txt1\\\" href=\\\"http:\\/\\/weibo.com\\/p\\/1005055652557385\\/follow?relate=fans&from=100505&wvr=6&mod=headfans&current=fans#place\\\" ><strong class=\\\"W_f16\\\">266580<\\/strong><span class=\\\"S_txt2\\\">粉丝<\\/span><\\/a><\\/td>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<td class=\\\"S_line1\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<a bpfilter=\\\"page_frame\\\"  class=\\\"t_link S_txt1\\\" href=\\\"http:\\/\\/weibo.com\\/p\\/1005055652557385\\/home?from=page_100505_profile&wvr=6&mod=data#place\\\" ><strong class=\\\"W_f16\\\">538<\\/strong><span class=\\\"S_txt2\\\">微博<\\/span><\\/a><\\/td>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<\\/tr>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t<\\/tbody>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t<\\/table>\\r\\n\\t\\t\\t\\t\\t\\t\\t<\\/div>\\r\\n\\t\\t\\t\\t\\t\\t<\\/div>\\r\\n\\t\\t\\t\\t\\t<\\/div>\\r\\n\"})</script>"+
 //                "<script>FM.view({\"ns\":\"\",\"domid\":\"Pl_Core_T8CustomTriColumn__3\",\"css\":[\"style/css/module/pagecard/PCD_counter.css?version=63e1665afe69dee4\"],\"html\":\"\\t<div class=\\\"WB_cardwrap S_bg2\\\" >\\r\\n\\t\\t\\t\\t\\t\\t<div class=\\\"PCD_counter\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t<div class=\\\"WB_innerwrap\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t<table class=\\\"tb_counter\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t<tbody>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<tr>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<td class=\\\"S_line1\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<a bpfilter=\\\"page_frame\\\"  class=\\\"t_link S_txt1\\\" href=\\\"http:\\/\\/weibo.com\\/p\\/1005055652557382\\/follow?from=page_100505&wvr=6&mod=headfollow#place\\\" ><strong class=\\\"W_f18\\\">119<\\/strong><span class=\\\"S_txt2\\\">关注<\\/span><\\/a><\\/td>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<td class=\\\"S_line1\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<a bpfilter=\\\"page_frame\\\"  class=\\\"t_link S_txt1\\\" href=\\\"http:\\/\\/weibo.com\\/p\\/1005055652557382\\/follow?relate=fans&from=100505&wvr=6&mod=headfans&current=fans#place\\\" ><strong class=\\\"W_f18\\\">31<\\/strong><span class=\\\"S_txt2\\\">粉丝<\\/span><\\/a><\\/td>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<td class=\\\"S_line1\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<a bpfilter=\\\"page_frame\\\"  class=\\\"t_link S_txt1\\\" href=\\\"http:\\/\\/weibo.com\\/p\\/1005055652557382\\/home?from=page_100505_profile&wvr=6&mod=data#place\\\" ><strong class=\\\"W_f18\\\">4<\\/strong><span class=\\\"S_txt2\\\">微博<\\/span><\\/a><\\/td>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<\\/tr>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t<\\/tbody>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t<\\/table>\\r\\n\\t\\t\\t\\t\\t\\t\\t<\\/div>\\r\\n\\t\\t\\t\\t\\t\\t<\\/div>\\r\\n\\t\\t\\t\\t\\t<\\/div>\\r\\n\"})</script>"+
                 "<script>FM.view({\"ns\":\"pl.content.homeFeed.index\",\"domid\":\"Pl_Core_UserInfo__6\",\"css\":[\"style/css/module/pagecard/PCD_person_info.css?version=63e1665afe69dee4\"],\"html\":\"<div class=\\\"WB_cardwrap S_bg2\\\" fixed-inbox=\\\"true\\\" node-type=\\\"sigleProfileUsrinfo\\\" fixed-mutex=\\\"false\\\">\\r\\n    <!-- v6 card 通用标题 -->\\r\\n\\t<div class=\\\"PCD_person_info\\\">\\r\\n\\t\\t\\t\\t\\r\\n\\t\\t<div class=\\\"WB_innerwrap\\\">\\r\\n\\t\\t\\t<div class=\\\"m_wrap\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t<div class=\\\"detail\\\">\\r\\n\\t\\t\\t\\t\\t<ul class=\\\"ul_detail\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<li class=\\\"item S_line2 clearfix\\\">\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t<span class=\\\"item_ico W_fl\\\"><em class=\\\"W_ficon ficon_starmark S_ficon\\\">Û<\\/em><\\/span>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t<span class=\\\"item_text W_fl\\\"><a class=\\\"W_icon_level icon_level_c2\\\" title=\\\"微博等级7\\\" href=\\\"http:\\/\\/level.account.weibo.com\\/level\\/levelexplain?from=profile2\\\" target=\\\"_black\\\"><span>Lv.7<\\/span><\\/a><\\/span>\\r\\n\\t\\t\\t\\t\\t\\t<\\/li>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t<li class=\\\"item S_line2 clearfix\\\">\\r\\n\\t\\t\\t\\t\\t\\t        \\t\\t\\t\\t\\t\\t<span class=\\\"item_ico W_fl\\\"><em class=\\\"W_ficon ficon_cd_place S_ficon\\\">2<\\/em><\\/span>\\r\\n    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t<span class=\\\"item_text W_fl\\\">\\r\\n    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t\\t其他    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t<\\/span>\\r\\n\\t\\t\\t\\t\\t\\t<\\/li>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t<li class=\\\"item S_line2 clearfix\\\">\\r\\n\\t\\t\\t\\t\\t\\t        \\t\\t\\t\\t\\t\\t<span class=\\\"item_ico W_fl\\\"><em class=\\\"W_ficon ficon_constellation S_ficon\\\">ö<\\/em><\\/span>\\r\\n    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t<span class=\\\"item_text W_fl\\\">\\r\\n    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t\\t2015年4月20日    \\t\\t\\t\\t\\t\\t    \\t\\t\\t\\t\\t\\t<\\/span>\\r\\n\\t\\t\\t\\t\\t\\t<\\/li>\\r\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t<\\/ul>\\r\\n\\t\\t\\t\\t<\\/div>\\r\\n\\t\\t\\t\\t\\t\\t<\\/div>\\r\\n\\t\\t<\\/div>\\r\\n\\t\\t<a class=\\\"WB_cardmore S_txt1 S_line1 clearfix\\\" \\r\\n    href=\\\"javascript:;\\\" action-type=\\\"login\\\"\\r\\n\\t>\\r\\n\\t<span class=\\\"more_txt\\\">查看更多&nbsp;<em class=\\\"W_ficon ficon_arrow_right S_ficon\\\">a<\\/em><\\/span>\\r\\n<\\/a>\\r\\n\\t\\t\\r\\n\\t<\\/div>\\r\\n<\\/div>\\r\\n\"})</script>") ;
-        String regex = "<script>FM.view\\(\\{\"ns\":\"pl.header.head.index\",(.*?)\\}\\)?</script>";
+        //1. id昵称等
+        String regex = "<script type=\"text/javascript\">\\s+var \\$CONFIG = \\{\\};([\\s\\S]*?)?</script>";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(html.toString());
-            String result = "";
-            while (matcher.find()) {
-                result= (matcher.group(1));
+        String result = "";
+        while (matcher.find()) {
+            result= (matcher.group(1));
         }
 //        System.out.println(result);
-        //1. id昵称等
-        /*String[] ss = result.split("\\n");
+        String[] ss = result.split("\\n");
         for (String s : ss) {
             s = s.trim();
             if (!s.isEmpty()) {
@@ -100,15 +100,25 @@ public class Test {
                     System.out.println("uid: "+s.split("=")[1]);
                 }
             }
-        }*/
+        }
         //1.2 性别是否会员
+        regex = "<script>FM.view\\(\\{\"ns\":\"pl.header.head.index\",(.*?)\\}\\)?</script>";
+        pattern = Pattern.compile(regex);
+        matcher = pattern.matcher(html.toString());
+        result = "";
+        while (matcher.find()) {
+            result= (matcher.group(1));
+        }
         JSONObject json = JSON.parseObject("{"+result+"}");
         String htmldata = json.getString("html");
         Document document = Jsoup.parse(htmldata);
+        System.out.println(document);
         String photo = document.select("img[class=photo]").get(0).attr("src");
         System.out.println("头像：" + photo);
         Element div = document.select(".pf_username").get(0);
         String username = div.select(".username").get(0).html();
+        String intro = document.select(".pf_intro").first().html();
+        System.out.println("简介：" + intro);
         System.out.println("用户名：" + username);
         System.out.println("性别： " + (div.select("a").get(0).select("i").get(0).hasClass("icon_pf_male") ? "男" : "女"));
 //      <a title="微博会员" target="_blank" href="http://vip.weibo.com/personal?from=main" action-type="ignore_list"
@@ -125,11 +135,18 @@ public class Test {
             System.out.println("微博会员：" + menlevel);
         }
         //2. 粉丝数等
-        /*JSONObject json = JSON.parseObject("{"+result+"}");
-        String htmldata = json.getString("html");
+        regex = "<script>FM.view\\(\\{\"ns\":\"\",\"domid\":\"Pl_Core_T8CustomTriColumn__3\",(.*?)\\}\\)?</script>";
+        pattern = Pattern.compile(regex);
+        matcher = pattern.matcher(html.toString());
+        result = "";
+        while (matcher.find()) {
+            result= (matcher.group(1));
+        }
+        json = JSON.parseObject("{"+result+"}");
+        htmldata = json.getString("html");
 //        System.out.println(htmldata);
 //        System.out.println(htmldata.replaceAll("\\r\\n", "").replaceAll("\\t", ""));
-        Document document = Jsoup.parse(htmldata);
+        document = Jsoup.parse(htmldata);
 //        System.out.println(document);
         Elements as = document.select(".t_link");
         int wbcount = 0;
@@ -141,9 +158,22 @@ public class Test {
             if (cn.equals("微博")) {
                 wbcount = number;
             }
-        }*/
-        /*System.out.println(document);
-        Elements as = document.select(".W_icon_level span");
+        }
+        //3个人信息等
+//        System.out.println(document);
+        regex = "<script>FM.view\\(\\{\"ns\":\"pl.content.homeFeed.index\",\"domid\":\"Pl_Core_UserInfo__6\",(.*?)\\}\\)?</script>";
+        pattern = Pattern.compile(regex);
+        matcher = pattern.matcher(html.toString());
+        result = "";
+        while (matcher.find()) {
+            result= (matcher.group(1));
+        }
+        json = JSON.parseObject("{"+result+"}");
+        htmldata = json.getString("html");
+//        System.out.println(htmldata);
+//        System.out.println(htmldata.replaceAll("\\r\\n", "").replaceAll("\\t", ""));
+        document = Jsoup.parse(htmldata);
+        as = document.select(".W_icon_level span");
         System.out.println("level: " + as.get(0).html().substring(3));
         as = document.select(".info span");
         if (as.size() > 0) {
@@ -158,6 +188,6 @@ public class Test {
         as = document.select(".ficon_cd_coupon");
         if (as.size() > 0) {
             System.out.println("tags: "+as.get(0).parent().nextElementSibling().select("a").get(0).html());
-        }*/
+        }
     }
 }
