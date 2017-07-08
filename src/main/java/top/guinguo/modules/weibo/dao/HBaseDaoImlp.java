@@ -20,7 +20,7 @@ import java.util.*;
  * @日期: 2017-07-07 23:52
  * @版本: v1.0
  */
-public class HBaseDaoImlp implements HBaseDao {
+public class HBaseDaoImlp implements IHbaseDao {
 
     public static final String HBASE_SERVER = "hbase.server";
     public static final String HBASE_PORT = "hbase.port";
@@ -80,13 +80,12 @@ public class HBaseDaoImlp implements HBaseDao {
         }
 //        table.put(list);
         HBaseDaoImlp hBaseDaoImlp = new HBaseDaoImlp();
-//        hBaseDaoImlp.queryAll("weibo");
-        hBaseDaoImlp.queryByRowKey("weibo","5652557385");
+        hBaseDaoImlp.queryAll("weibo");
+//        hBaseDaoImlp.queryByRowKey("user","5652557385");
     }
 
     @Override
     public List<Map<String, Object>> queryAll(String tableName) throws Exception {
-        log.info("[queryByRowKey][tableName][" + tableName + "]");
         List<Map<String, Object>> resultList = new ArrayList<>();
         TableName tn = TableName.valueOf(tableName);
         Table table = connection.getTable(tn);
@@ -105,8 +104,6 @@ public class HBaseDaoImlp implements HBaseDao {
 
     @Override
     public Map<String, Object> queryByRowKey(String tableName, String rowKey) throws Exception {
-        log.info("[queryByRowKey][tableName][" + tableName + "][rowKey][" + rowKey + "]");
-//        Map<>
         Map<String, Object> resultMap = null;
         TableName tn = TableName.valueOf(tableName);
         Table table = connection.getTable(tn);
@@ -124,7 +121,14 @@ public class HBaseDaoImlp implements HBaseDao {
     }
 
     @Override
-    public void batchPut(String tableName, List<Put> puts) throws Exception {
+    public void insert(String tableName, Put put) throws Exception {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        table.put(put);
+        table.close();
+    }
+
+    @Override
+    public void batchInsert(String tableName, List<Put> puts) throws Exception {
         Table table = connection.getTable(TableName.valueOf(tableName));
         table.put(puts);
         table.close();

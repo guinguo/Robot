@@ -18,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.guinguo.modules.weibo.model.User;
 import top.guinguo.modules.weibo.model.Weibo;
+import top.guinguo.modules.weibo.service.IWeiboService;
+import top.guinguo.modules.weibo.service.WeiboService;
+import top.guinguo.modules.weibo.utils.Configurator;
+import top.guinguo.modules.weibo.utils.Contants;
 import top.guinguo.modules.weibo.utils.CrawleHttpFactory;
 import top.guinguo.modules.weibo.utils.CrawleUtils;
 import top.guinguo.utils.HttpUtil;
@@ -27,6 +31,8 @@ import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,20 +43,30 @@ import static top.guinguo.utils.HttpUtil.USER_AGEN;
  */
 public class WeiboCrawler {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
-    
+
+    public static final String MAIN_URL = "wb.main.url";
+
     private CrawleHttpFactory crawleHttpFactory = CrawleHttpFactory.getInstance();
     private CrawleUtils crawleUtils = CrawleUtils.getInstance();
-    
+    private IWeiboService weiboService = WeiboService.getInstance();
+
+    private String mainUrl;
+
+    public WeiboCrawler() {
+        Configurator configurator = Configurator.getInstance();
+        this.mainUrl = configurator.get(MAIN_URL);
+    }
+
     public static void main(String[] args) throws Exception {
         WeiboCrawler r = new WeiboCrawler();
         r.work();
     }
 
-    private void work() throws Exception {
+    public void work() throws Exception {
         CloseableHttpClient client = HttpUtil.httpClient;
         CloseableHttpResponse response;
-        String mainUrl = "http://weibo.com/p/100505";
         for (long i = 5;i<6;i++) {
             String uid = "565255739" + i;
             try {
@@ -67,6 +83,7 @@ public class WeiboCrawler {
             String context0 = HttpUtil.getWeiboMainResp(response);
             User crawledUser = getUserInfo(context0);
             if (crawledUser.getBlogNumber() >= 15) {
+//                weiboService.addUser(crawledUser);
                 crawlerWeibo(crawledUser.getBlogNumber().intValue(), uid);
             } else {
                 log.info("[微博数少于15]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
@@ -74,9 +91,9 @@ public class WeiboCrawler {
         }
     }
 
-    private User getUserInfo(String html) {
+    public User getUserInfo(String html) {
         //0. 粉丝数等
-        String regex = "<script>FM.view\\(\\{\"ns\":\"\",\"domid\":\"Pl_Core_T8CustomTriColumn__3\",(.*?)\\}\\)?</script>";
+        String regex = Contants.REGEX_FANS;
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(html.toString());
         String result = "";
@@ -110,7 +127,7 @@ public class WeiboCrawler {
             }
         }
         //1. id昵称等
-        regex = "<script type=\"text/javascript\">\\s+var \\$CONFIG = \\{\\};([\\s\\S]*?)?</script>";
+        regex = Contants.REGEX_NICK;
         pattern = Pattern.compile(regex);
         matcher = pattern.matcher(html.toString());
         result = "";
@@ -136,7 +153,7 @@ public class WeiboCrawler {
             }
         }
         //2 性别是否会员
-        regex = "<script>FM.view\\(\\{\"ns\":\"pl.header.head.index\",(.*?)\\}\\)?</script>";
+        regex = Contants.REGEX_MEMBER;
         pattern = Pattern.compile(regex);
         matcher = pattern.matcher(html.toString());
         result = "";
@@ -172,7 +189,7 @@ public class WeiboCrawler {
             user.setMember(menlevel);
         }
         //3个人信息等
-        regex = "<script>FM.view\\(\\{\"ns\":\"pl.content.homeFeed.index\",\"domid\":\"Pl_Core_UserInfo__6\",(.*?)\\}\\)?</script>";
+        regex = Contants.REGEX_INFO;
         pattern = Pattern.compile(regex);
         matcher = pattern.matcher(html.toString());
         result = "";
@@ -214,17 +231,24 @@ public class WeiboCrawler {
     public void crawlerWeibo(int n, String uid) {
         try {
             HashMap<String, List> wbsmap = new HashMap<>();
+            List<Weibo> eachLoop;
+            ExecutorService executors = Executors.newCachedThreadPool();
             int i = 0;
             for (; i < n / 45 - 1; i++) {
+                eachLoop = new ArrayList<>(45);
                 String prepage = i + "";
                 String page = (i + 1) + "";
                 log.info("weibo_info:"+prepage + "\t" + page + "\t" + 0);
-                wbsmap.put(prepage + page + "0", getWb(uid, prepage, page, 0));
+//                wbsmap.put(prepage + page + "0", getWb(uid, prepage, page, 0));
+                eachLoop.addAll(getWb(uid, prepage, page, 0));
                 log.info("weibo_info:"+page + "\t" + page + "\t" + 0);
-                wbsmap.put(prepage + page + "0", getWb(uid, page, page, 0));
+//                wbsmap.put(prepage + page + "0", getWb(uid, page, page, 0));
+                eachLoop.addAll(getWb(uid, page, page, 0));
                 log.info("weibo_info:"+page + "\t" + page + "\t" + 1);
-                wbsmap.put(prepage + page + "0", getWb(uid, page, page, 1));
+//                wbsmap.put(prepage + page + "0", getWb(uid, page, page, 1));
+                eachLoop.addAll(getWb(uid, page, page, 1));
                 log.info("---------");
+//                executors.submit(new WriteDbThread(eachLoop));
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
@@ -251,13 +275,15 @@ public class WeiboCrawler {
                     Collections.reverse(last);
             }
             Collections.reverse(last);
+//            executors.submit(new WriteDbThread(last));
             log.info("---------");
+            executors.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private List<Weibo> getWb(String uid, String prepage, String page, int pagebar) throws IOException {
+    public List<Weibo> getWb(String uid, String prepage, String page, int pagebar) throws IOException {
         CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
         String respStr = crawleHttpFactory.getRespStr(client, "http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=100505"+
                 uid + "&pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar);
@@ -469,4 +495,24 @@ public class WeiboCrawler {
         }
         return list;
     }
+
+    class WriteDbThread implements Runnable {
+        private List<Weibo> weiboList;
+
+        public WriteDbThread(List<Weibo> weiboList) {
+            this.weiboList = weiboList;
+        }
+
+        @Override
+        public void run() {
+            if (weiboList.size() > 0) {
+                try {
+                    weiboService.batchAddWeibo(weiboList);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 }

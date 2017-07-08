@@ -11,7 +11,7 @@ import java.util.Map;
  * @日期: 2017-07-07 23:52
  * @版本: v1.0
  */
-public interface HBaseDao {
+public interface IHbaseDao {
 
     /**
      * 查询某张表下所有数据 (方法慎用)
@@ -34,5 +34,13 @@ public interface HBaseDao {
      * @param tableName 表名
      * @param puts      数据
      */
-    void batchPut(String tableName, List<Put> puts) throws Exception;
+    void batchInsert(String tableName, List<Put> puts) throws Exception;
+
+    /**
+     * 在表中插入一条记录
+     * @param tableName
+     * @param put
+     * @throws Exception
+     */
+    void insert(String tableName, Put put) throws Exception;
 }
