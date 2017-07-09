@@ -7,12 +7,9 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,32 +40,58 @@ import static top.guinguo.utils.HttpUtil.USER_AGEN;
  */
 public class WeiboCrawler {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
-
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
 
     public static final String MAIN_URL = "wb.main.url";
-
-    private CrawleHttpFactory crawleHttpFactory = CrawleHttpFactory.getInstance();
-    private CrawleUtils crawleUtils = CrawleUtils.getInstance();
-    private IWeiboService weiboService = WeiboService.getInstance();
-
+    public static final String WB_URL = "wb.url";
+    public static final String TO_CRAWL_WB_NUMBER = "to.crawl.wb.number";
+    public static final String MIAN_THREAD_NUMBER = "mian.thread.number";
+    public static final String MIAN_EACH_SIZE = "mian.each.size";
+    public static final String EACH_USER_SLEEP_INTERVAL = "each.user.sleep.interval";
     private String mainUrl;
+    private String wbUrl;
+    private int toCrawlWbNumber;
+    private int mainThreadNumber;
+    private int mainEachSize;
+    private long eachUserSleepInterval;
+
+
+    private CrawleHttpFactory crawleHttpFactory;
+    private CrawleUtils crawleUtils;
+    private IWeiboService weiboService;
 
     public WeiboCrawler() {
+        crawleHttpFactory = CrawleHttpFactory.getInstance();
+        crawleUtils = CrawleUtils.getInstance();
+        weiboService = WeiboService.getInstance();
         Configurator configurator = Configurator.getInstance();
         this.mainUrl = configurator.get(MAIN_URL);
+        this.wbUrl = configurator.get(WB_URL);
+        this.toCrawlWbNumber = configurator.getInt(TO_CRAWL_WB_NUMBER);
+        this.mainThreadNumber = configurator.getInt(MIAN_THREAD_NUMBER);
+        this.mainEachSize = configurator.getInt(MIAN_EACH_SIZE);
+        this.eachUserSleepInterval = configurator.getLong(EACH_USER_SLEEP_INTERVAL);
     }
 
     public static void main(String[] args) throws Exception {
+        long index = 1000000000;
+        if (args.length > 0) {
+            index = Long.parseLong(args[0]);
+        }
         WeiboCrawler r = new WeiboCrawler();
-        r.work();
+        ExecutorService mainThreadPool = Executors.newFixedThreadPool(10);
+        for (int i = 0; i < r.mainThreadNumber; i++) {
+            mainThreadPool.submit(r.new MainThread((index + i * 10), r.mainEachSize, r.eachUserSleepInterval));
+        }
+        mainThreadPool.shutdown();
     }
 
-    public void work() throws Exception {
-        CloseableHttpClient client = HttpUtil.httpClient;
+    public void work(long start, int size, long sleepInterval, CloseableHttpClient client) throws Exception {
         CloseableHttpResponse response;
-        for (long i = 5;i<6;i++) {
-            String uid = "565255739" + i;
+        //爬取一个用户的线程池
+        ExecutorService crawlUserPool = Executors.newCachedThreadPool();
+        for (long i = start, length = start + size; i < length; i++) {
+            String uid = i + "";
             try {
                 HttpGet get = crawleHttpFactory.generateGet(mainUrl + uid);
                 response = client.execute(get);
@@ -77,18 +100,20 @@ public class WeiboCrawler {
                 continue;
             }
             if (response.getFirstHeader("Content-Type").getValue().startsWith("application/json;")) {
-                log.warn("[404]user not fund");
+                log.warn("404 user: ["+uid+"]not fund");
                 continue;
             }
             String context0 = HttpUtil.getWeiboMainResp(response);
             User crawledUser = getUserInfo(context0);
-            if (crawledUser.getBlogNumber() >= 15) {
+            if (crawledUser.getBlogNumber() >= toCrawlWbNumber) {
 //                weiboService.addUser(crawledUser);
-                crawlerWeibo(crawledUser.getBlogNumber().intValue(), uid);
+                crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid));
             } else {
-                log.info("[微博数少于15]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
-            } 
+                log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
+            }
+            Thread.sleep(sleepInterval);
         }
+        crawlUserPool.shutdown();
     }
 
     public User getUserInfo(String html) {
@@ -100,10 +125,14 @@ public class WeiboCrawler {
         while (matcher.find()) {
             result= (matcher.group(1));
         }
+        User user = new User();
         JSONObject json = JSON.parseObject("{"+result+"}");
+        if (result.isEmpty()) {
+            user.setBlogNumber(0L);
+            return user;
+        }
         String htmldata = json.getString("html");
         Document document = Jsoup.parse(htmldata);
-        User user = new User();
         Elements as = document.select(".t_link");
         int wbcount = 0;
         for (Element a : as) {
@@ -232,23 +261,24 @@ public class WeiboCrawler {
         try {
             HashMap<String, List> wbsmap = new HashMap<>();
             List<Weibo> eachLoop;
-            ExecutorService executors = Executors.newCachedThreadPool();
+            //入库线程池
+            ExecutorService insert2DbPool = Executors.newCachedThreadPool();
             int i = 0;
             for (; i < n / 45 - 1; i++) {
                 eachLoop = new ArrayList<>(45);
-                String prepage = i + "";
-                String page = (i + 1) + "";
+                int prepage = i;
+                int page = (i + 1);
                 log.info("weibo_info:"+prepage + "\t" + page + "\t" + 0);
-//                wbsmap.put(prepage + page + "0", getWb(uid, prepage, page, 0));
                 eachLoop.addAll(getWb(uid, prepage, page, 0));
+
                 log.info("weibo_info:"+page + "\t" + page + "\t" + 0);
-//                wbsmap.put(prepage + page + "0", getWb(uid, page, page, 0));
                 eachLoop.addAll(getWb(uid, page, page, 0));
+
                 log.info("weibo_info:"+page + "\t" + page + "\t" + 1);
-//                wbsmap.put(prepage + page + "0", getWb(uid, page, page, 1));
                 eachLoop.addAll(getWb(uid, page, page, 1));
+
                 log.info("---------");
-//                executors.submit(new WriteDbThread(eachLoop));
+                insert2DbPool.submit(new WriteDbThread(eachLoop));
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
@@ -263,30 +293,29 @@ public class WeiboCrawler {
             switch (div) {
                 case 3:
                     log.info("weibo_info:"+i + 1 + "\t" + (i + 1) + "\t" + 1);//31-45;array.reverse();
-                    wbsmap.put((i + 1) +""+ (i + 1) + "1", getWb(uid, (i + 1) +"", (i + 1) +"", 1));
+                    last.addAll(getWb(uid, (i + 1), (i + 1), 1));
                     Collections.reverse(last);
                 case 2:
                     log.info("weibo_info:"+i + 1 + "\t" + (i + 1) + "\t" + 0);//16-30;array.reverse();
-                    wbsmap.put((i + 1) +""+ (i + 1) + "0", getWb(uid, (i + 1) +"", (i + 1) +"", 0));
+                    last.addAll(getWb(uid, (i + 1), (i + 1), 0));
                     Collections.reverse(last);
                 case 1:
                     log.info("weibo_info:"+i + "\t" + (i + 1) + "\t" + 0);//1-15;array.reverse();
-                    wbsmap.put((i) +""+ (i + 1) + "0", getWb(uid, (i) +"", (i + 1) +"", 0));
+                    last.addAll(getWb(uid, (i), (i + 1), 0));
                     Collections.reverse(last);
             }
-            Collections.reverse(last);
-//            executors.submit(new WriteDbThread(last));
             log.info("---------");
-            executors.shutdown();
+            Collections.reverse(last);
+            insert2DbPool.submit(new WriteDbThread(last));
+            insert2DbPool.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public List<Weibo> getWb(String uid, String prepage, String page, int pagebar) throws IOException {
+    public List<Weibo> getWb(String uid, int prepage, int page, int pagebar) throws IOException {
         CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
-        String respStr = crawleHttpFactory.getRespStr(client, "http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=100505"+
-                uid + "&pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar);
+        String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl,uid,prepage,page,pagebar));
         client.close();
         JSONObject json = JSON.parseObject(respStr);
         String html = json.getString("data");
@@ -496,6 +525,66 @@ public class WeiboCrawler {
         return list;
     }
 
+    /**
+     * 主线程爬取 每个线程爬取1000个用户
+     */
+    class MainThread implements Runnable {
+        //起始位置id
+        private long index;
+        //抓取用户的数量
+        private int size;
+        //每一个用户暂停多少毫秒
+        private long sleepInterval;
+
+        public MainThread(long index, int size, long sleepInterval) {
+            this.index = index;
+            this.size = size;
+            this.sleepInterval = sleepInterval;
+        }
+
+        @Override
+        public void run() {
+            try {
+                log.info("主线程：[" + Thread.currentThread() + "]开始启动，起始id：" + index+ "的用户");
+                long start = System.currentTimeMillis();
+                CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
+                work(index, size, sleepInterval, client);
+                client.close();
+                long end = System.currentTimeMillis();
+                log.info("主线程：[" + Thread.currentThread() + "]完成，结束id：" + (index + 1000) + "的用户,耗时：" + (end - start) + "ms");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 爬取微博的线程
+     * 每个用户一个线程在爬取
+     */
+    class CrawlWbThread implements Runnable {
+        //用户微博数
+        private int size;
+        //用户id
+        private String uid;
+
+        public CrawlWbThread(int size, String uid) {
+            this.size = size;
+            this.uid = uid;
+        }
+        @Override
+        public void run() {
+            log.info("线程：[" + Thread.currentThread() + "]开始爬取用户：" + uid + "的" + size + "条微博");
+            long start = System.currentTimeMillis();
+            crawlerWeibo(size, uid);
+            long end = System.currentTimeMillis();
+            log.info("线程：[" + Thread.currentThread() + "]完成爬取用户：" + uid + "的" + size + "条微博,耗时：" + (end - start) + "ms");
+        }
+    }
+
+    /**
+     * 写hbase线程
+     */
     class WriteDbThread implements Runnable {
         private List<Weibo> weiboList;
 
@@ -507,7 +596,11 @@ public class WeiboCrawler {
         public void run() {
             if (weiboList.size() > 0) {
                 try {
-                    weiboService.batchAddWeibo(weiboList);
+                    log.info("线程：[" + Thread.currentThread() + "]开始批量导入微博数据：" + weiboList.size() + "条微博");
+                    long start = System.currentTimeMillis();
+//                    weiboService.batchAddWeibo(weiboList);
+                    long end = System.currentTimeMillis();
+                    log.info("线程：[" + Thread.currentThread() + "]完成批量导入微博数据：" + weiboList.size() + "条微博,耗时：" + (end - start) + "ms");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

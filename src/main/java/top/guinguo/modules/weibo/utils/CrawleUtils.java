@@ -23,6 +23,13 @@ import static top.guinguo.utils.HttpUtil.USER_AGEN;
  */
 public class CrawleUtils {
 
+    public static final String WB_LONGTEXT_URL = "wb.longtext.url";
+    private static String wbLongTextURL;
+
+    static {
+        Configurator configurator = Configurator.getInstance();
+        wbLongTextURL = configurator.get(WB_LONGTEXT_URL);
+    }
     private CrawleHttpFactory crawleHttpFactory = CrawleHttpFactory.getInstance();
 
     public CrawleUtils() {
@@ -58,7 +65,7 @@ public class CrawleUtils {
      */
     public Element getLongText(String mid) throws IOException {
         CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
-        String respStr = crawleHttpFactory.getRespStr(client, "http://weibo.com/p/aj/mblog/getlongtext?mid=" + mid);
+        String respStr = crawleHttpFactory.getRespStr(client, String.format(wbLongTextURL, mid));
         client.close();
         JSONObject json = JSON.parseObject(respStr);
         /**
