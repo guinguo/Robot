@@ -56,8 +56,8 @@ public class HBaseDaoImlp implements IHbaseDao {
             User user = User
                     .create(UserGroupInformation
                             .createRemoteUser(hbaseUser));
-            connection = null;//ConnectionFactory
-                    //.createConnection(configuration, user);
+            connection = ConnectionFactory
+                    .createConnection(configuration, user);
         } catch (Exception e) {
             e.printStackTrace();
         }

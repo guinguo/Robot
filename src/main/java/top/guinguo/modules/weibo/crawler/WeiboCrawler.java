@@ -87,7 +87,7 @@ public class WeiboCrawler {
     }
 
     /**
-     * 主线程爬取 每个线程爬取1000个用户
+     * 主线程爬取 每个线程爬取n个用户
      */
     class MainThread implements Runnable {
         //起始位置id
@@ -138,17 +138,20 @@ public class WeiboCrawler {
                 }
                 String context0 = HttpUtil.getWeiboMainResp(response);
                 User crawledUser = getUserInfo(context0);
-                if (crawledUser.getBlogNumber() != null && crawledUser.getBlogNumber() >= toCrawlWbNumber) {
-                weiboService.addUser(crawledUser);
-                    crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid, sleepInterval / 2));
-                } else {
-                    log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
-                }
                 response.close();
                 client.close();
-                long tmp = (random.nextInt(5) + 1) * sleepInterval;
+                long tmp;
+                if (crawledUser.getBlogNumber() != null && crawledUser.getBlogNumber() >= toCrawlWbNumber) {
+                    weiboService.addUser(crawledUser);
+                    crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid, sleepInterval / 2));
+                    tmp = (random.nextInt(3) + 1) * sleepInterval;
+                    Thread.sleep(tmp);
+                } else {
+                    log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
+                    tmp = (random.nextInt(6) + 1) * sleepInterval;
+                    Thread.sleep(tmp);
+                }
                 System.out.println("==================================================="+tmp);
-                Thread.sleep(tmp);
             }
             crawlUserPool.shutdown();
         }
@@ -250,7 +253,15 @@ public class WeiboCrawler {
                 int menlevel = 0;
                 for (String c : clzz) {
                     if (c.startsWith("icon_member")) {
-                        menlevel = Integer.parseInt(c.substring(11));
+                        if (c.endsWith("_dis")) {
+                            menlevel = -1;
+                        } else {
+                            try {
+                                menlevel = Integer.parseInt(c.substring(11));
+                            } catch (NumberFormatException e) {
+                                menlevel = -2;
+                            }
+                        }
                     }
                 }
                 log.info("weibo_info:"+"微博会员：" + menlevel);
@@ -382,7 +393,7 @@ public class WeiboCrawler {
             String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl,uid,prepage,page,pagebar));
             client.close();
             try {
-                Thread.sleep((long) (stopInterval * 0.65));
+                Thread.sleep((long) (stopInterval * Contants.intervalRadio));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -418,8 +429,10 @@ public class WeiboCrawler {
                 Element datea = feed.select(".WB_detail a[name]").get(0);
                 log.info("weibo_info:"+"发布时间: "+datea.html()+"  "+datea.attr("date"));
                 weibo.setCreateDate(new Date(Long.parseLong(datea.attr("date"))));
-                log.info("weibo_info:"+"来源：" + datea.nextElementSibling().html());
-                weibo.setSource(datea.nextElementSibling().html());
+                if (datea.nextElementSibling() != null) {
+                    log.info("weibo_info:"+"来源：" + datea.nextElementSibling().html());
+                    weibo.setSource(datea.nextElementSibling().html());
+                }
 
                 Element content = feed.select("div[node-type=feed_list_content]").get(0);
 //                log.info("weibo_info:"+content.html());
@@ -428,7 +441,7 @@ public class WeiboCrawler {
                     if (unfold.get(0).text().startsWith("展开全文")) {
                         System.out.print("展开全文：");
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(1100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -609,11 +622,11 @@ public class WeiboCrawler {
         public void run() {
             if (weiboList.size() > 0) {
                 try {
-                    log.info("[入库线程]：[" + Thread.currentThread() + "]开始批量导入微博数据：" + weiboList.size() + "条微博");
+                    log.info("[入库线程:" + Thread.currentThread() + "]完成批量导入[user:"+weiboList.get(0).getUid()+"]的微博数据：[size:" + weiboList.size() + "]条微博");
                     long start = System.currentTimeMillis();
                     weiboService.batchAddWeibo(weiboList);
                     long end = System.currentTimeMillis();
-                    log.info("[入库线程]：[" + Thread.currentThread() + "]完成批量导入微博数据：" + weiboList.size() + "条微博,耗时：" + (end - start) + "ms");
+                    log.info("[入库线程:" + Thread.currentThread() + "]完成批量导入[user:"+weiboList.get(0).getUid()+"]的微博数据：[size:" + weiboList.size() + "]条微博,[耗时：" + (end - start) + "]ms");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -65,7 +65,7 @@ public class HBaseUtils {
 
 
     public static Put GeneratePutByWeibo(Weibo weibo) {
-        Put put = new Put(weibo.getId().getBytes());
+        Put put = new Put((weibo.getUid() + "_" + weibo.getId()).getBytes());
         if (weibo.getUid() != null) {
             put.addColumn(Contants.COLUMN_BASIC.getBytes(), "uid".getBytes(), weibo.getUid().getBytes());
         }
