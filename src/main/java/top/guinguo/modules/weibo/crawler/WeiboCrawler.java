@@ -134,6 +134,10 @@ public class WeiboCrawler {
                 }
                 if (response.getFirstHeader("Content-Type").getValue().startsWith("application/json;")) {
                     log.warn("404 user: ["+uid+"]not fund");
+                    response.close();
+                    client.close();
+                    System.out.println("==================================================="+sleepInterval/2);
+                    Thread.sleep(sleepInterval/4);
                     continue;
                 }
                 String context0 = HttpUtil.getWeiboMainResp(response);
@@ -144,14 +148,15 @@ public class WeiboCrawler {
                 if (crawledUser.getBlogNumber() != null && crawledUser.getBlogNumber() >= toCrawlWbNumber) {
                     weiboService.addUser(crawledUser);
                     crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid, sleepInterval / 2));
-                    tmp = (random.nextInt(3) + 1) * sleepInterval;
+                    tmp = (random.nextInt(2) + 1) * sleepInterval;
+                    System.out.println("==================================================="+tmp);
                     Thread.sleep(tmp);
                 } else {
                     log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
-                    tmp = (random.nextInt(6) + 1) * sleepInterval;
+                    tmp = (random.nextInt(4) + 1) * sleepInterval;
+                    System.out.println("==================================================="+tmp);
                     Thread.sleep(tmp);
                 }
-                System.out.println("==================================================="+tmp);
             }
             crawlUserPool.shutdown();
         }
@@ -282,9 +287,12 @@ public class WeiboCrawler {
             String level = as.get(0).html().substring(3);
             log.info("weibo_info:"+"level: " + level);
             user.setLevel(Integer.parseInt(level));
-            String addr = document.select(".ficon_cd_place").get(0).parent().nextElementSibling().html();
-            log.info("weibo_info:"+"place: "+addr);
-            user.setAddress(addr);
+            Elements addrElem = document.select(".ficon_cd_place");
+            if (addrElem.size() > 0) {
+                String addr = addrElem.get(0).parent().nextElementSibling().html();
+                log.info("weibo_info:"+"place: "+addr);
+                user.setAddress(addr);
+            }
             Elements birthDayEles = document.select(".ficon_constellation");
             if (birthDayEles.size() > 0) {
                 String birthDay = birthDayEles.get(0).parent().nextElementSibling().html();

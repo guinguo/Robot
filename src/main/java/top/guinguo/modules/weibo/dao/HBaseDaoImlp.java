@@ -95,6 +95,7 @@ public class HBaseDaoImlp implements IHbaseDao {
             for (Cell cell : r.listCells()) {
                 CrawleUtils.dealCell(resultMap, cell);
             }
+            System.out.println();
             resultList.add(resultMap);
         }
         rs.close();

@@ -39,9 +39,10 @@ public class CrawleHttpFactory {
         get.addHeader("X-Requested-With","XMLHttpRequest");
         get.addHeader("DNT","1");
         get.addHeader("Connection","close");
-        get.addHeader("Cookie",
+        get.addHeader("Cookie","YF-Page-G0=abc; SUBP=abc; SUB=abc;");
+        /*get.addHeader("Cookie",
                 "SUB=_2A250Z3PRDeRhGeBN6lES9inKzTuIHXVXFeIZrDV8PUJbmtAKLRndkW9tjhR50Qn_CJDGpqtoDLuMieltPg..;" +
-                        "SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WWnRAMTAgdR7ymOnxOqQmIq5JpX5K2hUgL.Foq0eKe0SoMcSoM2dJLoI0nLxKBLBonL1h5LxKML1 - zLBoBLxK - L12BL1K - LxKnLB.2LB - zLxKMLB.zL1KeLxKqL1--L1 - S31Btt;");
+                        "SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WWnRAMTAgdR7ymOnxOqQmIq5JpX5K2hUgL.Foq0eKe0SoMcSoM2dJLoI0nLxKBLBonL1h5LxKML1 - zLBoBLxK - L12BL1K - LxKnLB.2LB - zLxKMLB.zL1KeLxKqL1--L1 - S31Btt;");*/
         return get;
     }
 
