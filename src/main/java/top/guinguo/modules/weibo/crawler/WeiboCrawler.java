@@ -142,11 +142,12 @@ public class WeiboCrawler {
                 }
                 String context0 = HttpUtil.getWeiboMainResp(response);
                 User crawledUser = getUserInfo(context0);
+                crawledUser.setId(uid);
                 response.close();
                 client.close();
                 long tmp;
                 if (crawledUser.getBlogNumber() != null && crawledUser.getBlogNumber() >= toCrawlWbNumber) {
-                    weiboService.addUser(crawledUser);
+//                    weiboService.addUser(crawledUser);
                     crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid, sleepInterval / 2));
                     tmp = (random.nextInt(2) + 1) * sleepInterval;
                     System.out.println("==================================================="+tmp);
@@ -218,12 +219,15 @@ public class WeiboCrawler {
                     if (s.startsWith("$CONFIG['oid']")) {
                         String id = s.split("=")[1];
                         log.info("weibo_info:"+"oid: " + id);
-                        user.setId(id);
+//                        user.setId(id);
                     } else if(s.startsWith("$CONFIG['page_id']")) {
                         log.info("weibo_info:"+"page_id: "+s.split("=")[1]);
                     } else if(s.startsWith("$CONFIG['onick']")) {
                         String nickname = s.split("=")[1];
                         log.info("weibo_info:"+"昵称: " + nickname);
+                        if (nickname.startsWith("'") && nickname.endsWith(";")) {
+                            nickname = nickname.substring(1, nickname.length() - 2);
+                        }
                         user.setNickname(nickname);
                     }
                 }
@@ -352,7 +356,7 @@ public class WeiboCrawler {
                 //入库线程池
                 ExecutorService insert2DbPool = Executors.newCachedThreadPool();
                 int i = 0;
-                for (; i < n / 45 - 1; i++) {
+//                for (; i < n / 45 - 1; i++) {
                     eachLoop = new ArrayList<>(45);
                     int prepage = i;
                     int page = (i + 1);
@@ -367,29 +371,31 @@ public class WeiboCrawler {
 
                     log.info("---------");
                     insert2DbPool.submit(new WriteDbThread(eachLoop));
+//                }
+                if (n > 45) {
+                    int mod = n % 45;
+                    int div = mod / 15;
+                    if (mod == 0) div = 2;
+                    div++;
+                    List<Weibo> last = new ArrayList<>(45);
+                    switch (div) {
+                        case 3:
+                            log.info("weibo_info:"+i + 1 + "\t" + (i + 1) + "\t" + 1);//31-45;array.reverse();
+                            last.addAll(getWb(uid, (i + 1), (i + 1), 1));
+                            Collections.reverse(last);
+                        case 2:
+                            log.info("weibo_info:"+i + 1 + "\t" + (i + 1) + "\t" + 0);//16-30;array.reverse();
+                            last.addAll(getWb(uid, (i + 1), (i + 1), 0));
+                            Collections.reverse(last);
+                        case 1:
+                            log.info("weibo_info:"+i + "\t" + (i + 1) + "\t" + 0);//1-15;array.reverse();
+                            last.addAll(getWb(uid, (i), (i + 1), 0));
+                            Collections.reverse(last);
+                    }
+                    log.info("---------");
+                    Collections.reverse(last);
+                    insert2DbPool.submit(new WriteDbThread(last));
                 }
-                int mod = n % 45;
-                int div = mod / 15;
-                if (mod == 0) div = 2;
-                div++;
-                List<Weibo> last = new ArrayList<>(45);
-                switch (div) {
-                    case 3:
-                        log.info("weibo_info:"+i + 1 + "\t" + (i + 1) + "\t" + 1);//31-45;array.reverse();
-                        last.addAll(getWb(uid, (i + 1), (i + 1), 1));
-                        Collections.reverse(last);
-                    case 2:
-                        log.info("weibo_info:"+i + 1 + "\t" + (i + 1) + "\t" + 0);//16-30;array.reverse();
-                        last.addAll(getWb(uid, (i + 1), (i + 1), 0));
-                        Collections.reverse(last);
-                    case 1:
-                        log.info("weibo_info:"+i + "\t" + (i + 1) + "\t" + 0);//1-15;array.reverse();
-                        last.addAll(getWb(uid, (i), (i + 1), 0));
-                        Collections.reverse(last);
-                }
-                log.info("---------");
-                Collections.reverse(last);
-                insert2DbPool.submit(new WriteDbThread(last));
                 insert2DbPool.shutdown();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -632,7 +638,7 @@ public class WeiboCrawler {
                 try {
                     log.info("[入库线程:" + Thread.currentThread() + "]完成批量导入[user:"+weiboList.get(0).getUid()+"]的微博数据：[size:" + weiboList.size() + "]条微博");
                     long start = System.currentTimeMillis();
-                    weiboService.batchAddWeibo(weiboList);
+//                    weiboService.batchAddWeibo(weiboList);
                     long end = System.currentTimeMillis();
                     log.info("[入库线程:" + Thread.currentThread() + "]完成批量导入[user:"+weiboList.get(0).getUid()+"]的微博数据：[size:" + weiboList.size() + "]条微博,[耗时：" + (end - start) + "]ms");
                 } catch (Exception e) {
