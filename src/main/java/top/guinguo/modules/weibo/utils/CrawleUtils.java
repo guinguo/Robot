@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
@@ -72,12 +73,9 @@ public class CrawleUtils {
          * "100000" -->ok
          * "100001" -->error
          */
-        if ("100000" .equals(json.getString("code"))) {
-            String html = json.getJSONObject("data").getString("html");
-            Attributes attrs =  new Attributes();
-            attrs.put("node-type", "feed_list_reason_full");
-            Element div = new Element(Tag.valueOf("div"),"",attrs);
-            div.append(html);
+        if ("1" .equals(json.getString("ok"))) {
+            String html = json.getString("longTextContent");
+            Element div = Jsoup.parse(html).body();
             return div;
         }
         return null;

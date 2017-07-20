@@ -53,8 +53,17 @@ public class HBaseUtils {
         if (user.getCrawlDate() != null) {
             put.addColumn(Contants.COLUMN_BASIC.getBytes(), "crawlDate".getBytes(), (user.getCrawlDate().getTime() + "").getBytes());
         }
+        if (user.getRegistedDate() != null) {
+            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "registedDate".getBytes(), (user.getRegistedDate().getTime() + "").getBytes());
+        }
         if (user.getTags() != null) {
             put.addColumn(Contants.COLUMN_BASIC.getBytes(), "tags".getBytes(), (user.getTags()).getBytes());
+        }
+        if (user.getSchool() != null) {
+            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "school".getBytes(), (user.getSchool()).getBytes());
+        }
+        if (user.getCompany() != null) {
+            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "company".getBytes(), (user.getCompany()).getBytes());
         }
         put.addColumn(Contants.COLUMN_BASIC.getBytes(), "member".getBytes(), (user.getMember() + "").getBytes());
         if (user.getMeta() != null) {

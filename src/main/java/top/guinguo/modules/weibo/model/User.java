@@ -67,6 +67,10 @@ public class User implements java.io.Serializable {
      */
     private Date crawlDate;
     /**
+     * 注册日期
+     */
+    private Date registedDate;
+    /**
      * 标签  空格分割
      */
     private String tags;
@@ -77,6 +81,14 @@ public class User implements java.io.Serializable {
      * 不是会员 member = 0
      */
     private int member;
+    /**
+     * 学校
+     */
+    private String school;
+    /**
+     * 公司
+     */
+    private String company;
     /**
      * 预留字段，json格式
      */
@@ -186,6 +198,14 @@ public class User implements java.io.Serializable {
         this.crawlDate = crawlDate;
     }
 
+    public Date getRegistedDate() {
+        return registedDate;
+    }
+
+    public void setRegistedDate(Date registedDate) {
+        this.registedDate = registedDate;
+    }
+
     public String getTags() {
         return tags;
     }
@@ -208,6 +228,22 @@ public class User implements java.io.Serializable {
 
     public void setMeta(String meta) {
         this.meta = meta;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 
     public JSONObject getJSONMeta() {

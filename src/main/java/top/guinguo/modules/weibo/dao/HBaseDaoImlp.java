@@ -50,14 +50,14 @@ public class HBaseDaoImlp implements IHbaseDao {
             hbasePort = configurator.get(HBASE_PORT,"2181");
             hbaseUser = configurator.get(HBASE_USER,"hbase");
 
-            configuration = HBaseConfiguration.create();
+            configuration = null;/*HBaseConfiguration.create();
             configuration.set("hbase.zookeeper.quorum", hbaseIp);
             configuration.set("hbase.zookeeper.property.clientPort", hbasePort);
             User user = User
                     .create(UserGroupInformation
                             .createRemoteUser(hbaseUser));
             connection = ConnectionFactory
-                    .createConnection(configuration, user);
+                    .createConnection(configuration, user);*/
         } catch (Exception e) {
             e.printStackTrace();
         }
