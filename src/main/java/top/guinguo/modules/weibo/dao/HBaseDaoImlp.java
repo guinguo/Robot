@@ -5,11 +5,16 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.security.User;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.guinguo.modules.weibo.utils.Configurator;
+import top.guinguo.modules.weibo.utils.Contants;
 import top.guinguo.modules.weibo.utils.CrawleUtils;
 
 import java.util.*;
@@ -50,14 +55,14 @@ public class HBaseDaoImlp implements IHbaseDao {
             hbasePort = configurator.get(HBASE_PORT,"2181");
             hbaseUser = configurator.get(HBASE_USER,"hbase");
 
-            configuration = null;/*HBaseConfiguration.create();
+            configuration = HBaseConfiguration.create();
             configuration.set("hbase.zookeeper.quorum", hbaseIp);
             configuration.set("hbase.zookeeper.property.clientPort", hbasePort);
             User user = User
                     .create(UserGroupInformation
                             .createRemoteUser(hbaseUser));
             connection = ConnectionFactory
-                    .createConnection(configuration, user);*/
+                    .createConnection(configuration, user);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,6 +97,11 @@ public class HBaseDaoImlp implements IHbaseDao {
         ResultScanner rs = table.getScanner(new Scan());
         for (Result r : rs) {
             Map<String, Object> resultMap = new LinkedHashMap<>();
+            if (r.listCells().size() > 0) {
+                Cell cell = r.listCells().get(0);
+                String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
+                System.out.print("RowKey=> "+rowKey+": ");
+            }
             for (Cell cell : r.listCells()) {
                 CrawleUtils.dealCell(resultMap, cell);
             }
@@ -134,4 +144,43 @@ public class HBaseDaoImlp implements IHbaseDao {
         table.put(puts);
         table.close();
     }
+    /**
+     * 指定某一列的值进行查询
+     *
+     * @param tableName
+     *            表名
+     * @param columnName
+     *            列名
+     * @param value
+     *            列值
+     */
+    public List<Map<String, Object>> queryByColumn(String tableName,
+                                                   String columnName, String value) throws Exception {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        TableName tn = TableName.valueOf(tableName);
+        Table table = connection.getTable(tn);
+        Filter filter = new SingleColumnValueFilter(
+                Bytes.toBytes(Contants.COLUMN_BASIC),
+                Bytes.toBytes(columnName), CompareFilter.CompareOp.GREATER_OR_EQUAL,
+                Bytes.toBytes(value));
+        Scan s = new Scan();
+        s.setFilter(filter);
+        ResultScanner rs = table.getScanner(s);
+        for (Result r : rs) {
+            Map<String, Object> resultMap = new LinkedHashMap<>();
+            if (r.listCells().size() > 0) {
+                Cell cell = r.listCells().get(0);
+                String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
+                System.out.print("RowKey=> "+rowKey+": ");
+            }
+            for (Cell cell : r.listCells()) {
+                CrawleUtils.dealCell(resultMap, cell);
+            }
+            resultList.add(resultMap);
+            System.out.println();
+        }
+        rs.close();
+        return resultList;
+    }
+
 }

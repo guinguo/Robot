@@ -185,15 +185,25 @@ public class WeiboCrawler2 {
                 result = JSONObject.parseObject(resultStr);
                 crawledUser = getUserInfo(crawledUser, result);
 
-                tmp = (random.nextInt(2)) * sleepInterval;
+                tmp = (random.nextInt(2) + 1) * (sleepInterval / 2);
                 System.out.println("getOriginRatio:==================================================="+tmp);
                 Thread.sleep(tmp);
                 String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, uid + "_-_WEIBO_SECOND_PROFILE_WEIBO_ORI", 1));
                 JSONObject cardlistInfo = JSON.parseObject(respStr).getJSONObject("cardlistInfo");
                 if (cardlistInfo == null) {
+                    response.close();
+                    client.close();
                     continue;
                 }
                 Long oriNumber = cardlistInfo.getLong("total");
+                if (oriNumber == null) {
+                    log.error("[" + uid + "]NullPointerException");
+                    log.info("[too busy]===========================[sleep][" + (1000 * 60 * 20) + "]");
+                    response.close();
+                    client.close();
+                    Thread.sleep(1000 * 60 * 30);//太频繁，歇30分钟
+                    continue;
+                }
                 Double ratio = (oriNumber * 1.0 / crawledUser.getBlogNumber());
                 client.close();
 
@@ -426,7 +436,9 @@ public class WeiboCrawler2 {
             String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, uid, page));
             client.close();
             try {
-                Thread.sleep((long) (stopInterval * Contants.intervalRadio));
+                long tmp = (long) (stopInterval * Contants.intervalRadio);
+                System.out.println("eachPage:===================================================" + tmp);
+                Thread.sleep(tmp);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

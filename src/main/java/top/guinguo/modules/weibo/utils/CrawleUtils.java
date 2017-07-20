@@ -87,7 +87,7 @@ public class CrawleUtils {
         String qualifier = new String(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength(),
                 "UTF-8");
         String value = new String(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength(), "UTF-8");
-         System.out.print("RowKey=>"+rowKey+"->"+family+":"+qualifier+"="+value+"||");
+        System.out.print(family+":"+qualifier+"="+value+", ");
         resultMap.put("rowKey", rowKey);
         resultMap.put("family", family);
         resultMap.put(qualifier, value);
