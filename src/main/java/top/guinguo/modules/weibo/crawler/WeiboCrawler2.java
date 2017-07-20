@@ -158,8 +158,8 @@ public class WeiboCrawler2 {
                     log.warn("404 user: ["+uid+"]not fund");
                     response.close();
                     client.close();
-                    System.out.println("==================================================="+sleepInterval/4);
-                    Thread.sleep(sleepInterval/4);
+                    System.out.println("==================================================="+(random.nextInt(3) + 1) * sleepInterval);
+                    Thread.sleep((random.nextInt(3) + 1) * sleepInterval);
                     continue;
                 }
                 JSONObject result = null;
@@ -172,7 +172,7 @@ public class WeiboCrawler2 {
                 long tmp;
                 if (result.getJSONObject("userInfo") != null && result.getJSONObject("userInfo").getLong("statuses_count") < toCrawlWbNumber) {
                     log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]");
-                    tmp = (random.nextInt(4) + 1) * sleepInterval;
+                    tmp = (random.nextInt(4)) * sleepInterval;
                     System.out.println("404:==================================================="+tmp);
                     Thread.sleep(tmp);
                 }
