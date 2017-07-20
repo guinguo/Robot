@@ -393,7 +393,7 @@ public class WeiboCrawler2 {
                     log.info("weibo_info_page:" + "\t" + i);
                     page = getWb(uid, i);
                     if (page != null) {
-                        eachPage = getWeibosFromJson(firstPage);
+                        eachPage = getWeibosFromJson(page);
                         userWeibos.addAll(eachPage);
                     }
                     log.info("---------");
@@ -409,7 +409,7 @@ public class WeiboCrawler2 {
                         log.info("weibo_info_page:" + "\t" + i);
                         page = getWb(uid, i);
                         if (page != null) {
-                            eachPage = getWeibosFromJson(firstPage);
+                            eachPage = getWeibosFromJson(page);
                             userWeibos.addAll(eachPage);
                         }
                         log.info("---------");
