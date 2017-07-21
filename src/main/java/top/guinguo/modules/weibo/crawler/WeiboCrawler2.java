@@ -212,10 +212,9 @@ public class WeiboCrawler2 {
                     tmp = (random.nextInt(4) + 1) * sleepInterval;
                     System.out.println("==================================================="+tmp);
                     Thread.sleep(tmp);
-                } else if (oriNumber != null && ratio < toCrawlWbRatio) {
-                    log.info("[原创率][" + String.format("%.2f", ratio * 100) + "%]小于" + (toCrawlWbRatio * 100) + "%]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[originBlog][" + oriNumber + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
+                } else if (oriNumber != null && oriTooLow(crawledUser, ratio, toCrawlWbRatio)) {
                     tmp = (random.nextInt(4) + 1) * sleepInterval;
-                    System.out.println("==================================================="+tmp);
+                    System.out.println("===================================================" + tmp);
                     Thread.sleep(tmp);
                     continue;
                 } else {
@@ -230,6 +229,34 @@ public class WeiboCrawler2 {
             }
             insert2DbPool.shutdown();
             crawlUserPool.shutdown();
+        }
+
+        private boolean oriTooLow(User user, Double userRatio, double toCrawlWbRatio) {
+            boolean oriTooLow = false;
+            boolean mayZombie = (user.getFocus() - user.getFans()) > 1200;//可能僵尸用户
+            double localRatio = toCrawlWbRatio;
+            if ("女".equals(user.getSex())) {
+                double weight = 0.45;
+                if (user.getBlogNumber() < 1000) {
+                    weight = 0.36;
+                } else if (user.getBlogNumber() < 500) {
+                    weight = 0.30;
+                } else if (user.getBlogNumber() < 300) {
+                    weight = 0.262;
+                } else if (user.getBlogNumber() < 100) {
+                    weight = 0.182;
+                }
+                localRatio = localRatio * weight;//降低标准
+                userRatio *= 1.124;//增加权重
+            }
+            if (mayZombie) {
+                localRatio += 0.1;//僵尸用户 提高要求
+            }
+            if (userRatio < localRatio) {
+                oriTooLow = true;
+                log.info("[原创率][" + String.format("%.2f", userRatio * 100) + "%]小于[" + String.format("%.2f", localRatio * 100)  + "%][uid][" + user.getId() + "]" + "[blog][" + user.getBlogNumber() + "]" + "[originBlog][" + (int) (user.getBlogNumber() * userRatio) + "]" + "[focus][" + user.getFocus() + "]" + "[fans][" + user.getFans() + "]" + (mayZombie ? "[僵尸用户]" : ""));
+            }
+            return oriTooLow;
         }
 
         /**
@@ -546,12 +573,12 @@ public class WeiboCrawler2 {
                                 if (newElem != null) {
                                     feedReasonElem = newElem;
                                 }
-                                String originContent = feedReasonElem.text();
-                                String originContentHtml = feedReasonElem.html();
-                                log.info("weibo_info:"+"   原内容 " + originContent);
-                                originWeibo.put("originContent", originContent);
-                                originWeibo.put("originContentHtml", originContentHtml);
                             }
+                            String originContent = feedReasonElem.text();
+                            String originContentHtml = feedReasonElem.html();
+                            log.info("weibo_info:"+"   原内容 " + originContent);
+                            originWeibo.put("originContent", originContent);
+                            originWeibo.put("originContentHtml", originContentHtml);
                             JSONArray pics = origin.getJSONArray("pics");
                             if (pics != null) {
                                 log.info("weibo_info:"+"原来微博的图片：" + pics.size());

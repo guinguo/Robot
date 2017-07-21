@@ -161,7 +161,7 @@ public class HBaseDaoImlp implements IHbaseDao {
         Table table = connection.getTable(tn);
         Filter filter = new SingleColumnValueFilter(
                 Bytes.toBytes(Contants.COLUMN_BASIC),
-                Bytes.toBytes(columnName), CompareFilter.CompareOp.GREATER_OR_EQUAL,
+                Bytes.toBytes(columnName), CompareFilter.CompareOp.EQUAL,
                 Bytes.toBytes(value));
         Scan s = new Scan();
         s.setFilter(filter);
