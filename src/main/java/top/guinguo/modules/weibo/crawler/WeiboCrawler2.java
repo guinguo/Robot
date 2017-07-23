@@ -233,18 +233,18 @@ public class WeiboCrawler2 {
 
         private boolean oriTooLow(User user, Double userRatio, double toCrawlWbRatio) {
             boolean oriTooLow = false;
-            boolean mayZombie = (user.getFocus() - user.getFans()) > 1200;//可能僵尸用户
+            boolean mayZombie = (user.getFocus() - user.getFans()) > 900;//可能僵尸用户
             double localRatio = toCrawlWbRatio;
             if ("女".equals(user.getSex())) {
                 double weight = 0.45;
-                if (user.getBlogNumber() < 1000) {
-                    weight = 0.36;
-                } else if (user.getBlogNumber() < 500) {
-                    weight = 0.30;
+                if (user.getBlogNumber() < 100) {
+                    weight = 0.167;
                 } else if (user.getBlogNumber() < 300) {
                     weight = 0.262;
-                } else if (user.getBlogNumber() < 100) {
-                    weight = 0.182;
+                } else if (user.getBlogNumber() < 500) {
+                    weight = 0.30;
+                } else if (user.getBlogNumber() < 1000) {
+                    weight = 0.36;
                 }
                 localRatio = localRatio * weight;//降低标准
                 userRatio *= 1.124;//增加权重
