@@ -18,7 +18,7 @@ public interface IHbaseDao {
      *
      * @param tableName
      */
-    List<Map<String, Object>> queryAll(String tableName) throws Exception;
+    List<Map<String, Object>> queryAll(String tableName, boolean print) throws Exception;
 
     /**
      * 根据rowkey查询唯一一条记录

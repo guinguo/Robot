@@ -81,15 +81,15 @@ public class CrawleUtils {
         return null;
     }
 
-    public static void dealCell(Map<String, Object> resultMap, Cell cell) throws UnsupportedEncodingException {
+    public static void dealCell(Map<String, Object> resultMap, Cell cell, boolean print) throws UnsupportedEncodingException {
         String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
-        String family = new String(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength(), "UTF-8");
         String qualifier = new String(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength(),
                 "UTF-8");
         String value = new String(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength(), "UTF-8");
-        System.out.print(family+":"+qualifier+"="+value+", ");
-        resultMap.put("rowKey", rowKey);
-        resultMap.put("family", family);
+        if (print) {
+            System.out.print(qualifier+"="+value+", ");
+        }
+        resultMap.put("rowkey", rowKey);
         resultMap.put(qualifier, value);
     }
 

@@ -85,12 +85,12 @@ public class HBaseDaoImlp implements IHbaseDao {
         }
 //        table.put(list);
         HBaseDaoImlp hBaseDaoImlp = new HBaseDaoImlp();
-        hBaseDaoImlp.queryAll("weibo");
+        hBaseDaoImlp.queryAll("weibo",true);
 //        hBaseDaoImlp.queryByRowKey("user","5652557385");
     }
 
     @Override
-    public List<Map<String, Object>> queryAll(String tableName) throws Exception {
+    public List<Map<String, Object>> queryAll(String tableName, boolean print) throws Exception {
         List<Map<String, Object>> resultList = new ArrayList<>();
         TableName tn = TableName.valueOf(tableName);
         Table table = connection.getTable(tn);
@@ -100,12 +100,16 @@ public class HBaseDaoImlp implements IHbaseDao {
             if (r.listCells().size() > 0) {
                 Cell cell = r.listCells().get(0);
                 String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
-                System.out.print("RowKey=> "+rowKey+": ");
+                if (print) {
+                    System.out.print("RowKey=> "+rowKey+": ");
+                }
             }
             for (Cell cell : r.listCells()) {
-                CrawleUtils.dealCell(resultMap, cell);
+                CrawleUtils.dealCell(resultMap, cell, print);
             }
-            System.out.println();
+            if (print) {
+                System.out.println();
+            }
             resultList.add(resultMap);
         }
         rs.close();
@@ -125,7 +129,7 @@ public class HBaseDaoImlp implements IHbaseDao {
         }
         resultMap = new LinkedHashMap<>();
         for (Cell cell : r.listCells()) {
-            CrawleUtils.dealCell(resultMap, cell);
+            CrawleUtils.dealCell(resultMap, cell, true);
         }
         table.close();
         return resultMap;
@@ -174,7 +178,7 @@ public class HBaseDaoImlp implements IHbaseDao {
                 System.out.print("RowKey=> "+rowKey+": ");
             }
             for (Cell cell : r.listCells()) {
-                CrawleUtils.dealCell(resultMap, cell);
+                CrawleUtils.dealCell(resultMap, cell, true);
             }
             resultList.add(resultMap);
             System.out.println();

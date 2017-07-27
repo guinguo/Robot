@@ -3,16 +3,13 @@ package top.guinguo.modules.weibo.crawler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import jdk.nashorn.internal.scripts.JO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.guinguo.modules.weibo.model.User;
@@ -23,10 +20,12 @@ import top.guinguo.modules.weibo.utils.*;
 import top.guinguo.utils.HttpUtil;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -37,14 +36,16 @@ import static top.guinguo.utils.HttpUtil.USER_AGEN;
 /**
  * 微博抓取器
  */
-public class WeiboCrawler2 {
+public class WeiboCrawler3 {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    public static final String MAIN_URL = "wb.main.url";
-    public static final String MAIN_INFO = "wb.main.info";
-    public static final String WB_URL = "wb.url";
-    public static final String TO_CRAWL_WB_NUMBER = "to.crawl.wb.number";
+    public static final String MAIN_URL = "wb.main.url";//个人主页
+    public static final String MAIN_INFO = "wb.main.info";//个人信息
+    public static final String WB_URL = "wb.url";//微博api
+    public static final String FANS_URL = "fans.url";//粉丝api
+    public static final String TO_CRAWL_WB_NUMBER = "to.crawl.wb.number";//抓取微博最低数
+    public static final String TO_CRAWL_FANS_NUMBER = "to.crawl.fans.number";//粉丝最低数
     public static final String MIAN_THREAD_NUMBER = "mian.thread.number";
     public static final String MIAN_EACH_SIZE = "mian.each.size";
     public static final String EACH_USER_SLEEP_INTERVAL = "each.user.sleep.interval";
@@ -58,7 +59,9 @@ public class WeiboCrawler2 {
     private String mainUrl;
     private String mainInfo ;
     private String wbUrl;
+    private String fansUrl;
     private int toCrawlWbNumber;
+    private int toCrawlFansNumber;
     private int mainThreadNumber;
     private int mainEachSize;
     private long eachUserSleepInterval;
@@ -73,16 +76,20 @@ public class WeiboCrawler2 {
     private CrawleHttpFactory crawleHttpFactory;
     private CrawleUtils crawleUtils;
     private IWeiboService weiboService;
+    private RedisUtils redisUtils;
 
-    public WeiboCrawler2() {
+    public WeiboCrawler3() {
         crawleHttpFactory = CrawleHttpFactory.getInstance();
         crawleUtils = CrawleUtils.getInstance();
         weiboService = WeiboService.getInstance();
+        redisUtils = RedisUtils.getInstance();
         Configurator configurator = Configurator.getInstance();
         this.mainUrl = configurator.get(MAIN_URL);
         this.mainInfo = configurator.get(MAIN_INFO);
         this.wbUrl = configurator.get(WB_URL);
+        this.fansUrl = configurator.get(FANS_URL);
         this.toCrawlWbNumber = configurator.getInt(TO_CRAWL_WB_NUMBER);
+        this.toCrawlFansNumber = configurator.getInt(TO_CRAWL_FANS_NUMBER);
         this.mainThreadNumber = configurator.getInt(MIAN_THREAD_NUMBER);
         this.mainEachSize = configurator.getInt(MIAN_EACH_SIZE);
         this.eachUserSleepInterval = configurator.getLong(EACH_USER_SLEEP_INTERVAL);
@@ -95,7 +102,8 @@ public class WeiboCrawler2 {
     }
 
     public static void main(String[] args) throws Exception {
-        WeiboCrawler2 weiboCrawler = new WeiboCrawler2();
+        WeiboCrawler3 weiboCrawler = new WeiboCrawler3();
+        weiboCrawler.redisUtils.loadData();
         long index = weiboCrawler.mianThreadIndex;
         ExecutorService mainThreadPool = Executors.newFixedThreadPool(10);
         for (int i = 0; i < weiboCrawler.mainThreadNumber; i++) {
@@ -136,101 +144,223 @@ public class WeiboCrawler2 {
         }
 
         public void work(long start, int size, long sleepInterval) throws Exception {
-            CloseableHttpResponse response;
             //爬取一个用户的线程池
             ExecutorService crawlUserPool = Executors.newCachedThreadPool();
             //入库线程池
             ExecutorService insert2DbPool = Executors.newCachedThreadPool();
             for (long i = start, length = start + size; i < length; i++) {
-                CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
-                String uid = i + "";
-                try {
-                    HttpGet get = crawleHttpFactory.generateGet(String.format(mainUrl, uid, uid));
-                    response = client.execute(get);
-                    get.clone();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    continue;
-                }
-                String responRs = HttpUtil.getRespString(response);
-                response.close();
-                if (responRs.length() < 150 && responRs.contains("errmsg")) {
-                    log.warn("404 user: ["+uid+"]not fund");
-                    response.close();
-                    client.close();
-                    System.out.println("==================================================="+(random.nextInt(3) + 1) * sleepInterval);
-                    Thread.sleep((random.nextInt(3) + 1) * sleepInterval);
-                    continue;
-                }
-                JSONObject result = null;
-                try {
-                    result = JSONObject.parseObject(responRs);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.err.println(uid);
-                }
-                long tmp;
-                if (result.getJSONObject("userInfo") != null && result.getJSONObject("userInfo").getLong("statuses_count") < toCrawlWbNumber) {
-                    log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]");
-                    tmp = (random.nextInt(4)) * sleepInterval;
-                    System.out.println("404:==================================================="+tmp);
-                    Thread.sleep(tmp);
-                }
-
-                User crawledUser = getUserBasic(result);
-                tmp = (random.nextInt(2) + 1) * sleepInterval;
-                System.out.println("getUserInfo:==================================================="+tmp);
-                Thread.sleep(tmp);
-                String resultStr = crawleHttpFactory.getRespStr(client, String.format(mainInfo, uid));
-                result = JSONObject.parseObject(resultStr);
-                crawledUser = getUserInfo(crawledUser, result);
-
-                tmp = (random.nextInt(2) + 1) * (sleepInterval / 2);
-                System.out.println("getOriginRatio:==================================================="+tmp);
-                Thread.sleep(tmp);
-                String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, uid + "_-_WEIBO_SECOND_PROFILE_WEIBO_ORI", 1));
-                JSONObject cardlistInfo = JSON.parseObject(respStr).getJSONObject("cardlistInfo");
-                if (cardlistInfo == null) {
-                    response.close();
-                    client.close();
-                    continue;
-                }
-                Long oriNumber = cardlistInfo.getLong("total");
-                if (oriNumber == null) {
-                    log.error("[" + uid + "]NullPointerException");
-                    log.info("[too busy]===========================[sleep][" + (1000 * 60 * 20) + "]");
-                    response.close();
-                    client.close();
-                    Thread.sleep(1000 * 60 * 30);//太频繁，歇30分钟
-                    continue;
-                }
-                Double ratio = (oriNumber * 1.0 / crawledUser.getBlogNumber());
-                client.close();
-
-                if (crawledUser.getBlogNumber() != null && crawledUser.getBlogNumber() < toCrawlWbNumber) {
-                    log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
-                    tmp = (random.nextInt(4) + 1) * sleepInterval;
-                    System.out.println("==================================================="+tmp);
-                    Thread.sleep(tmp);
-                } else if (oriNumber != null && oriTooLow(crawledUser, ratio, toCrawlWbRatio)) {
-                    tmp = (random.nextInt(4) + 1) * sleepInterval;
-                    System.out.println("===================================================" + tmp);
-                    Thread.sleep(tmp);
-                    continue;
-                } else {
-                    if (load2Db) {
-                        weiboService.addUser(crawledUser);
-                    }
-                    crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid, sleepInterval / 2, insert2DbPool));
-                    tmp = (random.nextInt(2) + 1) * sleepInterval;
-                    System.out.println("===================================================" + tmp);
-                    Thread.sleep(tmp);
-                }
+                getOneBlogs(i + "", crawlUserPool, insert2DbPool);
             }
             insert2DbPool.shutdown();
             crawlUserPool.shutdown();
         }
 
+        public void getFansBlogs(User user, ExecutorService crawlUserPool, ExecutorService insert2DbPool) throws Exception {
+            List<User> fans = getFans(user);
+            for (User fan : fans) {
+                getOneBlogs(fan.getId(), crawlUserPool, insert2DbPool);
+            }
+        }
+
+        /**
+         * 获取用户的粉丝
+         * @param user
+         * @return
+         */
+        private List<User> getFans(User user) {
+            List<User> users = new ArrayList<>(user.getFans().intValue());
+            try {
+                int i = 1;
+                JSONObject firstPage = getFanUser(user.getId(), i++);
+                List<User> eachPageUser = getUsersFromJson(firstPage);
+                users.addAll(eachPageUser);
+                while ("1".equals(firstPage.get("ok"))) {
+                    long tmp = (long) (sleepInterval / 2 * Contants.intervalRadio);
+                    System.out.println("eachFan:===================================================" + tmp);
+                    Thread.sleep(tmp);
+                    firstPage = getFanUser(user.getId(), i++);
+                    eachPageUser = getUsersFromJson(firstPage);
+                    users.addAll(eachPageUser);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return users;
+        }
+
+        /**
+         * json 转 user list
+         * @param jsonObject
+         * @return
+         */
+        private List<User> getUsersFromJson(JSONObject jsonObject) {
+            List<User> users = new ArrayList<>();
+            JSONArray cards = jsonObject.getJSONArray("cards");
+            if (cards != null && cards.size() > 0) {
+                JSONObject card = cards.getJSONObject(0);
+                JSONArray cardGroup = card.getJSONArray("card_group");
+                if (cardGroup != null) {
+                    for (int i = 0; i < cardGroup.size(); i++) {
+                        JSONObject ci = cardGroup.getJSONObject(i);
+                        if ("10".equals(ci.getString("card_type"))) {
+                            JSONObject userJson = ci.getJSONObject("user");
+                            if (userJson != null) {
+                                User user = new User();
+                                user.setId(userJson.getString("id"));
+                                user.setFans(userJson.getLong("follow_count"));
+                                user.setFocus(userJson.getInteger("followers_count"));
+                                user.setBlogNumber(userJson.getLong("statuses_count"));
+                                user.setUsername(userJson.getString("screen_name"));
+                                user.setNickname(userJson.getString("screen_name"));
+                                user.setIntro(userJson.getString("description"));
+                                user.setLevel(userJson.getInteger("urank"));
+                                user.setMember(userJson.getInteger("mbrank"));
+                                log.info("FFFFFans: " + user.getId() + ": [" + user.getBlogNumber() + "-" + user.getFans() + "-" + user.getFocus() + "]");
+                                if ((Math.abs(user.getFans() - user.getFocus()) < 800) && user.getBlogNumber() >= toCrawlWbNumber) {
+                                    users.add(user);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return users;
+        }
+
+        /**
+         * 回去每个粉丝页面，页面大小不一致。
+         * @param uid
+         * @param page
+         * @return
+         * @throws IOException
+         */
+        private JSONObject getFanUser(String uid, int page) throws IOException {
+            log.info("weibo_fans_page:" + "\t" + page);
+            CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
+            String respStr = crawleHttpFactory.getRespStr(client, String.format(fansUrl, uid, uid, uid, page));
+            client.close();
+            try {
+                long tmp = (long) (sleepInterval / 2 * Contants.intervalRadio);
+                System.out.println("eachFans:===================================================" + tmp);
+                Thread.sleep(tmp);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            JSONObject json = JSON.parseObject(respStr);
+            log.info("---------");
+            return json;
+        }
+
+        public User getOneBlogs(String uid, ExecutorService crawlUserPool, ExecutorService insert2DbPool) throws Exception {
+            long tmp;
+            if (redisUtils.get(uid) != null) {
+                log.warn("user:[" + uid + "]had been crawled");
+                tmp = (random.nextInt(4)) * sleepInterval;
+                System.out.println("==================================================="+tmp);
+                Thread.sleep(tmp);
+                return null;
+            }
+            CloseableHttpResponse response = null;
+            CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
+            try {
+                HttpGet get = crawleHttpFactory.generateGet(String.format(mainUrl, uid, uid));
+                response = client.execute(get);
+                System.out.println();
+                get.clone();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            String responRs = HttpUtil.getRespString(response);
+            response.close();
+            if (responRs.length() < 150 && responRs.contains("errmsg")) {
+                log.warn("404 user: ["+uid+"]not fund");
+                response.close();
+                client.close();
+                System.out.println("==================================================="+(random.nextInt(3) + 1) * sleepInterval);
+                Thread.sleep((random.nextInt(3) + 1) * sleepInterval);
+                return null;
+            }
+            JSONObject result = null;
+            try {
+                result = JSONObject.parseObject(responRs);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println(uid);
+            }
+            if (result.getJSONObject("userInfo") != null && result.getJSONObject("userInfo").getLong("statuses_count") < toCrawlWbNumber) {
+                log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]");
+                tmp = (random.nextInt(4)) * sleepInterval;
+                System.out.println("==================================================="+tmp);
+                Thread.sleep(tmp);
+            }
+
+            User crawledUser = getUserBasic(result);
+            tmp = (random.nextInt(2) + 1) * sleepInterval;
+            System.out.println("getUserInfo:==================================================="+tmp);
+            Thread.sleep(tmp);
+            String resultStr = crawleHttpFactory.getRespStr(client, String.format(mainInfo, uid));
+            result = JSONObject.parseObject(resultStr);
+            crawledUser = getUserInfo(crawledUser, result);
+
+            tmp = (random.nextInt(2) + 1) * (sleepInterval / 2);
+            System.out.println("getOriginRatio:==================================================="+tmp);
+            Thread.sleep(tmp);
+            String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, uid + "_-_WEIBO_SECOND_PROFILE_WEIBO_ORI", 1));
+            JSONObject cardlistInfo = JSON.parseObject(respStr).getJSONObject("cardlistInfo");
+            if (cardlistInfo == null) {
+                response.close();
+                client.close();
+                return null;
+            }
+            Long oriNumber = cardlistInfo.getLong("total");
+            if (oriNumber == null) {
+                log.error("[" + uid + "]NullPointerException");
+                log.info("[too busy]===========================[sleep][" + (1000 * 60 * 20) + "]");
+                response.close();
+                client.close();
+                Thread.sleep(1000 * 60 * 30);//太频繁，歇30分钟
+                return null;
+            }
+            Double ratio = (oriNumber * 1.0 / crawledUser.getBlogNumber());
+            client.close();
+
+            if (crawledUser.getBlogNumber() != null && crawledUser.getBlogNumber() < toCrawlWbNumber) {
+                log.info("[微博数少于" + toCrawlWbNumber + "]" + "[" + uid + "]" + "[blog][" + crawledUser.getBlogNumber() + "]" + "[focus][" + crawledUser.getFocus() + "]" + "[fans][" + crawledUser.getFans() + "]");
+                tmp = (random.nextInt(4) + 1) * sleepInterval;
+                System.out.println("==================================================="+tmp);
+                Thread.sleep(tmp);
+            } else if (oriNumber != null && oriTooLow(crawledUser, ratio, toCrawlWbRatio)) {
+                tmp = (random.nextInt(4) + 1) * sleepInterval;
+                System.out.println("===================================================" + tmp);
+                Thread.sleep(tmp);
+                return null;
+            } else {
+                if (load2Db) {
+                    weiboService.addUser(crawledUser);
+                }
+                crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid, sleepInterval / 2, insert2DbPool));
+                tmp = (random.nextInt(2) + 1) * sleepInterval;
+                System.out.println("===================================================" + tmp);
+                Thread.sleep(tmp);
+                redisUtils.set(uid, crawledUser.getBlogNumber() + "-" + crawledUser.getFans() + "-" + crawledUser.getFocus());
+                if (crawledUser.getFans() >= toCrawlFansNumber) {
+                    getFansBlogs(crawledUser, crawlUserPool, insert2DbPool);
+                }
+                return crawledUser;
+            }
+            return null;
+        }
+
+        /**
+         * 原创率
+         * @param user
+         * @param userRatio
+         * @param toCrawlWbRatio
+         * @return
+         */
         private boolean oriTooLow(User user, Double userRatio, double toCrawlWbRatio) {
             boolean oriTooLow = false;
             boolean mayZombie = (user.getFocus() - user.getFans()) > 900;//可能僵尸用户
@@ -238,7 +368,7 @@ public class WeiboCrawler2 {
             if ("女".equals(user.getSex())) {
                 double weight = 0.45;
                 if (user.getBlogNumber() < 100) {
-                    weight = 0.213;
+                    weight = 0.167;
                 } else if (user.getBlogNumber() < 300) {
                     weight = 0.262;
                 } else if (user.getBlogNumber() < 500) {
@@ -247,7 +377,7 @@ public class WeiboCrawler2 {
                     weight = 0.36;
                 }
                 localRatio = localRatio * weight;//降低标准
-                userRatio *= 1.114;//增加权重
+                userRatio *= 1.124;//增加权重
             }
             if (mayZombie) {
                 localRatio += 0.1;//僵尸用户 提高要求

@@ -36,7 +36,7 @@ public class WeiboService implements IWeiboService {
     @Override
     public List<Map<String, Object>> queryAll(String tableName) throws Exception {
         log.info("[queryAll][tableName][" + tableName + "]");
-        return hbaseDao.queryAll(tableName);
+        return hbaseDao.queryAll(tableName,false);
     }
 
     @Override
