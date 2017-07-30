@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.PrefixFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -95,23 +96,7 @@ public class HBaseDaoImlp implements IHbaseDao {
         TableName tn = TableName.valueOf(tableName);
         Table table = connection.getTable(tn);
         ResultScanner rs = table.getScanner(new Scan());
-        for (Result r : rs) {
-            Map<String, Object> resultMap = new LinkedHashMap<>();
-            if (r.listCells().size() > 0) {
-                Cell cell = r.listCells().get(0);
-                String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
-                if (print) {
-                    System.out.print("RowKey=> "+rowKey+": ");
-                }
-            }
-            for (Cell cell : r.listCells()) {
-                CrawleUtils.dealCell(resultMap, cell, print);
-            }
-            if (print) {
-                System.out.println();
-            }
-            resultList.add(resultMap);
-        }
+        resultList = getAndPrint(rs, print, resultList);
         rs.close();
         table.close();
         return resultList;
@@ -133,6 +118,20 @@ public class HBaseDaoImlp implements IHbaseDao {
         }
         table.close();
         return resultMap;
+    }
+
+    @Override
+    public List<Map<String, Object>> scaneByPrefixFilter(String tableName, String prefix, boolean print) throws Exception {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        TableName tn = TableName.valueOf(tableName);
+        Table table = connection.getTable(tn);
+        Scan scan = new Scan();//get by scan
+        scan.setFilter(new PrefixFilter(prefix.getBytes()));
+        ResultScanner rs = table.getScanner(scan);
+        resultList = getAndPrint(rs, print, resultList);
+        rs.close();
+        table.close();
+        return resultList;
     }
 
     @Override
@@ -165,7 +164,7 @@ public class HBaseDaoImlp implements IHbaseDao {
         Table table = connection.getTable(tn);
         Filter filter = new SingleColumnValueFilter(
                 Bytes.toBytes(Contants.COLUMN_BASIC),
-                Bytes.toBytes(columnName), CompareFilter.CompareOp.EQUAL,
+                Bytes.toBytes(columnName), CompareFilter.CompareOp.GREATER_OR_EQUAL,
                 Bytes.toBytes(value));
         Scan s = new Scan();
         s.setFilter(filter);
@@ -184,6 +183,27 @@ public class HBaseDaoImlp implements IHbaseDao {
             System.out.println();
         }
         rs.close();
+        return resultList;
+    }
+
+    private List<Map<String, Object>> getAndPrint(ResultScanner rs, boolean print, List<Map<String, Object>> resultList) throws Exception{
+        for (Result r : rs) {
+            Map<String, Object> resultMap = new LinkedHashMap<>();
+            if (r.listCells().size() > 0) {
+                Cell cell = r.listCells().get(0);
+                String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
+                if (print) {
+                    System.out.print("RowKey=> "+rowKey+": ");
+                }
+            }
+            for (Cell cell : r.listCells()) {
+                CrawleUtils.dealCell(resultMap, cell, print);
+            }
+            if (print) {
+                System.out.println();
+            }
+            resultList.add(resultMap);
+        }
         return resultList;
     }
 

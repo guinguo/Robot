@@ -38,7 +38,7 @@ public class Weibo implements java.io.Serializable {
     /**
      * 发布时间
      */
-    private Date createDate;
+    private String createDate;
     /**
      * 发布微博的app来源
      * Android，ios，其他手机型号等
@@ -138,11 +138,11 @@ public class Weibo implements java.io.Serializable {
         this.nickname = nickname;
     }
 
-    public Date getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 

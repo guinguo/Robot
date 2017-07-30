@@ -8,8 +8,8 @@ package top.guinguo.modules.weibo.utils;
  */
 public interface Contants {
     //table
-    String T_USER = "user3";
-    String T_WEIBO = "weibo3";
+    String T_USER = "user4";
+    String T_WEIBO = "weibo4";
     String T_USER_OLD = "user";
     String T_WEIBO_OLD = "weibo";
 

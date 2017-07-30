@@ -20,6 +20,7 @@ import top.guinguo.modules.weibo.utils.*;
 import top.guinguo.utils.HttpUtil;
 
 import java.io.IOException;
+import java.net.NoRouteToHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -105,9 +106,9 @@ public class WeiboCrawler3 {
         WeiboCrawler3 weiboCrawler = new WeiboCrawler3();
         weiboCrawler.redisUtils.loadData();
         long index = weiboCrawler.mianThreadIndex;
-        ExecutorService mainThreadPool = Executors.newFixedThreadPool(10);
+        ExecutorService mainThreadPool = Executors.newFixedThreadPool(weiboCrawler.mainThreadNumber);
         for (int i = 0; i < weiboCrawler.mainThreadNumber; i++) {
-            mainThreadPool.submit(weiboCrawler.new MainThread((index + i * 1000), weiboCrawler.mainEachSize, weiboCrawler.eachUserSleepInterval));
+            mainThreadPool.submit(weiboCrawler.new MainThread((index + i * weiboCrawler.mainEachSize), weiboCrawler.mainEachSize, weiboCrawler.eachUserSleepInterval));
         }
         mainThreadPool.shutdown();
     }
@@ -143,13 +144,19 @@ public class WeiboCrawler3 {
             }
         }
 
-        public void work(long start, int size, long sleepInterval) throws Exception {
+        public void work(long start, int size, long sleepInterval) {
             //爬取一个用户的线程池
             ExecutorService crawlUserPool = Executors.newCachedThreadPool();
             //入库线程池
             ExecutorService insert2DbPool = Executors.newCachedThreadPool();
             for (long i = start, length = start + size; i < length; i++) {
-                getOneBlogs(i + "", crawlUserPool, insert2DbPool);
+                try {
+                    getOneBlogs(i + "", crawlUserPool, insert2DbPool);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("[getOneBlogs]: " + e.getMessage());
+                    continue;
+                }
             }
             insert2DbPool.shutdown();
             crawlUserPool.shutdown();
@@ -265,7 +272,6 @@ public class WeiboCrawler3 {
             try {
                 HttpGet get = crawleHttpFactory.generateGet(String.format(mainUrl, uid, uid));
                 response = client.execute(get);
-                System.out.println();
                 get.clone();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -301,7 +307,23 @@ public class WeiboCrawler3 {
             tmp = (random.nextInt(2) + 1) * sleepInterval;
             System.out.println("getUserInfo:==================================================="+tmp);
             Thread.sleep(tmp);
-            String resultStr = crawleHttpFactory.getRespStr(client, String.format(mainInfo, uid));
+            String resultStr = null;
+            try {
+                resultStr = crawleHttpFactory.getRespStr(client, String.format(mainInfo, uid));
+            } catch (NoRouteToHostException nrte) {
+                nrte.printStackTrace();
+                log.error("[getOneBlogs Exception]: " + nrte.getMessage());
+                response.close();
+                client.close();
+                Thread.sleep(5 * 60 * 1000);
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                log.error("[getOneBlogs]: " + e.getMessage());
+                response.close();
+                client.close();
+                return null;
+            }
             result = JSONObject.parseObject(resultStr);
             crawledUser = getUserInfo(crawledUser, result);
 
@@ -339,6 +361,7 @@ public class WeiboCrawler3 {
                 return null;
             } else {
                 if (load2Db) {
+                    crawledUser.setCrawlDate(new Date());
                     weiboService.addUser(crawledUser);
                 }
                 crawlUserPool.submit(new CrawlWbThread(crawledUser.getBlogNumber().intValue(), uid, sleepInterval / 2, insert2DbPool));
@@ -639,12 +662,13 @@ public class WeiboCrawler3 {
 
                         String dateStr = blog.getString("created_at");
                         log.info("weibo_info:"+"发布时间: "+dateStr);
-                        Date date = null;
+                        /*String date = null;
                         try {
-                            date = DateUtils.parse(dateStr);
+                            date = DateUtils.parseAndFormat(dateStr);
                         } catch (Exception e) {
-                        }
-                        weibo.setCreateDate(date);
+                            e.printStackTrace();
+                        }*/
+                        weibo.setCreateDate(dateStr);
                         log.info("weibo_info:"+"来源：" + blog.getString("source"));
                         weibo.setSource(blog.getString("source"));
 
@@ -677,12 +701,13 @@ public class WeiboCrawler3 {
 
                             dateStr = origin.getString("created_at");
                             log.info("原微博:"+"发布时间: "+dateStr);
-                            date = null;
+                            /*date = null;
                             try {
-                                date = DateUtils.parse(dateStr);
+                                date = DateUtils.parseAndFormat(dateStr);
                             } catch (Exception e) {
-                            }
-                            weibo.setCreateDate(date);
+                                e.printStackTrace();
+                            }*/
+                            weibo.setCreateDate(dateStr);
                             log.info("原微博:"+"来源：" + origin.getString("source"));
                             weibo.setSource(origin.getString("source"));
 
@@ -711,8 +736,12 @@ public class WeiboCrawler3 {
                             originWeibo.put("originContentHtml", originContentHtml);
                             JSONArray pics = origin.getJSONArray("pics");
                             if (pics != null) {
-                                log.info("weibo_info:"+"原来微博的图片：" + pics.size());
-                                originWeibo.put("picids", pics.toJSONString());
+                                JSONArray array1 = new JSONArray();
+                                for (int j = 0; j < pics.size(); j++) {
+                                    array1.add(pics.getJSONObject(j).getString("pid"));
+                                }
+                                log.info("weibo_info:"+"原来微博的图片：" + array1.toJSONString());
+                                originWeibo.put("picids", array1.toJSONString());
                             }
                             originWeibo.put("bid", origin.getString("bid"));
 
@@ -746,16 +775,16 @@ public class WeiboCrawler3 {
                             if ("video".equals(type)) {
                                 String videoUrl = media.getJSONObject("media_info").getString("stream_url");
                                 log.info("weibo_info:" + "视频地址：" + videoUrl);
-                                weibo.setVideo_src(videoUrl);
+//                                weibo.setVideo_src(videoUrl);
                             }
                         }
                         String bid = blog.getString("bid");
                         weibo.setForwardNumber(blog.getLong("reposts_count"));
-                        weibo.setForwardUrl("https://m.weibo.cn/status/" + bid);
+//                        weibo.setForwardUrl("https://m.weibo.cn/status/" + bid);
                         log.info("weibo_info:" + "转发：" + blog.getLong("reposts_count"));
 
                         weibo.setCommentNumber(blog.getLong("comments_count"));
-                        weibo.setForwardUrl("https://m.weibo.cn/status/" + bid);
+                        weibo.setCommentUrl("https://m.weibo.cn/status/" + bid);
                         log.info("weibo_info:" + "评论：" + blog.getLong("comments_count") + "  链接：" + "https://m.weibo.cn/status/" + bid);
 
                         weibo.setLikeNumber(blog.getLong("attitudes_count"));
@@ -763,8 +792,12 @@ public class WeiboCrawler3 {
 
                         JSONArray pics = blog.getJSONArray("pics");
                         if (pics != null) {
-                            log.info("weibo_info:"+"图片：" + pics.size());
-                            weibo.setPicids(pics.toJSONString());
+                            JSONArray array1 = new JSONArray();
+                            for (int j = 0; j < pics.size(); j++) {
+                                array1.add(pics.getJSONObject(j).getString("pid"));
+                            }
+                            log.info("weibo_info:"+"图片：" + array1.toJSONString());
+                            weibo.setPicids(array1.toJSONString());
                         }
                         log.info("====================");
                         list.add(weibo);

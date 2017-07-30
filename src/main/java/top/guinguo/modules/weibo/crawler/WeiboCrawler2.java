@@ -509,9 +509,9 @@ public class WeiboCrawler2 {
 
                         String dateStr = blog.getString("created_at");
                         log.info("weibo_info:"+"发布时间: "+dateStr);
-                        Date date = null;
+                        String date = null;
                         try {
-                            date = DateUtils.parse(dateStr);
+                            date = DateUtils.parseAndFormat(dateStr);
                         } catch (Exception e) {
                         }
                         weibo.setCreateDate(date);
@@ -549,7 +549,7 @@ public class WeiboCrawler2 {
                             log.info("原微博:"+"发布时间: "+dateStr);
                             date = null;
                             try {
-                                date = DateUtils.parse(dateStr);
+                                date = DateUtils.parseAndFormat(dateStr);
                             } catch (Exception e) {
                             }
                             weibo.setCreateDate(date);

@@ -17,10 +17,7 @@ import top.guinguo.modules.weibo.model.User;
 import top.guinguo.modules.weibo.model.Weibo;
 import top.guinguo.modules.weibo.service.IWeiboService;
 import top.guinguo.modules.weibo.service.WeiboService;
-import top.guinguo.modules.weibo.utils.Configurator;
-import top.guinguo.modules.weibo.utils.Contants;
-import top.guinguo.modules.weibo.utils.CrawleHttpFactory;
-import top.guinguo.modules.weibo.utils.CrawleUtils;
+import top.guinguo.modules.weibo.utils.*;
 import top.guinguo.utils.HttpUtil;
 
 import java.io.IOException;
@@ -436,7 +433,9 @@ public class WeiboCrawler {
 
                 Element datea = feed.select(".WB_detail a[name]").get(0);
                 log.info("weibo_info:"+"发布时间: "+datea.html()+"  "+datea.attr("date"));
-                weibo.setCreateDate(new Date(Long.parseLong(datea.attr("date"))));
+                try {
+                    weibo.setCreateDate(DateUtils.format(new Date(Long.parseLong(datea.attr("date")))));
+                } catch (Exception e) {}
                 if (datea.nextElementSibling() != null) {
                     log.info("weibo_info:"+"来源：" + datea.nextElementSibling().html());
                     weibo.setSource(datea.nextElementSibling().html());

@@ -61,4 +61,8 @@ public class DateUtils {
         }
         return sdf.format(date);
     }
+
+    public static String parseAndFormat(String str) throws Exception {
+        return format(parse(str));
+    }
 }

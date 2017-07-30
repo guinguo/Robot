@@ -1,5 +1,7 @@
 package test.weibo;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.hsqldb.types.JavaObject;
 import org.junit.Test;
@@ -23,5 +25,19 @@ public class TestHbase {
         JSONObject userInfo = JSONObject.parseObject(html).getJSONObject("userInfo");
         String sex = ("m".equals(userInfo.getString("gender")) ? "男" : "女");
         System.out.println(sex);
+    }
+    @Test
+    public void test03() throws Exception {
+        HBaseDaoImlp hBaseDaoImlp = HBaseDaoImlp.getInstance();
+        hBaseDaoImlp.scaneByPrefixFilter("weibo3", "3820323805", true);
+    }
+    @Test
+    public void test04() throws Exception {
+        JSONArray array = JSON.parseArray("[ { \"pid\": \"006axyoply1fhrjlae13fj30qo0zkn90\", \"url\": \"https: //wx2.sinaimg.cn/orj360/006axyoply1fhrjlae13fj30qo0zkn90.jpg\" }, { \"pid\": \"006axyoply1fhrjl9au7lj30qo0zk7ez\", \"url\": \"https: //wx2.sinaimg.cn/orj360/006axyoply1fhrjl9au7lj30qo0zk7ez.jpg\" }, { \"pid\": \"006axyoply1fhrjlbckkkj30qo0zktgg\", \"url\": \"https: //wx3.sinaimg.cn/orj360/006axyoply1fhrjlbckkkj30qo0zktgg.jpg\" } ]");
+        JSONArray array1 = new JSONArray();
+        for (int i = 0; i < array.size(); i++) {
+            array1.add(array.getJSONObject(i).getString("pid"));
+        }
+        System.out.println(array1.toJSONString());
     }
 }

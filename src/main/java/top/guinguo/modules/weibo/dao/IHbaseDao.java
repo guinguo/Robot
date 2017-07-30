@@ -29,6 +29,15 @@ public interface IHbaseDao {
     Map<String, Object> queryByRowKey(String tableName, String rowKey) throws Exception;
 
     /**
+     * 根据前缀扫描
+     * @param tableName
+     * @param prefix
+     * @return
+     * @throws Exception
+     */
+    List<Map<String, Object>> scaneByPrefixFilter(String tableName, String prefix, boolean print) throws Exception;
+
+    /**
      * 批量添加数据
      *
      * @param tableName 表名
