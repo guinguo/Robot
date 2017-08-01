@@ -9,7 +9,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.guinguo.modules.weibo.model.User;
@@ -21,12 +23,11 @@ import top.guinguo.utils.HttpUtil;
 
 import java.io.IOException;
 import java.net.NoRouteToHostException;
+import java.net.URLDecoder;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -44,6 +45,7 @@ public class WeiboCrawler3 {
     public static final String MAIN_URL = "wb.main.url";//个人主页
     public static final String MAIN_INFO = "wb.main.info";//个人信息
     public static final String WB_URL = "wb.url";//微博api
+    public static final String WB_URL_ORI = "wb.ori.url";//微博api
     public static final String FANS_URL = "fans.url";//粉丝api
     public static final String TO_CRAWL_WB_NUMBER = "to.crawl.wb.number";//抓取微博最低数
     public static final String TO_CRAWL_FANS_NUMBER = "to.crawl.fans.number";//粉丝最低数
@@ -60,6 +62,7 @@ public class WeiboCrawler3 {
     private String mainUrl;
     private String mainInfo ;
     private String wbUrl;
+    private String wbUrlOri;
     private String fansUrl;
     private int toCrawlWbNumber;
     private int toCrawlFansNumber;
@@ -88,6 +91,7 @@ public class WeiboCrawler3 {
         this.mainUrl = configurator.get(MAIN_URL);
         this.mainInfo = configurator.get(MAIN_INFO);
         this.wbUrl = configurator.get(WB_URL);
+        this.wbUrlOri = configurator.get(WB_URL_ORI);
         this.fansUrl = configurator.get(FANS_URL);
         this.toCrawlWbNumber = configurator.getInt(TO_CRAWL_WB_NUMBER);
         this.toCrawlFansNumber = configurator.getInt(TO_CRAWL_FANS_NUMBER);
@@ -273,6 +277,12 @@ public class WeiboCrawler3 {
                 HttpGet get = crawleHttpFactory.generateGet(String.format(mainUrl, uid, uid));
                 response = client.execute(get);
                 get.clone();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+                log.error("UnknownHostException:" + e.getMessage());
+                client.close();
+                Thread.sleep(1000 * 60 * 10);
+                return null;
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
@@ -330,7 +340,7 @@ public class WeiboCrawler3 {
             tmp = (random.nextInt(2) + 1) * (sleepInterval / 2);
             System.out.println("getOriginRatio:==================================================="+tmp);
             Thread.sleep(tmp);
-            String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, uid + "_-_WEIBO_SECOND_PROFILE_WEIBO_ORI", 1));
+            String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrlOri, uid, uid, 1));
             JSONObject cardlistInfo = JSON.parseObject(respStr).getJSONObject("cardlistInfo");
             if (cardlistInfo == null) {
                 response.close();
@@ -340,7 +350,7 @@ public class WeiboCrawler3 {
             Long oriNumber = cardlistInfo.getLong("total");
             if (oriNumber == null) {
                 log.error("[" + uid + "]NullPointerException");
-                log.info("[too busy]===========================[sleep][" + (1000 * 60 * 20) + "]");
+                log.info("[too busy]===========================[sleep][" + (1000 * 60 * 30) + "]");
                 response.close();
                 client.close();
                 Thread.sleep(1000 * 60 * 30);//太频繁，歇30分钟
@@ -368,7 +378,9 @@ public class WeiboCrawler3 {
                 tmp = (random.nextInt(2) + 1) * sleepInterval;
                 System.out.println("===================================================" + tmp);
                 Thread.sleep(tmp);
-                redisUtils.set(uid, crawledUser.getBlogNumber() + "-" + crawledUser.getFans() + "-" + crawledUser.getFocus());
+                if (load2Db) {
+                    redisUtils.set(uid, crawledUser.getBlogNumber() + "-" + crawledUser.getFans() + "-" + crawledUser.getFocus());
+                }
                 if (crawledUser.getFans() >= toCrawlFansNumber) {
                     getFansBlogs(crawledUser, crawlUserPool, insert2DbPool);
                 }
@@ -391,16 +403,16 @@ public class WeiboCrawler3 {
             if ("女".equals(user.getSex())) {
                 double weight = 0.45;
                 if (user.getBlogNumber() < 100) {
-                    weight = 0.167;
+                    weight = 0.187;
                 } else if (user.getBlogNumber() < 300) {
                     weight = 0.262;
                 } else if (user.getBlogNumber() < 500) {
-                    weight = 0.30;
+                    weight = 0.33;
                 } else if (user.getBlogNumber() < 1000) {
-                    weight = 0.36;
+                    weight = 0.39;
                 }
                 localRatio = localRatio * weight;//降低标准
-                userRatio *= 1.124;//增加权重
+                userRatio *= 1.104;//增加权重
             }
             if (mayZombie) {
                 localRatio += 0.1;//僵尸用户 提高要求
@@ -555,65 +567,69 @@ public class WeiboCrawler3 {
         public void run() {
             log.info("[抓取线程]：[" + Thread.currentThread() + "]开始爬取用户：" + uid + "约" + size + "条微博");
             long start = System.currentTimeMillis();
-            crawlerWeibo(uid);
+            crawlerWeibo(size, uid);
             long end = System.currentTimeMillis();
             log.info("[抓取线程]：[" + Thread.currentThread() + "]完成爬取用户：" + uid + "约" + size + "条微博,耗时：" + (end - start) + "ms");
         }
 
-        public void crawlerWeibo(String uid) {
+        public void crawlerWeibo(int n, String uid) {
             try {
-                List<Weibo> userWeibos = new ArrayList<>(pageSize * (toCrawlPageStep1 + toCrawlPageStep1));
-                int i = 1;
-                JSONObject firstPage = getWb(uid, i++);
-                List<Weibo> eachPage = getWeibosFromJson(firstPage);
-                userWeibos.addAll(eachPage);
-                JSONObject cardlistInfo = firstPage.getJSONObject("cardlistInfo");
-                if (cardlistInfo == null) {
-                    return;
-                }
-                int n = cardlistInfo.getInteger("total");//554
+                List<Weibo> userWeibos = new ArrayList<>((toCrawlPageStep1 + toCrawlPageStep2) * pageSize);
+                List<Weibo> eachLoop = null;
+                //入库线程池
+                ExecutorService insert2DbPool = Executors.newCachedThreadPool();
+                int i = 0;
                 int firstTotalPage = n / pageSize; //55
                 boolean needTail = false;
-                if (firstTotalPage > pageSize * (toCrawlPageStep1)) {//55 > 40(10*4)
-                    firstTotalPage = pageSize * (toCrawlPageStep1); //40
+                if (firstTotalPage > toCrawlPageStep1) {//10 > 5
+                    firstTotalPage = toCrawlPageStep1; //5
                     needTail = true;
                 }
-                JSONObject page;
-                for (; i <= firstTotalPage; i++) {//2 - 40
-                    log.info("weibo_info_page:" + "\t" + i);
-                    page = getWb(uid, i);
-                    if (page != null) {
-                        eachPage = getWeibosFromJson(page);
-                        userWeibos.addAll(eachPage);
-                    }
+                for (; i < firstTotalPage; i++) {
+                    int prepage = i;
+                    int page = (i + 1);
+                    log.info("weibo_info_page_1:" + prepage + "\t" + page + "\t" + 0);
+                    userWeibos.addAll(getWb(uid, prepage, page, 0));
+
+                    log.info("weibo_info_page_1:" + page + "\t" + page + "\t" + 0);
+                    userWeibos.addAll(getWb(uid, page, page, 0));
+
+                    log.info("weibo_info_page_1:" + page + "\t" + page + "\t" + 1);
+                    userWeibos.addAll(getWb(uid, page, page, 1));
+
                     log.info("---------");
                 }
                 if (needTail) {
-                    //>400
-                    int lastIndex = n / pageSize - (pageSize * toCrawlPageStep2);
+                    //>225
+                    int lastIndex = n / pageSize - (toCrawlPageStep2);
                     if (lastIndex < i) {
                         lastIndex = i;
                     }
-                    i = lastIndex;//41 or more
-                    for (; i <= n / pageSize; i++) {
-                        log.info("weibo_info_page:" + "\t" + i);
-                        page = getWb(uid, i);
-                        if (page != null) {
-                            eachPage = getWeibosFromJson(page);
-                            userWeibos.addAll(eachPage);
-                        }
+                    i = lastIndex;//5 or more
+                    for (; i < n / pageSize; i++) {
+                        int prepage = i;
+                        int page = (i + 1);
+                        log.info("weibo_info_page_2:" + prepage + "\t" + page + "\t" + 0);
+                        userWeibos.addAll(getWb(uid, prepage, page, 0));
+
+                        log.info("weibo_info_page_2:" + page + "\t" + page + "\t" + 0);
+                        userWeibos.addAll(getWb(uid, page, page, 0));
+
+                        log.info("weibo_info_page_2:" + page + "\t" + page + "\t" + 1);
+                        userWeibos.addAll(getWb(uid, page, page, 1));
                         log.info("---------");
                     }
                 }
-                dbPool.submit(new WriteDbThread(userWeibos));
+                insert2DbPool.submit(new WriteDbThread(userWeibos));
+                insert2DbPool.shutdown();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        public JSONObject getWb(String uid, int page) throws IOException {
+        public List<Weibo> getWb(String uid, int prepage, int page, int pagebar) throws IOException {
             CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
-            String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, uid, page));
+            String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, prepage, page, pagebar));
             client.close();
             try {
                 long tmp = (long) (stopInterval * Contants.intervalRadio);
@@ -623,189 +639,215 @@ public class WeiboCrawler3 {
                 e.printStackTrace();
             }
             JSONObject json = JSON.parseObject(respStr);
-            return json;
-        }
+            String html = json.getString("data");
+            Document wbs = Jsoup.parse(html);
+            Elements feedlist = wbs.select("div[action-type=feed_list_item]");
+            List<Weibo> list = new ArrayList<>(15);
+            for (Element feed : feedlist) {
+                Weibo weibo = new Weibo();
+                String id = feed.attr("mid");
+                log.info("weibo_info:" + "id：" + id);
+                weibo.setId(id);
+                boolean isforward = "1".equals(feed.attr("isforward"));
+                weibo.setForward(isforward);
+                log.info("weibo_info:" + "转发：" + isforward);
+                if (isforward) {
+                    String minfo = feed.attr("minfo");
+                    String ru = crawleUtils.getValue(minfo, "ru");
+                    String rm = crawleUtils.getValue(minfo, "rm");
+                    log.info("weibo_info:" + "原up主：" + ru);
+                    log.info("weibo_info:" + "原id：" + rm);
+                    weibo.setForwarduid(ru);
+                    weibo.setForwardmid(rm);
+                }
+                String tbinfo = feed.attr("tbinfo");
+                log.info("weibo_info:" + "ouid：" + (isforward ? tbinfo.split("&")[0].split("=")[1] : tbinfo.split("=")[1]));
+                weibo.setUid((isforward ? tbinfo.split("&")[0].split("=")[1] : tbinfo.split("=")[1]));
+                String opt = feed.select(".WB_feed_detail .opt").get(0).attr("action-data");
+                log.info("weibo_info:" + "昵称：" + opt.split("&")[1].split("=")[1]);
+                weibo.setNickname(opt.split("&")[1].split("=")[1]);
 
-        private List<Weibo> getWeibosFromJson(JSONObject firstPage) {
-            List<Weibo> list = new ArrayList<>(10);
-            JSONArray cards = firstPage.getJSONArray("cards");
-            if (cards != null && cards.size() > 0) {
-                for (int i = 0; i < cards.size(); i++) {
-                    JSONObject card = cards.getJSONObject(i);
-                    JSONObject blog = card.getJSONObject("mblog");
-                    if (blog != null) {
-                        Weibo weibo = new Weibo();
-                        String id = blog.getString("id");
-                        log.info("weibo_info:" + "id：" + id);
-                        weibo.setId(id);
-                        boolean isforward = blog.getJSONObject("retweeted_status") != null ? true : false;
-                        weibo.setForward(isforward);
-                        log.info("weibo_info:"+"转发：" + isforward);
-                        JSONObject origin = null;
-                        if (isforward) {
-                            origin = blog.getJSONObject("retweeted_status");
-                            if (origin.getJSONObject("user") == null) {
-                                continue;
-                            }
-                            String originUid = origin.getJSONObject("user").getString("id");
-                            String originid = origin.getString("id");
-                            log.info("weibo_info:"+"原up主：" + originUid);
-                            log.info("weibo_info:"+"原id：" + originid );
-                            weibo.setForwarduid(originUid);
-                            weibo.setForwardmid(originid );
-                        }
-                        JSONObject user = blog.getJSONObject("user");
-                        log.info("weibo_info:" + "ouid：" + user.getString("id"));
-                        weibo.setUid(user.getString("id"));
-                        log.info("weibo_info:" + "昵称：" + user.getString("screen_name"));
-                        weibo.setNickname(user.getString("screen_name"));
+                Element datea = feed.select(".WB_detail a[name]").get(0);
+                log.info("weibo_info:" + "发布时间: " + datea.attr("title"));
+                weibo.setCreateDate(datea.attr("title"));
+                if (datea.nextElementSibling() != null) {
+                    log.info("weibo_info:" + "来源：" + datea.nextElementSibling().html());
+                    weibo.setSource(datea.nextElementSibling().html());
+                }
 
-                        String dateStr = blog.getString("created_at");
-                        log.info("weibo_info:"+"发布时间: "+dateStr);
-                        /*String date = null;
+                Element content = feed.select("div[node-type=feed_list_content]").get(0);
+//                log.info("weibo_info:"+content.html());
+                Elements unfold = content.select("a[action-type=fl_unfold]");
+                if (unfold.size() > 0) {
+                    if (unfold.get(0).text().startsWith("展开全文")) {
+                        System.out.print("展开全文：");
                         try {
-                            date = DateUtils.parseAndFormat(dateStr);
-                        } catch (Exception e) {
+                            Thread.sleep(1100);
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
-                        }*/
-                        weibo.setCreateDate(dateStr);
-                        log.info("weibo_info:"+"来源：" + blog.getString("source"));
-                        weibo.setSource(blog.getString("source"));
-
-                        Element content = Jsoup.parse(blog.getString("text")).body();
-                        if (blog.getBoolean("isLongText")) {
-                            System.out.print("展开全文：");
-                            try {
-                                Thread.sleep(1100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            Element newContent = null;
-                            try {
-                                newContent = crawleUtils.getLongText(weibo.getId());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            if (newContent != null) {
-                                content = newContent;
-                            }
                         }
-                        weibo.setHtmlContent(content.html());
-                        String contentText = content.text();
-                        weibo.setContent(contentText);
-                        log.info("weibo_info:"+"内容：" + contentText);
-                        if (isforward) {
-                            JSONObject originWeibo = new JSONObject();
-                            String originNick = origin.getJSONObject("user").getString("screen_name");
-                            originWeibo.put("originNick", originNick);
-
-                            dateStr = origin.getString("created_at");
-                            log.info("原微博:"+"发布时间: "+dateStr);
-                            /*date = null;
-                            try {
-                                date = DateUtils.parseAndFormat(dateStr);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }*/
-                            weibo.setCreateDate(dateStr);
-                            log.info("原微博:"+"来源：" + origin.getString("source"));
-                            weibo.setSource(origin.getString("source"));
-
-                            Element feedReasonElem = Jsoup.parse(origin.getString("text")).body();
-                            if (origin.getBoolean("isLongText")) {
+                        Element newContent = crawleUtils.getLongText(weibo.getId());
+                        if (newContent != null) {
+                            content = newContent;
+                        }
+                    }
+                }
+                weibo.setHtmlContent(content.html());
+                String contentText = content.text();
+                weibo.setContent(contentText);
+                log.info("weibo_info:" + "内容：" + contentText);
+                if (isforward) {
+                    JSONObject originWeibo = new JSONObject();
+                    Element forwardContentElem = feed.select(".WB_feed_expand div[node-type=feed_list_forwardContent]").get(0);
+                    Elements titleA = forwardContentElem.select(".WB_info a[node-type=feed_list_originNick]");
+                    String originNick = "";
+                    if (titleA.size() > 0) {
+                        originNick = titleA.get(0).attr("title");
+                    }
+                    originWeibo.put("originNick", originNick);
+                    Elements feedReasonElems = forwardContentElem.select("div[node-type=feed_list_reason]");
+                    if (feedReasonElems.size() > 0) {
+                        Element feedReasonElem = feedReasonElems.first();
+                        Elements unfoldA = feedReasonElem.select("a[action-type=fl_unfold]");
+                        if (unfoldA.size() > 0) {
+                            if (unfoldA.get(0).text().startsWith("展开全文")) {
                                 System.out.print("原微博 展开全文：");
                                 try {
                                     Thread.sleep(1000);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                Element newElem = null;
-                                try {
-                                    newElem = crawleUtils.getLongText(weibo.getForwardmid());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                                Element newElem = crawleUtils.getLongText(weibo.getForwardmid());
                                 if (newElem != null) {
                                     feedReasonElem = newElem;
                                 }
                             }
-                            String originContent = feedReasonElem.text();
-                            String originContentHtml = feedReasonElem.html();
-                            log.info("weibo_info:"+"   原内容 " + originContent);
-                            originWeibo.put("originContent", originContent);
-                            originWeibo.put("originContentHtml", originContentHtml);
-                            JSONArray pics = origin.getJSONArray("pics");
+                        }
+                        String originContent = feedReasonElem.text();
+                        String originContentHtml = feedReasonElem.html();
+                        log.info("weibo_info:" + "   原内容 " + originContent);
+                        originWeibo.put("originContent", originContent);
+                        originWeibo.put("originContentHtml", originContentHtml);
+                    }
+                    Element pics = feed.select(".WB_media_wrap .media_box .WB_media_a").first();
+                    String originPicIds = "";
+                    if (pics != null) {
+                        if (!(pics.attr("node-type").isEmpty())) {
+                            originPicIds = crawleUtils.getValue(pics.attr("action-data"), "pic_ids");
+                            log.info("weibo_info:" + "原来微博的图片：" + originPicIds);
+                        } else {
+                            pics = pics.select(".WB_pic").first();
                             if (pics != null) {
-                                JSONArray array1 = new JSONArray();
-                                for (int j = 0; j < pics.size(); j++) {
-                                    array1.add(pics.getJSONObject(j).getString("pid"));
-                                }
-                                log.info("weibo_info:"+"原来微博的图片：" + array1.toJSONString());
-                                originWeibo.put("picids", array1.toJSONString());
-                            }
-                            originWeibo.put("bid", origin.getString("bid"));
-
-                            originWeibo.put("forwardNumber", origin.getLongValue("reposts_count"));
-                            log.info("weibo_info:"+"原转发：" + origin.getLongValue("reposts_count"));
-
-                            originWeibo.put("likeNumber", origin.getLongValue("attitudes_count"));
-                            log.info("weibo_info:"+"原赞：" + origin.getLongValue("attitudes_count"));
-
-                            originWeibo.put("commentNumber", origin.getLongValue("comments_count"));
-                            originWeibo.put("forwardUrl", "https://m.weibo.cn/status/" + origin.getString("bid"));
-                            log.info("weibo_info:" + "原评论：" + origin.getLongValue("comments_count") + "  链接：" + "https://m.weibo.cn/status/" + origin.getString("bid"));
-
-                            weibo.setJSONMeta(originWeibo);
-                        }
-
-                        String topicreg = "#([\\S|\\s]*?)#";
-                        Pattern pattern = Pattern.compile(topicreg);
-                        Matcher m = pattern.matcher(contentText);
-                        String tps = "";
-                        while (m.find()) {
-                            tps += "#";
-                            tps += m.group(1);
-                        }
-                        log.info("weibo_info:"+"话题：" + tps.replaceFirst("#", ""));
-                        weibo.setTopics(tps.replaceFirst("#", ""));
-
-                        JSONObject media = blog.getJSONObject("page_info");
-                        if (media != null) {
-                            String type = media.getString("type");
-                            if ("video".equals(type)) {
-                                String videoUrl = media.getJSONObject("media_info").getString("stream_url");
-                                log.info("weibo_info:" + "视频地址：" + videoUrl);
-//                                weibo.setVideo_src(videoUrl);
+                                originPicIds = crawleUtils.getValue(pics.attr("action-data"), "pic_ids");
+                                log.info("weibo_info:" + "原来微博的图片：" + originPicIds);
                             }
                         }
-                        String bid = blog.getString("bid");
-                        weibo.setForwardNumber(blog.getLong("reposts_count"));
-//                        weibo.setForwardUrl("https://m.weibo.cn/status/" + bid);
-                        log.info("weibo_info:" + "转发：" + blog.getLong("reposts_count"));
+                    }
+                    originWeibo.put("picids", originPicIds);
 
-                        weibo.setCommentNumber(blog.getLong("comments_count"));
-                        weibo.setCommentUrl("https://m.weibo.cn/status/" + bid);
-                        log.info("weibo_info:" + "评论：" + blog.getLong("comments_count") + "  链接：" + "https://m.weibo.cn/status/" + bid);
+                    Element WB_func = forwardContentElem.select(".WB_func").first();
+                    if (WB_func != null) {
+                        Elements lis = WB_func.select("ul a");
+                        if (lis.size() == 3) {
+                            Element forwardA = lis.get(0);
+                            String forwardCommandLink = "http:" + forwardA.attr("href");
+                            forwardCommandLink = forwardCommandLink.substring(0, forwardCommandLink.indexOf("?"));
+                            String forwardCount = forwardA.select("em").get(1).html();
+                            if (!StringUtils.isNumeric(forwardCount)) {
+                                forwardCount = "0";
+                            }
+                            originWeibo.put("forwardNumber", (Long.parseLong(forwardCount)));
+                            originWeibo.put("forwardUrl", (forwardCommandLink + "?type=repost"));
+                            log.info("weibo_info:" + "原转发：" + forwardCount + "  链接：" + forwardCommandLink + "?type=repost");
 
-                        weibo.setLikeNumber(blog.getLong("attitudes_count"));
-                        log.info("weibo_info:"+"赞：" + blog.getLong("attitudes_count"));
+                            Element commentA = lis.get(1);
+                            String commentCount = commentA.select("em").get(1).html();
+                            if (!StringUtils.isNumeric(commentCount)) {
+                                commentCount = "0";
+                            }
+                            originWeibo.put("commentNumber", Long.parseLong(commentCount));
+                            originWeibo.put("forwardUrl", forwardCommandLink + "?type=comment");
+                            log.info("weibo_info:" + "原评论：" + commentCount + "  链接：" + forwardCommandLink + "?type=comment");
 
-                        JSONArray pics = blog.getJSONArray("pics");
+                            Element likeA = lis.get(2);
+                            String likeCount = likeA.select("em").get(1).html();
+                            if (!StringUtils.isNumeric(likeCount)) {
+                                likeCount = "0";
+                            }
+                            originWeibo.put("likeNumber", Long.parseLong(likeCount));
+                            log.info("weibo_info:" + "原赞：" + likeCount + "  链接：" + forwardCommandLink + "?type=like");
+                        }
+                    }
+                    weibo.setJSONMeta(originWeibo);
+                }
+                String topicreg = "#([\\S|\\s]*?)#";
+                Pattern pattern = Pattern.compile(topicreg);
+                Matcher m = pattern.matcher(contentText);
+                String tps = "";
+                while (m.find()) {
+                    tps += "#";
+                    tps += m.group(1);
+                }
+                log.info("weibo_info:" + "话题：" + tps.replaceFirst("#", ""));
+                weibo.setTopics(tps.replaceFirst("#", ""));
+                Elements video = feed.select(".WB_detail .WB_video");
+                if (video.size() > 0) {
+                    String actionData = video.attr("action-data");
+                    String video_src = crawleUtils.getValue(actionData, "video_src");
+                    String url = video_src.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+                    String urlStr = "http:" + URLDecoder.decode(url, "UTF-8");
+                    log.info("weibo_info:" + "视频地址：" + urlStr);
+//                    weibo.setVideo_src(urlStr);
+                }
+                Element WB_row_line = feed.select(".WB_row_line").first();
+                Element forwardA = WB_row_line.select("li a[action-type=fl_forward]").first();
+                String forwardCommandLink = "http:" + crawleUtils.getValue(forwardA.attr("action-data"), "url");
+                String forwardCount = forwardA.select("em").get(1).html();
+                if (!StringUtils.isNumeric(forwardCount)) {
+                    forwardCount = "0";
+                }
+                weibo.setForwardNumber(Long.parseLong(forwardCount));
+                weibo.setForwardUrl(forwardCommandLink + "?type=repost");
+                log.info("weibo_info:" + "转发：" + forwardCount + "  链接：" + forwardCommandLink + "?type=repost");
+
+                Element commentA = WB_row_line.select("li a[action-type=fl_comment]").first();
+                String commentCount = commentA.select("em").get(1).html();
+                if (!StringUtils.isNumeric(commentCount)) {
+                    commentCount = "0";
+                }
+                weibo.setCommentNumber(Long.parseLong(commentCount));
+                weibo.setForwardUrl(forwardCommandLink + "?type=comment");
+                log.info("weibo_info:" + "评论：" + commentCount + "  链接：" + forwardCommandLink + "?type=comment");
+
+                Element likeA = WB_row_line.select("li span[node-type=like_status]").first();
+                String likeCount = likeA.select("em").get(1).html();
+                if (!StringUtils.isNumeric(likeCount)) {
+                    likeCount = "0";
+                }
+                weibo.setLikeNumber(Long.parseLong(likeCount));
+                log.info("weibo_info:" + "赞：" + likeCount + "  链接：" + forwardCommandLink + "?type=like");
+
+                Element pics = feed.select(".WB_media_wrap .media_box .WB_media_a").first();
+                if (pics != null) {
+                    if (!(pics.attr("node-type").isEmpty())) {
+                        String pic_ids = crawleUtils.getValue(pics.attr("action-data"), "pic_ids");
+                        log.info("weibo_info:" + "图片：" + pic_ids);
+                        weibo.setPicids(pic_ids);
+                    } else {
+                        pics = pics.select(".WB_pic").first();
                         if (pics != null) {
-                            JSONArray array1 = new JSONArray();
-                            for (int j = 0; j < pics.size(); j++) {
-                                array1.add(pics.getJSONObject(j).getString("pid"));
-                            }
-                            log.info("weibo_info:"+"图片：" + array1.toJSONString());
-                            weibo.setPicids(array1.toJSONString());
+                            String pic_ids = crawleUtils.getValue(pics.attr("action-data"), "pic_ids");
+                            weibo.setPicids(pic_ids);
+                            log.info("weibo_info:" + "图片：" + pic_ids);
                         }
-                        log.info("====================");
-                        list.add(weibo);
                     }
                 }
+                log.info("====================");
+                list.add(weibo);
             }
             return list;
         }
+
     }
 
     /**

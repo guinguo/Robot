@@ -6,6 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import org.hsqldb.types.JavaObject;
 import org.junit.Test;
 import top.guinguo.modules.weibo.dao.HBaseDaoImlp;
+import top.guinguo.modules.weibo.utils.Contants;
+import top.guinguo.modules.weibo.utils.RedisUtils;
 
 /**
  * @描述:
@@ -17,7 +19,7 @@ public class TestHbase {
     @Test
     public void test01() throws Exception {
         HBaseDaoImlp hBaseDaoImlp = HBaseDaoImlp.getInstance();
-        hBaseDaoImlp.queryByColumn("user3", "sex", "女");
+        hBaseDaoImlp.queryByColumn(Contants.T_USER, "sex", "女");
     }
     @Test
     public void test02() throws Exception {
@@ -39,5 +41,10 @@ public class TestHbase {
             array1.add(array.getJSONObject(i).getString("pid"));
         }
         System.out.println(array1.toJSONString());
+    }
+    @Test
+    public void test05() throws Exception {
+        RedisUtils redisUtils = RedisUtils.getInstance();
+        redisUtils.loadData();
     }
 }

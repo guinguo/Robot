@@ -1,5 +1,6 @@
 package top.guinguo.modules.weibo.utils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,7 +38,7 @@ public class DateUtils {
         }
     }
 
-    public static Date parse(String str) throws Exception {
+    public static Date parse(String str) {
         if (str.matches(CURRENT_YEAR_REG)) {
             Calendar c = Calendar.getInstance();
             str = c.get(Calendar.YEAR) + "-" + str;
@@ -46,23 +47,35 @@ public class DateUtils {
             str = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DATE) + " " + str.split(" ")[1];
         }
         SimpleDateFormat sdf = generalSdf.get();
+        Date result = null;
         if (sdf == null) {
             sdf = new SimpleDateFormat(PATTERN);
             generalSdf.set(sdf);
+            try {
+                result = sdf.parse(str);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
-        return sdf.parse(str);
+        return result;
     }
 
-    public static String format(Date date) throws Exception {
+    public static String format(Date date) {
         SimpleDateFormat sdf = generalSdf.get();
+        String result = "";
         if (sdf == null) {
             sdf = new SimpleDateFormat(PATTERN);
             generalSdf.set(sdf);
+            try {
+                result = sdf.format(date);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        return sdf.format(date);
+        return result;
     }
 
-    public static String parseAndFormat(String str) throws Exception {
+    public static String parseAndFormat(String str) {
         return format(parse(str));
     }
 }

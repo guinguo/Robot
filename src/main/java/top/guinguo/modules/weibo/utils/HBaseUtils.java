@@ -48,13 +48,13 @@ public class HBaseUtils {
             put.addColumn(Contants.COLUMN_BASIC.getBytes(), "address".getBytes(), (user.getAddress()).getBytes());
         }
         if (user.getBirthDate() != null) {
-            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "birthDate".getBytes(), (user.getBirthDate().getTime() + "").getBytes());
+            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "birthDate".getBytes(), (DateUtils.format(user.getBirthDate())).getBytes());
         }
         if (user.getCrawlDate() != null) {
-            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "crawlDate".getBytes(), (user.getCrawlDate().getTime() + "").getBytes());
+            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "crawlDate".getBytes(), (DateUtils.format(user.getCrawlDate())).getBytes());
         }
         if (user.getRegistedDate() != null) {
-            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "registedDate".getBytes(), (user.getRegistedDate().getTime() + "").getBytes());
+            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "registedDate".getBytes(), (DateUtils.format(user.getRegistedDate())).getBytes());
         }
         if (user.getTags() != null) {
             put.addColumn(Contants.COLUMN_BASIC.getBytes(), "tags".getBytes(), (user.getTags()).getBytes());

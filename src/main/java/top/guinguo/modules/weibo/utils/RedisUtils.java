@@ -65,7 +65,7 @@ public class RedisUtils {
 
     public void loadData() throws Exception {
         HBaseDaoImlp hBaseDao = HBaseDaoImlp.getInstance();
-        List<Map<String, Object>> list = hBaseDao.queryAll("user3", false);
+        List<Map<String, Object>> list = hBaseDao.queryAll(Contants.T_USER, false);
         Jedis jedis = getJedis();
         for (Map<String, Object> user : list) {
             if (jedis.get(user.get("rowkey").toString()) == null) {

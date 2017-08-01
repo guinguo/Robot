@@ -95,7 +95,9 @@ public class HBaseDaoImlp implements IHbaseDao {
         List<Map<String, Object>> resultList = new ArrayList<>();
         TableName tn = TableName.valueOf(tableName);
         Table table = connection.getTable(tn);
-        ResultScanner rs = table.getScanner(new Scan());
+        Scan scan = new Scan();
+        scan.setCacheBlocks(false);
+        ResultScanner rs = table.getScanner(scan);
         resultList = getAndPrint(rs, print, resultList);
         rs.close();
         table.close();
@@ -126,6 +128,7 @@ public class HBaseDaoImlp implements IHbaseDao {
         TableName tn = TableName.valueOf(tableName);
         Table table = connection.getTable(tn);
         Scan scan = new Scan();//get by scan
+        scan.setCacheBlocks(false);
         scan.setFilter(new PrefixFilter(prefix.getBytes()));
         ResultScanner rs = table.getScanner(scan);
         resultList = getAndPrint(rs, print, resultList);
@@ -164,9 +167,10 @@ public class HBaseDaoImlp implements IHbaseDao {
         Table table = connection.getTable(tn);
         Filter filter = new SingleColumnValueFilter(
                 Bytes.toBytes(Contants.COLUMN_BASIC),
-                Bytes.toBytes(columnName), CompareFilter.CompareOp.GREATER_OR_EQUAL,
+                Bytes.toBytes(columnName), CompareFilter.CompareOp.EQUAL,
                 Bytes.toBytes(value));
         Scan s = new Scan();
+        s.setCacheBlocks(false);
         s.setFilter(filter);
         ResultScanner rs = table.getScanner(s);
         for (Result r : rs) {
