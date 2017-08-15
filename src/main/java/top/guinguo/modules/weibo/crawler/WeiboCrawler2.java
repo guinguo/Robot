@@ -338,11 +338,8 @@ public class WeiboCrawler2 {
                                     }
                                 } else if ("注册时间".equals(itemName)) {
                                     if (user.getRegistedDate() == null) {
-                                        try {
-                                            user.setRegistedDate(sdf.parse(itemValue));
-                                            log.info("weibo_info:" + "注册时间: " + itemValue);
-                                        } catch (ParseException e) {
-                                        }
+                                        user.setRegistedDate(itemValue);
+                                        log.info("weibo_info:" + "注册时间: " + itemValue);
                                     }
                                 } else if ("公司".equals(itemName)) {
                                     if (user.getCompany() == null) {

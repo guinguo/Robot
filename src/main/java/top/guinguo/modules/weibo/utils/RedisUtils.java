@@ -7,6 +7,7 @@ import top.guinguo.modules.weibo.dao.HBaseDaoImlp;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @描述:
@@ -46,6 +47,13 @@ public class RedisUtils {
         String s = jedis.get(key);
         jedis.close();
         return s;
+    }
+
+    public Set<String> keys(String pattern) {
+        Jedis jedis = getJedis();
+        Set<String> set = jedis.keys(pattern);
+        jedis.close();
+        return set;
     }
 
     public String set(String key, String value) {

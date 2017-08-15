@@ -9,6 +9,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -23,6 +25,7 @@ import static top.guinguo.utils.HttpUtil.USER_AGEN;
  * @版本: v1.0
  */
 public class CrawleUtils {
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public static final String WB_LONGTEXT_URL = "wb.longtext.url";
     private static String wbLongTextURL;
@@ -76,6 +79,7 @@ public class CrawleUtils {
         if ("1" .equals(json.getString("ok"))) {
             String html = json.getString("longTextContent");
             Element div = Jsoup.parse(html).body();
+            log.info("weibo_info:" + "展开全文：" + html);
             return div;
         }
         return null;

@@ -54,7 +54,7 @@ public class HBaseUtils {
             put.addColumn(Contants.COLUMN_BASIC.getBytes(), "crawlDate".getBytes(), (DateUtils.format(user.getCrawlDate())).getBytes());
         }
         if (user.getRegistedDate() != null) {
-            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "registedDate".getBytes(), (DateUtils.format(user.getRegistedDate())).getBytes());
+            put.addColumn(Contants.COLUMN_BASIC.getBytes(), "registedDate".getBytes(), user.getRegistedDate().getBytes());
         }
         if (user.getTags() != null) {
             put.addColumn(Contants.COLUMN_BASIC.getBytes(), "tags".getBytes(), (user.getTags()).getBytes());

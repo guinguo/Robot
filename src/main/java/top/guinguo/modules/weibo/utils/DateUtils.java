@@ -14,14 +14,14 @@ import java.util.Date;
 public class DateUtils {
     public static final String PATTERN = "yyyy-MM-dd HH:mm";
 
-    private static ThreadLocal<SimpleDateFormat> generalSdf = new ThreadLocal<>();
+    private static SimpleDateFormat sdf = new SimpleDateFormat(PATTERN);
 
     public static final String GENERAL_REG = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}";
     public static final String CURRENT_YEAR_REG = "\\d{2}-\\d{2}\\s\\d{2}:\\d{2}";
     public static final String TODAY_REG = "今天\\s\\d{2}:\\d{2}";
 
     public static void main(String[] args) throws Exception {
-        String[] ds = {"今天 01:20", "07-18 10:49", "2016-05-27 09:31"};
+        String[] ds = {"今天 01:20", "07-18 10:49", "2016-05-27 09:31", "2015-07-14"};
         for (String s : ds) {
             if (s.matches(GENERAL_REG)) {
                 Date date = parse(s);
@@ -46,11 +46,8 @@ public class DateUtils {
             Calendar c = Calendar.getInstance();
             str = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DATE) + " " + str.split(" ")[1];
         }
-        SimpleDateFormat sdf = generalSdf.get();
         Date result = null;
-        if (sdf == null) {
-            sdf = new SimpleDateFormat(PATTERN);
-            generalSdf.set(sdf);
+        synchronized (sdf) {
             try {
                 result = sdf.parse(str);
             } catch (ParseException e) {
@@ -61,11 +58,8 @@ public class DateUtils {
     }
 
     public static String format(Date date) {
-        SimpleDateFormat sdf = generalSdf.get();
         String result = "";
-        if (sdf == null) {
-            sdf = new SimpleDateFormat(PATTERN);
-            generalSdf.set(sdf);
+        synchronized (sdf) {
             try {
                 result = sdf.format(date);
             } catch (Exception e) {

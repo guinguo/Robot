@@ -40,7 +40,6 @@ import static top.guinguo.utils.HttpUtil.USER_AGEN;
  */
 public class WeiboCrawler3 {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
-    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public static final String MAIN_URL = "wb.main.url";//个人主页
     public static final String MAIN_INFO = "wb.main.info";//个人信息
@@ -138,11 +137,11 @@ public class WeiboCrawler3 {
         @Override
         public void run() {
             try {
-                log.info("[主线程]：[" + Thread.currentThread() + "]开始启动，起始id：" + index+ "的用户");
+                log.error("[主线程]：[" + Thread.currentThread() + "]开始启动，起始id：" + index+ "的用户");
                 long start = System.currentTimeMillis();
                 this.work(index, size, sleepInterval);
                 long end = System.currentTimeMillis();
-                log.info("[主线程]：[" + Thread.currentThread() + "]完成，结束id：" + (index + size) + "的用户,耗时：" + (end - start)/1000 + "s");
+                log.error("[主线程]：[" + Thread.currentThread() + "]完成，结束id：" + (index + size) + "的用户,耗时：" + (end - start)/1000 + "s");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -340,7 +339,16 @@ public class WeiboCrawler3 {
             tmp = (random.nextInt(2) + 1) * (sleepInterval / 2);
             System.out.println("getOriginRatio:==================================================="+tmp);
             Thread.sleep(tmp);
-            String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrlOri, uid, uid, 1));
+            String respStr = null;
+            try {
+                respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrlOri, uid, uid, 1));
+            } catch (IOException e) {
+                e.printStackTrace();
+                log.error("[getwbUrlOri]: " + uid + "：" + e.getMessage());
+                response.close();
+                client.close();
+                return null;
+            }
             JSONObject cardlistInfo = JSON.parseObject(respStr).getJSONObject("cardlistInfo");
             if (cardlistInfo == null) {
                 response.close();
@@ -401,21 +409,21 @@ public class WeiboCrawler3 {
             boolean mayZombie = (user.getFocus() - user.getFans()) > 900;//可能僵尸用户
             double localRatio = toCrawlWbRatio;
             if ("女".equals(user.getSex())) {
-                double weight = 0.45;
+                double weight = 0.50;
                 if (user.getBlogNumber() < 100) {
-                    weight = 0.187;
+                    weight = 0.251;
                 } else if (user.getBlogNumber() < 300) {
-                    weight = 0.262;
+                    weight = 0.312;
                 } else if (user.getBlogNumber() < 500) {
-                    weight = 0.33;
+                    weight = 0.353;
                 } else if (user.getBlogNumber() < 1000) {
-                    weight = 0.39;
+                    weight = 0.461;
                 }
                 localRatio = localRatio * weight;//降低标准
-                userRatio *= 1.104;//增加权重
+//                userRatio *= 1.104;//增加权重
             }
             if (mayZombie) {
-                localRatio += 0.1;//僵尸用户 提高要求
+                localRatio += 0.15;//僵尸用户 提高要求
             }
             if (userRatio < localRatio) {
                 oriTooLow = true;
@@ -503,11 +511,8 @@ public class WeiboCrawler3 {
                                     }
                                 } else if ("注册时间".equals(itemName)) {
                                     if (user.getRegistedDate() == null) {
-                                        try {
-                                            user.setRegistedDate(sdf.parse(itemValue));
-                                            log.info("weibo_info:" + "注册时间: " + itemValue);
-                                        } catch (ParseException e) {
-                                        }
+                                        user.setRegistedDate(itemValue);
+                                        log.info("weibo_info:" + "注册时间: " + itemValue + ",-->" + itemValue);
                                     }
                                 } else if ("公司".equals(itemName)) {
                                     if (user.getCompany() == null) {
@@ -680,7 +685,7 @@ public class WeiboCrawler3 {
                 Elements unfold = content.select("a[action-type=fl_unfold]");
                 if (unfold.size() > 0) {
                     if (unfold.get(0).text().startsWith("展开全文")) {
-                        System.out.print("展开全文：");
+                        System.out.println("展开全文：");
                         try {
                             Thread.sleep(1100);
                         } catch (InterruptedException e) {
@@ -711,7 +716,7 @@ public class WeiboCrawler3 {
                         Elements unfoldA = feedReasonElem.select("a[action-type=fl_unfold]");
                         if (unfoldA.size() > 0) {
                             if (unfoldA.get(0).text().startsWith("展开全文")) {
-                                System.out.print("原微博 展开全文：");
+                                System.out.println("原微博 展开全文：");
                                 try {
                                     Thread.sleep(1000);
                                 } catch (InterruptedException e) {

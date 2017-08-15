@@ -69,7 +69,7 @@ public class User implements java.io.Serializable {
     /**
      * 注册日期
      */
-    private Date registedDate;
+    private String registedDate;
     /**
      * 标签  空格分割
      */
@@ -198,11 +198,11 @@ public class User implements java.io.Serializable {
         this.crawlDate = crawlDate;
     }
 
-    public Date getRegistedDate() {
+    public String getRegistedDate() {
         return registedDate;
     }
 
-    public void setRegistedDate(Date registedDate) {
+    public void setRegistedDate(String registedDate) {
         this.registedDate = registedDate;
     }
 

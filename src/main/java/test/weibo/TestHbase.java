@@ -3,11 +3,29 @@ package test.weibo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.hsqldb.types.JavaObject;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 import top.guinguo.modules.weibo.dao.HBaseDaoImlp;
 import top.guinguo.modules.weibo.utils.Contants;
+import top.guinguo.modules.weibo.utils.CrawleHttpFactory;
 import top.guinguo.modules.weibo.utils.RedisUtils;
+
+import java.io.*;
+import java.net.NoRouteToHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static top.guinguo.utils.HttpUtil.USER_AGEN;
 
 /**
  * @描述:
@@ -16,10 +34,11 @@ import top.guinguo.modules.weibo.utils.RedisUtils;
  * @版本: v1.0
  */
 public class TestHbase {
+    final Logger log = LoggerFactory.getLogger(this.getClass());
     @Test
     public void test01() throws Exception {
         HBaseDaoImlp hBaseDaoImlp = HBaseDaoImlp.getInstance();
-        hBaseDaoImlp.queryByColumn(Contants.T_USER, "sex", "女");
+        hBaseDaoImlp.queryByColumn(Contants.T_USER, "address", "广西 南宁");
     }
     @Test
     public void test02() throws Exception {
@@ -46,5 +65,110 @@ public class TestHbase {
     public void test05() throws Exception {
         RedisUtils redisUtils = RedisUtils.getInstance();
         redisUtils.loadData();
+    }
+
+
+    @Test
+    public void test06() throws Exception {
+        File file = new File("G:/user4.json");
+        InputStreamReader isr = new InputStreamReader(new FileInputStream(file));
+        BufferedReader reader = new BufferedReader(isr);
+        String s = null;
+        if (reader != null) {
+            s = reader.readLine();
+        }
+        ExecutorService exePool = Executors.newCachedThreadPool();
+        if (s != null) {
+            JSONArray jsonArray = JSONArray.parseArray(s);
+
+            int count = jsonArray.size() / 1000 + 1;
+
+            for (int i = 0;i<count;i++) {
+                int index = i * 1000;
+                List<String> users = new ArrayList<>(1000);
+                int j = 0;
+                while (j < 1000 && index < jsonArray.size()) {
+                    users.add(jsonArray.get(index++).toString());
+                    j++;
+                }
+                exePool.submit(new GetRegisterDate(users));
+            }
+//            exePool.shutdown();
+        }
+
+    }
+
+    class GetRegisterDate implements Runnable {
+
+        private List<String> users;
+        private CrawleHttpFactory crawleHttpFactory;
+        RedisUtils redisUtils = RedisUtils.getInstance();
+
+        public GetRegisterDate(List<String> users) {
+            this.users = users;
+            this.crawleHttpFactory = CrawleHttpFactory.getInstance();
+        }
+
+        @Override
+        public void run() {
+            String resultStr = null;
+            CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
+            String mainInfo = "https://m.weibo.cn/api/container/getIndex?containerid=230283%1$s_-_INFO";
+            Jedis jedis = redisUtils.getJedis();
+            for (String uid : users) {
+                JSONObject result = null;
+                try {
+                    resultStr = crawleHttpFactory.getRespStr(client, String.format(mainInfo, uid));
+                } catch (NoRouteToHostException nrte) {
+                    nrte.printStackTrace();
+                    log.error("[getOneBlogs Exception]: " + nrte.getMessage());
+                    try {
+                        client.close();
+                        Thread.sleep(5 * 60 * 1000);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    log.error("[getOneBlogs]: " + e.getMessage());
+                    try {
+                        client.close();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                result = JSONObject.parseObject(resultStr);
+                String registerDate = getUserRegDate(uid, result);
+                if (registerDate != null) {
+//                    jedis.append("reg_" + uid, registerDate);
+                }
+            }
+            jedis.close();
+        }
+        public String getUserRegDate(String uid, JSONObject result) {
+            JSONArray cards = result.getJSONArray("cards");
+            if (cards != null) {
+                for (int i = 0; i < cards.size(); i++) {
+                    JSONObject card = cards.getJSONObject(i);
+                    JSONArray cardGroup = card.getJSONArray("card_group");
+                    if (cardGroup != null && cardGroup.size() > 0) {
+                        for (int j = 0; j < cardGroup.size(); j++) {
+                            JSONObject cardOne = cardGroup.getJSONObject(j);
+                            String itemName = cardOne.getString("item_name");
+                            if (!StringUtils.isEmpty(itemName)) {
+                                String itemValue = cardOne.getString("item_content");
+                                if ("注册时间".equals(itemName)) {
+                                    log.info("weibo_info:" + "注册时间: " + ",-->" + itemValue);
+                                    return itemValue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
     }
 }
