@@ -3,6 +3,7 @@ package test.weibo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.hankcs.hanlp.HanLP;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -50,7 +51,39 @@ public class TestHbase {
     @Test
     public void test03() throws Exception {
         HBaseDaoImlp hBaseDaoImlp = HBaseDaoImlp.getInstance();
-        hBaseDaoImlp.scaneByPrefixFilter("weibo3", "3820323805", true);
+        List<Map<String, Object>> list = hBaseDaoImlp.scaneByRange("weibo4", "6026962315_0000000000000000", "6026962315_9000000000000000", false);
+        List<String> contents = new ArrayList<>(list.size());
+        StringBuilder sb = new StringBuilder("");
+        for (Map<String, Object> map : list) {
+            String content = map.get("content").toString();
+//            System.out.println("rowkey:" + map.get("rowkey") + ",content:" + content);
+            contents.add(content);
+            sb.append(content + "\n");
+        }
+        StringBuilder sb2 = new StringBuilder("");
+        for (String c : contents) {
+            sb2.append(HanLP.extractKeyword(c, 1).size() > 0 ? HanLP.extractKeyword(c, 1).get(0) + "," : "");
+        }
+        StringBuilder sb3 = new StringBuilder("");
+        List<String> kws1 = HanLP.extractKeyword(sb2.toString(), 10);
+        List<String> kws2 = HanLP.extractKeyword(sb.toString(), 10);
+        System.out.println("每条微博的前十个关键词");
+        for (String kw : kws1) {
+            System.out.print(kw + ",");
+            sb3.append(kw + ",");
+        }
+        System.out.println();
+        System.out.println("所有微博的前十个关键词");
+        for (String kw : kws2) {
+            System.out.print(kw + ",");
+            sb3.append(kw + ",");
+        }
+        List<String> kws3 = HanLP.extractKeyword(sb3.toString(), 10);
+        System.out.println();
+        System.out.println(list.get(0).get("nickname") + "前十个关键词");
+        for (String kw : kws3) {
+            System.out.print(kw + ",");
+        }
     }
     @Test
     public void test04() throws Exception {

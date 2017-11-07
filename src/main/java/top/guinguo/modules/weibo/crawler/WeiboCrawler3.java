@@ -21,7 +21,10 @@ import top.guinguo.modules.weibo.service.WeiboService;
 import top.guinguo.modules.weibo.utils.*;
 import top.guinguo.utils.HttpUtil;
 
+import javax.net.ssl.SSLHandshakeException;
+import java.io.EOFException;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
@@ -53,6 +56,7 @@ public class WeiboCrawler3 {
     public static final String EACH_USER_SLEEP_INTERVAL = "each.user.sleep.interval";
     public static final String MIAN_THREAD_INDEX = "mian.thread.index";
     public static final String LOAD_TO_DB = "load.to.db";
+    public static final String NEED_CACHE = "need.cache";
     public static final String PAGE_SIZE = "page.size";
     public static final String TO_CRAWL_PAGE_STEP1 = "to.crawl.page.step1";
     public static final String TO_CRAWL_PAGE_STEP2 = "to.crawl.page.step2";
@@ -70,6 +74,7 @@ public class WeiboCrawler3 {
     private long eachUserSleepInterval;
     private long mianThreadIndex;
     private boolean load2Db;
+    private boolean needCache;
     private int pageSize;
     private int toCrawlPageStep1;
     private int toCrawlPageStep2;
@@ -99,6 +104,7 @@ public class WeiboCrawler3 {
         this.eachUserSleepInterval = configurator.getLong(EACH_USER_SLEEP_INTERVAL);
         this.mianThreadIndex = configurator.getLong(MIAN_THREAD_INDEX);
         this.load2Db = configurator.getBoolean(LOAD_TO_DB, false);
+        this.needCache = configurator.getBoolean(NEED_CACHE, true);
         this.pageSize = configurator.getInt(PAGE_SIZE, 10);
         this.toCrawlPageStep1 = configurator.getInt(TO_CRAWL_PAGE_STEP1, 5);
         this.toCrawlPageStep2 = configurator.getInt(TO_CRAWL_PAGE_STEP2, 1);
@@ -107,7 +113,9 @@ public class WeiboCrawler3 {
 
     public static void main(String[] args) throws Exception {
         WeiboCrawler3 weiboCrawler = new WeiboCrawler3();
-        weiboCrawler.redisUtils.loadData();
+        if (weiboCrawler.needCache) {
+            weiboCrawler.redisUtils.loadData();
+        }
         long index = weiboCrawler.mianThreadIndex;
         ExecutorService mainThreadPool = Executors.newFixedThreadPool(weiboCrawler.mainThreadNumber);
         for (int i = 0; i < weiboCrawler.mainThreadNumber; i++) {
@@ -276,14 +284,34 @@ public class WeiboCrawler3 {
                 HttpGet get = crawleHttpFactory.generateGet(String.format(mainUrl, uid, uid));
                 response = client.execute(get);
                 get.clone();
+            } catch (SSLHandshakeException e) {
+                e.printStackTrace();
+                log.error("SSLHandshakeException:" + e.getMessage());
+                client.close();
+                Thread.sleep(1000 * 60 * 30);
+                return null;
+            } catch (ConnectException e) {
+                e.printStackTrace();
+                log.error("ConnectException:" + e.getMessage());
+                client.close();
+                Thread.sleep(1000 * 60 * 30);
+                return null;
+            } catch (EOFException e) {
+                e.printStackTrace();
+                log.error("EOFException:" + e.getMessage());
+                client.close();
+                Thread.sleep(1000 * 60 * 30);
+                return null;
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 log.error("UnknownHostException:" + e.getMessage());
                 client.close();
-                Thread.sleep(1000 * 60 * 10);
+                Thread.sleep(1000 * 60 * 30);
                 return null;
             } catch (IOException e) {
                 e.printStackTrace();
+                client.close();
+                Thread.sleep(1000 * 60 * 30);
                 return null;
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
@@ -342,6 +370,12 @@ public class WeiboCrawler3 {
             String respStr = null;
             try {
                 respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrlOri, uid, uid, 1));
+            } catch (SSLHandshakeException e) {
+                e.printStackTrace();
+                log.error("[getwbUrlOri][SSLHandshakeException]: " + uid + "：" + e.getMessage());
+                response.close();
+                client.close();
+                return null;
             } catch (IOException e) {
                 e.printStackTrace();
                 log.error("[getwbUrlOri]: " + uid + "：" + e.getMessage());
@@ -386,7 +420,7 @@ public class WeiboCrawler3 {
                 tmp = (random.nextInt(2) + 1) * sleepInterval;
                 System.out.println("===================================================" + tmp);
                 Thread.sleep(tmp);
-                if (load2Db) {
+                if (load2Db && needCache) {
                     redisUtils.set(uid, crawledUser.getBlogNumber() + "-" + crawledUser.getFans() + "-" + crawledUser.getFocus());
                 }
                 if (crawledUser.getFans() >= toCrawlFansNumber) {
@@ -411,19 +445,20 @@ public class WeiboCrawler3 {
             if ("女".equals(user.getSex())) {
                 double weight = 0.50;
                 if (user.getBlogNumber() < 100) {
-                    weight = 0.251;
+                    weight = 0.301;
                 } else if (user.getBlogNumber() < 300) {
-                    weight = 0.312;
+                    weight = 0.352;
                 } else if (user.getBlogNumber() < 500) {
-                    weight = 0.353;
+                    weight = 0.403;
                 } else if (user.getBlogNumber() < 1000) {
                     weight = 0.461;
                 }
-                localRatio = localRatio * weight;//降低标准
+//                localRatio = localRatio * weight;//降低标准
+                localRatio = weight;//降低标准
 //                userRatio *= 1.104;//增加权重
             }
             if (mayZombie) {
-                localRatio += 0.15;//僵尸用户 提高要求
+                localRatio += 0.25;//僵尸用户 提高要求
             }
             if (userRatio < localRatio) {
                 oriTooLow = true;
@@ -634,7 +669,21 @@ public class WeiboCrawler3 {
 
         public List<Weibo> getWb(String uid, int prepage, int page, int pagebar) throws IOException {
             CloseableHttpClient client = HttpClients.custom().setUserAgent(USER_AGEN).build();
-            String respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, prepage, page, pagebar));
+            String respStr = null;
+            try {
+                respStr = crawleHttpFactory.getRespStr(client, String.format(wbUrl, uid, prepage, page, pagebar));
+            } catch (ConnectException e) {
+                long tmp = 1000*60*10;
+                log.error("[ConnectException][sleep][" + tmp + "]");
+                System.err.println("ConnectException:===================================================" + tmp);
+                e.printStackTrace();
+                try {
+                    Thread.sleep(tmp);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                return null;
+            }
             client.close();
             try {
                 long tmp = (long) (stopInterval * Contants.intervalRadio);
@@ -812,8 +861,8 @@ public class WeiboCrawler3 {
                     forwardCount = "0";
                 }
                 weibo.setForwardNumber(Long.parseLong(forwardCount));
-                weibo.setForwardUrl(forwardCommandLink + "?type=repost");
-                log.info("weibo_info:" + "转发：" + forwardCount + "  链接：" + forwardCommandLink + "?type=repost");
+//                weibo.setForwardUrl(forwardCommandLink + "?type=repost");
+//                log.info("weibo_info:" + "转发：" + forwardCount + "  链接：" + forwardCommandLink + "?type=repost");
 
                 Element commentA = WB_row_line.select("li a[action-type=fl_comment]").first();
                 String commentCount = commentA.select("em").get(1).html();
@@ -822,7 +871,7 @@ public class WeiboCrawler3 {
                 }
                 weibo.setCommentNumber(Long.parseLong(commentCount));
                 weibo.setForwardUrl(forwardCommandLink + "?type=comment");
-                log.info("weibo_info:" + "评论：" + commentCount + "  链接：" + forwardCommandLink + "?type=comment");
+//                log.info("weibo_info:" + "评论：" + commentCount + "  链接：" + forwardCommandLink + "?type=comment");
 
                 Element likeA = WB_row_line.select("li span[node-type=like_status]").first();
                 String likeCount = likeA.select("em").get(1).html();
@@ -830,7 +879,7 @@ public class WeiboCrawler3 {
                     likeCount = "0";
                 }
                 weibo.setLikeNumber(Long.parseLong(likeCount));
-                log.info("weibo_info:" + "赞：" + likeCount + "  链接：" + forwardCommandLink + "?type=like");
+                log.info("赞：" + likeCount + ",评论：" + commentCount + ",转发：" + forwardCount);
 
                 Element pics = feed.select(".WB_media_wrap .media_box .WB_media_a").first();
                 if (pics != null) {

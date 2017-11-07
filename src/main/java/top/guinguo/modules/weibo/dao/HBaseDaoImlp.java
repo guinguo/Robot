@@ -138,6 +138,22 @@ public class HBaseDaoImlp implements IHbaseDao {
     }
 
     @Override
+    public List<Map<String, Object>> scaneByRange(String tableName, String start, String end, boolean print) throws Exception {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        TableName tn = TableName.valueOf(tableName);
+        Table table = connection.getTable(tn);
+        Scan scan = new Scan();//get by scan
+        scan.setCacheBlocks(false);
+        scan.setStartRow(start.getBytes());
+        scan.setStopRow(end.getBytes());
+        ResultScanner rs = table.getScanner(scan);
+        resultList = getAndPrint(rs, print, resultList);
+        rs.close();
+        table.close();
+        return resultList;
+    }
+
+    @Override
     public void insert(String tableName, Put put) throws Exception {
         Table table = connection.getTable(TableName.valueOf(tableName));
         table.put(put);

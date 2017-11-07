@@ -82,8 +82,10 @@ public class Test2 {
     }
 
     private static List<Weibo> getWb(String prepage, String page, int pagebar) throws IOException {
-        HttpGet get = new HttpGet("http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=1005055652557395&" +
-                "pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar);
+        HttpGet get = new HttpGet("https://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&mod=like&pagebar=0" +
+                "&tab=like&id=1005052053401440&page=1&pre_page=1");
+//        HttpGet get = new HttpGet("http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=1005055652557395&" +
+//                "pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar);
         get.addHeader("Cache-Control","max-age=0");
         get.addHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         get.addHeader("Accept-Language","zh-CN,zh;q=0.8");
@@ -98,6 +100,7 @@ public class Test2 {
         JSONObject json = JSON.parseObject(HttpUtil.getRespString(response));
         String html = json.getString("data");
         Document wbs = Jsoup.parse(html);
+        System.out.println(wbs.toString());
         Elements feedlist = wbs.select("div[action-type=feed_list_item]");
         List<Weibo> list = new ArrayList<>(15);
         for (Element feed : feedlist) {

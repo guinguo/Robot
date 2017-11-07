@@ -38,6 +38,17 @@ public interface IHbaseDao {
     List<Map<String, Object>> scaneByPrefixFilter(String tableName, String prefix, boolean print) throws Exception;
 
     /**
+     * start - end
+     * @param tableName
+     * @param start
+     * @param end
+     * @param print
+     * @return
+     * @throws Exception
+     */
+    List<Map<String, Object>> scaneByRange(String tableName, String start, String end, boolean print) throws Exception ;
+
+    /**
      * 批量添加数据
      *
      * @param tableName 表名
