@@ -1,0 +1,44 @@
+﻿* {
+    margin: 0px;
+    padding: 0px;
+    font-size: 12px;
+}
+body {
+    background: url("../img/0759349a9055a3c.jpg") no-repeat;
+}
+
+.common-top {
+    height: 60px;
+    width: 1366px;
+}
+
+.common-logo {
+    width: 150px;
+    height: 60px;
+    float: left;
+}
+.common-logo a img {
+    width: 113px;
+    height: 37px;
+    margin-top: 12px;
+    margin-left: 15px;
+}
+
+.common-title {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 56px;
+    letter-spacing: 1px;
+    padding-top: 1px;
+    color: #F7F7F7;
+    display: inline-block;
+}
+.common-title i.line {
+    content: "";
+    border-left: 1px solid #F7F7F7;
+    position: relative;
+    height: 13px;
+    left: -8px;
+    top: 2px;
+    display: inline-block;
+}
