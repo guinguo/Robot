@@ -4,6 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.CRF.CRFSegment;
+import com.hankcs.hanlp.seg.NShort.NShortSegment;
+import com.hankcs.hanlp.seg.Segment;
+import com.hankcs.hanlp.seg.Viterbi.ViterbiSegment;
+import com.hankcs.hanlp.tokenizer.NLPTokenizer;
+import com.hankcs.hanlp.tokenizer.SpeedTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -19,10 +25,7 @@ import top.guinguo.modules.weibo.utils.RedisUtils;
 
 import java.io.*;
 import java.net.NoRouteToHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,11 +54,23 @@ public class TestHbase {
     @Test
     public void test03() throws Exception {
         HBaseDaoImlp hBaseDaoImlp = HBaseDaoImlp.getInstance();
-        List<Map<String, Object>> list = hBaseDaoImlp.scaneByRange("weibo4", "6026962315_0000000000000000", "6026962315_9000000000000000", false);
+        List<Map<String, Object>> list = hBaseDaoImlp.scaneByRange("weibo4", "1772131954_0000000000000000", "1772131954_9000000000000000", false);
         List<String> contents = new ArrayList<>(list.size());
         StringBuilder sb = new StringBuilder("");
         for (Map<String, Object> map : list) {
             String content = map.get("content").toString();
+            HanLP.segment(content).forEach(v -> System.out.print(v+","));
+            System.out.println();
+            NLPTokenizer.segment(content).forEach(v -> System.out.print(v+","));
+            System.out.println();
+            SpeedTokenizer.segment(content).forEach(v -> System.out.print(v+","));
+            System.out.println();
+            Segment nShortSegment = new NShortSegment().enableCustomDictionary(false).enablePlaceRecognize(true).enableOrganizationRecognize(true);
+            nShortSegment.seg(content).forEach(v -> System.out.print(v+","));
+            System.out.println();
+            Segment shortestSegment  = new ViterbiSegment().enableCustomDictionary(false).enablePlaceRecognize(true).enableOrganizationRecognize(true);
+            shortestSegment .seg(content).forEach(v -> System.out.print(v+","));
+            System.out.println();
 //            System.out.println("rowkey:" + map.get("rowkey") + ",content:" + content);
             contents.add(content);
             sb.append(content + "\n");

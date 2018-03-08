@@ -5,6 +5,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import top.guinguo.modules.weibo.dao.HBaseDaoImlp;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,6 +82,43 @@ public class RedisUtils {
                 jedis.set(user.get("rowkey").toString(), user.get("blogNumber")+"-"+user.get("fans")+"-"+user.get("focus"));
             }
         }
+        jedis.close();
+    }
+    public void loadDBData() throws Exception {
+        HBaseDaoImlp hBaseDao = HBaseDaoImlp.getInstance();
+        List<Map<String, Object>> list = hBaseDao.queryAll(Contants.T_USER, false);
+//        List<Map<String, Object>> list = hBaseDao.queryByColumn(Contants.T_USER, "address", "广西 南宁");
+        DBManager dbManager = new DBManager();
+        Connection connection = dbManager.getConnection();
+        connection.setAutoCommit(false);
+        PreparedStatement cmd = connection.prepareStatement("INSERT INTO `weibo_analysis`.`user` " +
+                "(`rowkey`, `blogNumber`, `fans`, `focus`, `address`, `sex`, `nickname`, `avatar`, `member`, `level`) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        Jedis jedis = getJedis();
+        int i = 1;
+        for (Map<String, Object> user : list) {
+            String userId = user.get("rowkey").toString();
+            cmd.setString(1, userId);
+            cmd.setInt(2, Integer.valueOf(user.get("blogNumber").toString()));
+            cmd.setInt(3, Integer.valueOf(user.get("fans").toString()));
+            cmd.setInt(4, Integer.valueOf(user.get("focus").toString()));
+            cmd.setString(5, user.get("address") == null ? "" : user.get("address").toString());
+            cmd.setString(6, user.get("sex").toString());
+            cmd.setString(7, user.get("nickname").toString());
+            cmd.setString(8, user.get("avatar").toString());
+            cmd.setInt(9, Integer.valueOf(user.get("member").toString()));
+            cmd.setInt(10, Integer.valueOf(user.get("level").toString()));
+            i++;
+            cmd.addBatch();
+            if(i%1000==0){
+                cmd.executeBatch();
+                i = 1;
+            }
+        }
+        cmd.executeBatch();
+        connection.commit();
+        cmd.close();
+        connection.close();
         jedis.close();
     }
 }
