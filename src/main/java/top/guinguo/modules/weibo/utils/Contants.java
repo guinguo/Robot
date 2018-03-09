@@ -8,8 +8,8 @@ package top.guinguo.modules.weibo.utils;
  */
 public interface Contants {
     //table
-    String T_USER = "user2";
-    String T_WEIBO = "weibo2";
+    String T_USER = "user4";
+    String T_WEIBO = "weibo4";
     String T_USER_OLD = "user";
     String T_WEIBO_OLD = "weibo";
 
@@ -24,6 +24,6 @@ public interface Contants {
     String REGEX_INFO   = "<script>FM.view\\(\\{\"ns\":\"pl.content.homeFeed.index\",\"domid\":\"Pl_Core_UserInfo__6\",(.*?)\\}\\)?</script>";
 
     //each user stop time of radio
-    double intervalRadio = 0.55;
+    double intervalRadio = 0.618;
 
 }

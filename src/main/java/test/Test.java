@@ -12,5 +12,6 @@ public class Test {
         String s = "this is a string %1$s, and this is a number %1$d";
         String b = String.format(s, 110, 100);
         System.out.println(b);
+        System.out.println("{\"errmsg\":\"用户不存在\",\"errno\":20003,\"errtype\":\"DEFAULT_ERROR\",\"isblock\":false}{\"ok\":0,\"msg\":\"\\u8fd9\\u91cc\\u8fd8\\u6ca1\\u6709\\u5185\\u5bb9\"}".length());
     }
 }

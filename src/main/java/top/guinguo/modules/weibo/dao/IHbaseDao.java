@@ -18,7 +18,7 @@ public interface IHbaseDao {
      *
      * @param tableName
      */
-    List<Map<String, Object>> queryAll(String tableName) throws Exception;
+    List<Map<String, Object>> queryAll(String tableName, boolean print) throws Exception;
 
     /**
      * 根据rowkey查询唯一一条记录
@@ -27,6 +27,26 @@ public interface IHbaseDao {
      * @param rowKey    行主键
      */
     Map<String, Object> queryByRowKey(String tableName, String rowKey) throws Exception;
+
+    /**
+     * 根据前缀扫描
+     * @param tableName
+     * @param prefix
+     * @return
+     * @throws Exception
+     */
+    List<Map<String, Object>> scaneByPrefixFilter(String tableName, String prefix, boolean print) throws Exception;
+
+    /**
+     * start - end
+     * @param tableName
+     * @param start
+     * @param end
+     * @param print
+     * @return
+     * @throws Exception
+     */
+    List<Map<String, Object>> scaneByRange(String tableName, String start, String end, boolean print) throws Exception ;
 
     /**
      * 批量添加数据

@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import top.guinguo.modules.weibo.model.Weibo;
+import top.guinguo.modules.weibo.utils.DateUtils;
 import top.guinguo.utils.HttpUtil;
 
 import java.io.IOException;
@@ -81,8 +82,10 @@ public class Test2 {
     }
 
     private static List<Weibo> getWb(String prepage, String page, int pagebar) throws IOException {
-        HttpGet get = new HttpGet("http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=1005055652557385&" +
-                "pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar);
+        HttpGet get = new HttpGet("https://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&mod=like&pagebar=0" +
+                "&tab=like&id=1005052053401440&page=1&pre_page=1");
+//        HttpGet get = new HttpGet("http://weibo.com/p/aj/v6/mblog/mbloglist?domain=100505&id=1005055652557395&" +
+//                "pre_page=" + prepage + "&page=" + page + "&pagebar=" + pagebar);
         get.addHeader("Cache-Control","max-age=0");
         get.addHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         get.addHeader("Accept-Language","zh-CN,zh;q=0.8");
@@ -97,6 +100,7 @@ public class Test2 {
         JSONObject json = JSON.parseObject(HttpUtil.getRespString(response));
         String html = json.getString("data");
         Document wbs = Jsoup.parse(html);
+        System.out.println(wbs.toString());
         Elements feedlist = wbs.select("div[action-type=feed_list_item]");
         List<Weibo> list = new ArrayList<>(15);
         for (Element feed : feedlist) {
@@ -125,7 +129,9 @@ public class Test2 {
 
             Element datea = feed.select(".WB_detail a[name]").get(0);
             System.out.println("发布时间: "+datea.html()+"  "+datea.attr("date"));
-            weibo.setCreateDate(new Date(Long.parseLong(datea.attr("date"))));
+            try {
+                weibo.setCreateDate(DateUtils.format(new Date(Long.parseLong(datea.attr("date")))));
+            } catch (Exception e) {}
             System.out.println("来源：" + datea.nextElementSibling().html());
             weibo.setSource(datea.nextElementSibling().html());
 
@@ -159,27 +165,30 @@ public class Test2 {
                     originNick = titleA.get(0).attr("title");
                 }
                 originWeibo.put("originNick", originNick);
-                Element feedReasonElem = forwardContentElem.select("div[node-type=feed_list_reason]").get(0);
-                Elements unfoldA = feedReasonElem.select("a[action-type=fl_unfold]");
-                if (unfoldA.size() > 0) {
-                    if (unfoldA.get(0).text().startsWith("展开全文")) {
-                        System.out.print("原微博 展开全文：");
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Element newElem = getLongText(weibo.getForwardmid());
-                        if (newElem != null) {
-                            feedReasonElem = newElem;
+                Elements feedReasonElems = forwardContentElem.select("div[node-type=feed_list_reason]");
+                if (feedReasonElems.size() > 0) {
+                    Element feedReasonElem = feedReasonElems.first();
+                    Elements unfoldA = feedReasonElem.select("a[action-type=fl_unfold]");
+                    if (unfoldA.size() > 0) {
+                        if (unfoldA.get(0).text().startsWith("展开全文")) {
+                            System.out.print("原微博 展开全文：");
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Element newElem = getLongText(weibo.getForwardmid());
+                            if (newElem != null) {
+                                feedReasonElem = newElem;
+                            }
                         }
                     }
+                    String originContent = feedReasonElem.text();
+                    String originContentHtml = feedReasonElem.html();
+                    System.out.println("   原内容 " + originContent);
+                    originWeibo.put("originContent", originContent);
+                    originWeibo.put("originContentHtml", originContentHtml);
                 }
-                String originContent = feedReasonElem.text();
-                String originContentHtml = feedReasonElem.html();
-                System.out.println("   原内容 " + originContent);
-                originWeibo.put("originContent", originContent);
-                originWeibo.put("originContentHtml", originContentHtml);
                 Element pics = feed.select(".WB_media_wrap .media_box .WB_media_a").first();
                 String originPicIds = "";
                 if (pics != null) {
@@ -197,6 +206,7 @@ public class Test2 {
                 originWeibo.put("picids", originPicIds);
 
                 Element WB_func = forwardContentElem.select(".WB_func").first();
+                if (WB_func != null) {
                 Elements lis = WB_func.select("ul a");
                 if (lis.size() == 3) {
                     Element forwardA = lis.get(0);
@@ -226,6 +236,7 @@ public class Test2 {
                     }
                     originWeibo.put("likeNumber", Long.parseLong(likeCount));
                     System.out.println("原赞：" + likeCount + "  链接：" + forwardCommandLink+"?type=like");
+                }
                 }
                 weibo.setJSONMeta(originWeibo);
             }

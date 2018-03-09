@@ -61,7 +61,7 @@ public class CrawleHttpFactory {
         get.addHeader("Accept-Encoding","gzip, deflate, sdch");
         get.addHeader("X-Requested-With","XMLHttpRequest");
         get.addHeader("DNT","1");
-        get.addHeader("Connection","keep-alive");
+        get.addHeader("Connection","close");
         get.addHeader("Cookie","YF-Page-G0=abc; SUBP=abc; SUB=abc;");
 
         CloseableHttpResponse response = client.execute(get);

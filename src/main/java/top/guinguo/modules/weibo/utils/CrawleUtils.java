@@ -5,9 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,6 +25,7 @@ import static top.guinguo.utils.HttpUtil.USER_AGEN;
  * @版本: v1.0
  */
 public class CrawleUtils {
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public static final String WB_LONGTEXT_URL = "wb.longtext.url";
     private static String wbLongTextURL;
@@ -72,26 +76,24 @@ public class CrawleUtils {
          * "100000" -->ok
          * "100001" -->error
          */
-        if ("100000" .equals(json.getString("code"))) {
-            String html = json.getJSONObject("data").getString("html");
-            Attributes attrs =  new Attributes();
-            attrs.put("node-type", "feed_list_reason_full");
-            Element div = new Element(Tag.valueOf("div"),"",attrs);
-            div.append(html);
+        if ("1" .equals(json.getString("ok"))) {
+            String html = json.getString("longTextContent");
+            Element div = Jsoup.parse(html).body();
+            log.info("weibo_info:" + "展开全文：" + html);
             return div;
         }
         return null;
     }
 
-    public static void dealCell(Map<String, Object> resultMap, Cell cell) throws UnsupportedEncodingException {
+    public static void dealCell(Map<String, Object> resultMap, Cell cell, boolean print) throws UnsupportedEncodingException {
         String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
-        String family = new String(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength(), "UTF-8");
         String qualifier = new String(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength(),
                 "UTF-8");
         String value = new String(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength(), "UTF-8");
-         System.out.print("RowKey=>"+rowKey+"->"+family+":"+qualifier+"="+value+"||");
-        resultMap.put("rowKey", rowKey);
-        resultMap.put("family", family);
+        if (print) {
+            System.out.print(qualifier+"="+value+", ");
+        }
+        resultMap.put("rowkey", rowKey);
         resultMap.put(qualifier, value);
     }
 

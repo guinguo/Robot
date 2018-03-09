@@ -5,11 +5,17 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.PrefixFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.security.User;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.guinguo.modules.weibo.utils.Configurator;
+import top.guinguo.modules.weibo.utils.Contants;
 import top.guinguo.modules.weibo.utils.CrawleUtils;
 
 import java.util.*;
@@ -80,24 +86,19 @@ public class HBaseDaoImlp implements IHbaseDao {
         }
 //        table.put(list);
         HBaseDaoImlp hBaseDaoImlp = new HBaseDaoImlp();
-        hBaseDaoImlp.queryAll("weibo");
+        hBaseDaoImlp.queryAll("weibo",true);
 //        hBaseDaoImlp.queryByRowKey("user","5652557385");
     }
 
     @Override
-    public List<Map<String, Object>> queryAll(String tableName) throws Exception {
+    public List<Map<String, Object>> queryAll(String tableName, boolean print) throws Exception {
         List<Map<String, Object>> resultList = new ArrayList<>();
         TableName tn = TableName.valueOf(tableName);
         Table table = connection.getTable(tn);
-        ResultScanner rs = table.getScanner(new Scan());
-        for (Result r : rs) {
-            Map<String, Object> resultMap = new LinkedHashMap<>();
-            for (Cell cell : r.listCells()) {
-                CrawleUtils.dealCell(resultMap, cell);
-            }
-            System.out.println();
-            resultList.add(resultMap);
-        }
+        Scan scan = new Scan();
+        scan.setCacheBlocks(false);
+        ResultScanner rs = table.getScanner(scan);
+        resultList = getAndPrint(rs, print, resultList);
         rs.close();
         table.close();
         return resultList;
@@ -115,10 +116,41 @@ public class HBaseDaoImlp implements IHbaseDao {
         }
         resultMap = new LinkedHashMap<>();
         for (Cell cell : r.listCells()) {
-            CrawleUtils.dealCell(resultMap, cell);
+            CrawleUtils.dealCell(resultMap, cell, true);
         }
         table.close();
         return resultMap;
+    }
+
+    @Override
+    public List<Map<String, Object>> scaneByPrefixFilter(String tableName, String prefix, boolean print) throws Exception {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        TableName tn = TableName.valueOf(tableName);
+        Table table = connection.getTable(tn);
+        Scan scan = new Scan();//get by scan
+        scan.setCacheBlocks(false);
+        scan.setFilter(new PrefixFilter(prefix.getBytes()));
+        ResultScanner rs = table.getScanner(scan);
+        resultList = getAndPrint(rs, print, resultList);
+        rs.close();
+        table.close();
+        return resultList;
+    }
+
+    @Override
+    public List<Map<String, Object>> scaneByRange(String tableName, String start, String end, boolean print) throws Exception {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        TableName tn = TableName.valueOf(tableName);
+        Table table = connection.getTable(tn);
+        Scan scan = new Scan();//get by scan
+        scan.setCacheBlocks(false);
+        scan.setStartRow(start.getBytes());
+        scan.setStopRow(end.getBytes());
+        ResultScanner rs = table.getScanner(scan);
+        resultList = getAndPrint(rs, print, resultList);
+        rs.close();
+        table.close();
+        return resultList;
     }
 
     @Override
@@ -134,4 +166,65 @@ public class HBaseDaoImlp implements IHbaseDao {
         table.put(puts);
         table.close();
     }
+    /**
+     * 指定某一列的值进行查询
+     *
+     * @param tableName
+     *            表名
+     * @param columnName
+     *            列名
+     * @param value
+     *            列值
+     */
+    public List<Map<String, Object>> queryByColumn(String tableName,
+                                                   String columnName, String value) throws Exception {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        TableName tn = TableName.valueOf(tableName);
+        Table table = connection.getTable(tn);
+        Filter filter = new SingleColumnValueFilter(
+                Bytes.toBytes(Contants.COLUMN_BASIC),
+                Bytes.toBytes(columnName), CompareFilter.CompareOp.EQUAL,
+                Bytes.toBytes(value));
+        Scan s = new Scan();
+        s.setCacheBlocks(false);
+        s.setFilter(filter);
+        ResultScanner rs = table.getScanner(s);
+        for (Result r : rs) {
+            Map<String, Object> resultMap = new LinkedHashMap<>();
+            if (r.listCells().size() > 0) {
+                Cell cell = r.listCells().get(0);
+                String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
+                System.out.print("RowKey=> "+rowKey+": ");
+            }
+            for (Cell cell : r.listCells()) {
+                CrawleUtils.dealCell(resultMap, cell, true);
+            }
+            resultList.add(resultMap);
+            System.out.println();
+        }
+        rs.close();
+        return resultList;
+    }
+
+    private List<Map<String, Object>> getAndPrint(ResultScanner rs, boolean print, List<Map<String, Object>> resultList) throws Exception{
+        for (Result r : rs) {
+            Map<String, Object> resultMap = new LinkedHashMap<>();
+            if (r.listCells().size() > 0) {
+                Cell cell = r.listCells().get(0);
+                String rowKey = new String(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(), "UTF-8");
+                if (print) {
+                    System.out.print("RowKey=> "+rowKey+": ");
+                }
+            }
+            for (Cell cell : r.listCells()) {
+                CrawleUtils.dealCell(resultMap, cell, print);
+            }
+            if (print) {
+                System.out.println();
+            }
+            resultList.add(resultMap);
+        }
+        return resultList;
+    }
+
 }
