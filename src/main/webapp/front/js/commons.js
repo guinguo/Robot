@@ -12,4 +12,10 @@ function bindEvent() {
     },function(){
         $('ul.common-navs').hide();
     });
+    $('#newTask_add').on('click', function () {
+        $('#xubox_shade1, #xubox_layer2').show();
+    });
+    $('#step_one1 .guanbi').on('click', function() {
+        $('#xubox_shade1, #xubox_layer2').hide();
+    });
 }

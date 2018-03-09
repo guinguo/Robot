@@ -7,7 +7,7 @@
 <!-- text fonts -->
 <link id="startAce" rel="stylesheet" href="${pageContext.request.contextPath}/front/assets/css/ace-fonts.css" />
 <!-- ace styles -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/front/assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
+<%--<link rel="stylesheet" href="${pageContext.request.contextPath}/front/assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />--%>
 <script type="text/javascript" src="${pageContext.request.contextPath}/front/js/jquery-2.1.1.min.js"></script>
 <script>
     ctx = "${pageContext.request.contextPath}";

@@ -10,7 +10,7 @@
 <body>
 <div class="home-page">
     <%@include file="/inc/top.jsp" %>
-    <div class="home-content" style="min-height: 900px;">
+    <div class="home-content">
         <div class="content-title clearfix">
             <p>用户画像分析</p>
         </div>
@@ -62,6 +62,76 @@
     </div>
     <%@include file="/inc/bottom.jsp" %>
 </div>
+<div times="2" showtime="0" id="xubox_layer2" class="xubox_layer" type="page">
+    <div class="xubox_main">
+        <div class="xubox_page">
+            <div id="step_one1" class="tcc tdd layer_pageContent" style="display: block;">
+                <div class="tcc-tit">用户画像：选择用户<a class="guanbi"></a></div>
+                <!--内容-->
+                <input class="search_form ng-valid ng-dirty ng-valid-parse ng-touched" id="searchInput"
+                       placeholder="请搜索新浪微博昵称" ng-focus="showSearchContent()" ng-model="searchNameModel">
+
+                <div class="search_content" id="searchList" ng-show="searchContent">
+                    <div class="search_content_area">
+                        <p class="p01 grey6 fs12">
+                            <span class="down_arrow"></span>请在下方搜索结果中点击微博昵称，开始画像~
+                        </p>
+                        <ul class="dashed_ul">
+
+                            <li class="clearfix border_dashed ng-scope" ng-repeat="user in userData" ng-click="checkUser(user)">
+                                <div class="fang_user_list">
+                                    <p class="user_list_weixin clearfix"><span class="header_02"><img width="40" height="40" ng-src="http://tp1.sinaimg.cn/1722656062/50/5697960275/1" src="http://tp1.sinaimg.cn/1722656062/50/5697960275/1"></span>
+                                    </p>
+                                    <i style="height: 16px;" ng-bind-html="user|showTypeImg" class="ng-binding">Karen莫文蔚<img src="${pageContext.request.contextPath}/front/img/hv.png" style="height: 16px; width: 16px;"></i>
+                                    <br>
+                                    <div class="clearfix bean_vermicelli">
+                                        <b ng-class="{'boy_tb':user.gender=='M','girl_tb':user.gender=='F'}" class="girl_tb"></b>
+                                        <em class="ng-binding">粉丝数：13728064</em><em class="location_place ng-binding">香港</em>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="clearfix border_dashed ng-scope" ng-repeat="user in userData" ng-click="checkUser(user)">
+                                <div class="fang_user_list">
+                                    <p class="user_list_weixin clearfix"><span class="header_02"><img width="40" height="40" ng-src="http://tp1.sinaimg.cn/1431308884/50/5697960275/1" src="http://tp1.sinaimg.cn/1431308884/50/5697960275/1"></span>
+                                    </p>
+                                    <i style="height: 16px;" ng-bind-html="user|showTypeImg" class="ng-binding">快乐大本营<img src="${pageContext.request.contextPath}/front/img/lv.png" style="height: 16px; width: 16px;"></i>
+                                    <br>
+                                    <div class="clearfix bean_vermicelli">
+                                        <b ng-class="{'boy_tb':user.gender=='M','girl_tb':user.gender=='F'}" class="boy_tb"></b>
+                                        <em class="ng-binding">粉丝数：11499068</em><em class="location_place ng-binding">湖南 长沙</em>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="clearfix border_dashed ng-scope" ng-repeat="user in userData" ng-click="checkUser(user)">
+                                <div class="fang_user_list">
+                                    <p class="user_list_weixin clearfix"><span class="header_02"><img width="40" height="40" ng-src="http://tp1.sinaimg.cn/5212808549/50/5697960275/1" src="http://tp1.sinaimg.cn/5212808549/50/5697960275/1"></span>
+                                    </p>
+                                    <i style="height: 16px;" ng-bind-html="user|showTypeImg" class="ng-binding">快滴发红包1314</i>
+                                    <br>
+                                    <div class="clearfix bean_vermicelli">
+                                        <b ng-class="{'boy_tb':user.gender=='M','girl_tb':user.gender=='F'}" class="girl_tb"></b>
+                                        <em class="ng-binding">粉丝数：2874</em><em class="location_place ng-binding">海外 美国</em>
+                                    </div>
+                                </div>
+                            </li>
+
+                        </ul>
+                        <div class="search_page p20 clearfix">
+                            <a class="fr pg_next small_button" ng-show="hasNext&amp;&amp;pageInfo.pageNum>1"
+                               ng-click="getNextPage()">下一页</a>
+                            <a class="fr pg_last mr10 small_button" ng-show="hasLast&amp;&amp;pageInfo.pageNum>1"
+                               ng-click="getLastPage()">上一页</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="xubox_setwin"></span><span class="xubox_botton"></span></div>
+</div>
+<div times="1" id="xubox_shade1" class="xubox_shade"
+     style="z-index:19891015;background-color:#000;opacity:0.3;filter:alpha(opacity=30);"></div>
 <%@include file="/inc/footer.jsp"%>
 </body>
 </html>

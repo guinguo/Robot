@@ -12,6 +12,9 @@ a {
     outline: none;
     cursor: pointer;
 }
+a:visited,a:hover,a:link {
+    text-decoration: none;
+}
 /*==note radius==*/
 /*-webkit-border-radius: 5px;*/
 /*-moz-border-radius: 5px;*/
@@ -19,12 +22,6 @@ a {
 
 
 
-a:visited {
-    text-decoration: none;
-}
-a:link {
-    text-decoration: none;
-}
 body {
     background: url("../img/bg.jpg") no-repeat;
 }
@@ -160,7 +157,10 @@ body {
     font-family: arial;
 }
 
-
+/*主页*/
+.home-content {
+    min-height: 660px;
+}
 .content-title p {
     float: left;
     font-size: 20px;
@@ -183,6 +183,7 @@ body {
     border-top-right-radius: 5px;
     margin-bottom: 2px;
 }
+/*搜索*/
 .content-search {
     padding: 10px 20px;
     background: url(../img/bgw2.png);
@@ -215,6 +216,7 @@ body {
 }
 
 
+/*中间任务列表*/
 .thumbnail-list {
     padding-top: 20px;
 }
@@ -387,10 +389,195 @@ body {
 }
 
 
+/*添加任务*/
+/*遮罩*/
+#xubox_shade1, #xubox_layer2 {
+    display: none;
+}
+.xubox_shade {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    _height: expression(document.body.offsetHeight+"px");
+}
+.xubox_shade, .xubox_layer {
+    position: fixed;
+    _position: absolute;
+}
+#xubox_layer2 {
+    z-index: 19891017;
+    width: 678px;
+    height: auto;
+    position: absolute;
+    margin-left: -339px;
+    top: 117px;
+    left: 50%;
+}
+#xubox_layer2, .xubox_main {
+    background-color: rgb(255, 255, 255);
+    z-index: 19891016;
+    height: 386px;
+}
+#step_one1 .tcc-tit {
+    height: 33px;
+    padding: 0px 24px;
+    line-height: 32px;
+    font-size: 16px;
+    background-color: #eee;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    position: relative;
+}
+
+#step_one1 .search_form {
+    width: 518px;
+    font-size: 16px;
+    line-height: 19px;
+    padding: 8px 20px 8px 58px;
+    margin: 24px 0 0 79px;
+    outline: none;
+    -webkit-border-radius: 26px;
+    -moz-border-radius: 26px;
+    border-radius: 26px;
+    display: inline-block;
+    color: #555;
+    border: 1px solid #ccc;
+}
+.search_content {
+    width: 100%;
+    display: block;
+    text-align: center;
+    position: absolute;
+    top: 95px;
+    left: 0;
+    z-index: 1000;
+}
+.search_content_area {
+    width: 517px;
+    position: relative;
+    overflow: hidden;
+    max-height: 410px;
+    display: inline-block;
+    -moz-box-shadow: 0 0 10px 0 #999;
+    -webkit-box-shadow: 0 0 10px 0 #999;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px 0 #999;
+    background: #fff;
+}
+.search_content_area p.p01 {
+    padding: 12px 36px;
+}
+.search_content_area p {
+    border-bottom: #ddd dashed 1px;
+    text-align: left;
+}
+.grey6 {
+    color: #666;
+}
+.fs12 {
+    font-size: 12px;
+}
+.search_content .down_arrow {
+    display: block;
+    float: left;
+    width: 9px;
+    height: 13px;
+    margin: 2px 10px 0 0;
+    background: url(../img/down_arrow.png);
+}
+.p20 {
+    padding: 10px;
+}
+.fr {
+    display: none;
+    float: right;
+}
+.small_button {
+    width: 80px;
+    line-height: 24px;
+    background: #cc3366;
+    font-size: 12px;
+    color: #fff;
+    text-align: center;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+}
+.small_button:hover {
+    color: #fff;
+}
+.mr10 {
+    margin-right: 10px;
+}
+/*user data*/
+.search_content_area li {
+    padding: 5px 20px;
+    text-align: left;
+    cursor: pointer;
+}
+.search_content_area li:hover {
+    background: #eee;
+}
+.border_dashed {
+    border-bottom: #ccc dashed 1px;
+}
+.fang_user_list p.user_list_weixin {
+    float: left;
+    margin-top: 2px;
+    background-size: cover;
+    overflow: hidden;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+.fang_user_list p.user_list_weixin span {
+    display: block;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+}
+.fang_user_list i {
+    float: left;
+    font-size: 14px;
+    padding: 0 36px 0 20px;
+    -height: 40px;
+}
+.bean_vermicelli {
+    float: left;
+    padding: 4px 0 0 20px;
+    font-size: 14px;
+}
+.bean_vermicelli b {
+    float: left;
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin: 3px 5px 0 0;
+}
+.girl_tb {
+    background: url(../img/girl_tb.png);
+}
+
+.boy_tb {
+    background: url(../img/boy_tb.png);
+}
+.fang_user_list em {
+    float: left;
+    font-size: 12px;
+}
+.location_place {
+    padding-left: 10px;
+}
+i, em {
+    font-style: normal;
+}
 
 
 
-
+/*底部*/
 .common-bottom {
     padding: 20px 0px;
     background: url(../img/bgw6.png);
