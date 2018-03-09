@@ -417,7 +417,7 @@ body {
 #xubox_layer2, .xubox_main {
     background-color: rgb(255, 255, 255);
     z-index: 19891016;
-    height: 386px;
+    height: 480px;
 }
 #step_one1 .tcc-tit {
     height: 33px;
@@ -526,7 +526,7 @@ body {
 }
 .fang_user_list p.user_list_weixin {
     float: left;
-    margin-top: 2px;
+    margin: 2px 0 0 0;
     background-size: cover;
     overflow: hidden;
     -webkit-border-radius: 5px;

@@ -76,9 +76,9 @@
                         <p class="p01 grey6 fs12">
                             <span class="down_arrow"></span>请在下方搜索结果中点击微博昵称，开始画像~
                         </p>
-                        <ul class="dashed_ul">
+                        <ul id="user-data" class="dashed_ul">
 
-                            <li class="clearfix border_dashed ng-scope" ng-repeat="user in userData" ng-click="checkUser(user)">
+                            <%--<li class="clearfix border_dashed ng-scope" ng-repeat="user in userData" ng-click="checkUser(user)">
                                 <div class="fang_user_list">
                                     <p class="user_list_weixin clearfix"><span class="header_02"><img width="40" height="40" ng-src="http://tp1.sinaimg.cn/1722656062/50/5697960275/1" src="http://tp1.sinaimg.cn/1722656062/50/5697960275/1"></span>
                                     </p>
@@ -116,7 +116,7 @@
                                     </div>
                                 </div>
                             </li>
-
+--%>
                         </ul>
                         <div class="search_page p20 clearfix">
                             <a class="fr pg_next small_button" ng-show="hasNext&amp;&amp;pageInfo.pageNum>1"
