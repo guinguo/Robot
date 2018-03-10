@@ -24,7 +24,7 @@
           id="RequestContextListener" class="org.springframework.web.context.request.RequestContextListener"/>
 
     <!-- 设定Spring 去哪些包中找Annotation -->
-    <context:component-scan base-package="top.guinguo.modules.weibo.dao">
+    <context:component-scan base-package="top.guinguo.modules.weibo">
         <!--通过exclude-filter 把所有 @Controller注解的表现层控制器组件排除-->
         <!--<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>-->
     </context:component-scan>

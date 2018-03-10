@@ -367,6 +367,12 @@ body {
     font-weight: inherit;
     line-height: inherit;
 }
+.delete-font {
+    font-size: 16px;
+}
+.delete-font-msg {
+    margin-left: 30px;
+}
 .user-profile dt {
     color: #999;
 }

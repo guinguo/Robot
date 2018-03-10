@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.beanutils.converters.SqlTimestampConverter;
 
 import java.lang.reflect.Field;
@@ -29,7 +30,7 @@ public class ObjectUtil {
             }
             try{
                 if(value instanceof String){
-                    return new SimpleDateFormat("yyyy-MM-dd").parse((String)value);
+                    return new SimpleDateFormat("yyyy-MM-dd HH:mm").parse((String)value);
                 }
             }catch (ParseException e){
                 e.printStackTrace();
@@ -37,8 +38,9 @@ public class ObjectUtil {
             return null;
         };
         //注册日期转换器
-        ConvertUtils.register(dateConverter, Date.class);
+        ConvertUtils.register(dateConverter, java.util.Date.class);
         ConvertUtils.register(new SqlTimestampConverter(null), Timestamp.class);
+//        ConvertUtils.register(new DateConverter(null), java.util.Date.class);
     }
 
     public static <T> T getObject(ResultSet rs, Class<T> clz){

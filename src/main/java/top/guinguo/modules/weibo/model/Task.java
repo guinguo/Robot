@@ -1,6 +1,6 @@
 package top.guinguo.modules.weibo.model;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  * 用户画像任务
@@ -18,11 +18,11 @@ public class Task {
     /**
      * 创建日期
      */
-    private Date createDate;
+    private Timestamp createDate;
     /**
      * 完成日期
      */
-    private Date finishDate;
+    private Timestamp finishDate;
     /**
      * 状态
      */
@@ -48,19 +48,19 @@ public class Task {
         this.userid = userid;
     }
 
-    public Date getCreateDate() {
+    public Timestamp getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(Timestamp createDate) {
         this.createDate = createDate;
     }
 
-    public Date getFinishDate() {
+    public Timestamp getFinishDate() {
         return finishDate;
     }
 
-    public void setFinishDate(Date finishDate) {
+    public void setFinishDate(Timestamp finishDate) {
         this.finishDate = finishDate;
     }
 
@@ -104,4 +104,13 @@ public class Task {
         );
     }
 
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", userid='" + userid + '\'' +
+                ", createDate=" + createDate +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

@@ -25,6 +25,20 @@ public class TaskDao {
     private DBManager dbManager = new DBManager();
     public TaskDao() {
     }
+
+    public boolean deleteTask(int id) {
+        //todo 删除任务结果
+        String sql = "delete from task where id = ?";
+        dbManager.getConnection();
+        try {
+            dbManager.updateQuery(sql, id);
+            dbManager.close();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return true;
+    }
+
     private static class DefaultInstance {
         public static TaskDao instance = new TaskDao();
     }
@@ -45,7 +59,7 @@ public class TaskDao {
             sql += "where task.status = " + status + " ";
             countSql += "where task.status = " + status + " ";
         }
-        sql += "limit " + (num - 1) * pageSize + ", " + pageSize;
+        sql += "order by task.createDate desc limit " + (num - 1) * pageSize + ", " + pageSize;
         Pager<Task> taskPager = new Pager<>();
         List<Task> tasks;
         try {
@@ -72,5 +86,17 @@ public class TaskDao {
             Logger.getLogger(TaskDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         return taskPager;
+    }
+
+    public boolean addTask(Task task) {
+        String sql = "insert into task(userid,status,createDate) value(?,?,?)";
+        dbManager.getConnection();
+        try {
+            task.setId(dbManager.save(sql, task.getUserid(), task.getStatus(), task.getCreateDate()));
+            dbManager.close();
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return true;
     }
 }
