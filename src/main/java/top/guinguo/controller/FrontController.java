@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import top.guinguo.modules.weibo.dao.TaskDao;
 import top.guinguo.modules.weibo.dao.UserDao;
+import top.guinguo.modules.weibo.model.Task;
 import top.guinguo.modules.weibo.model.UserData;
 import top.guinguo.modules.weibo.utils.Pager;
 import top.guinguo.utils.Constant;
@@ -29,6 +31,8 @@ import java.util.List;
 public class FrontController {
     @Resource
     private UserDao userDao;
+    @Resource
+    private TaskDao taskDao;
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping({"/", "/index", "/index.html"})
@@ -40,5 +44,10 @@ public class FrontController {
     @ResponseBody
     public Pager<UserData> users(Integer num, Integer pageSize, String username) {
         return userDao.list(num, pageSize, username);
+    }
+    @RequestMapping(value = "/tasks", method = RequestMethod.GET)
+    @ResponseBody
+    public Pager<Task> tasks(Integer num, Integer pageSize, String status) {
+        return taskDao.list(num, pageSize, status);
     }
 }

@@ -15,6 +15,9 @@ a {
 a:visited,a:hover,a:link {
     text-decoration: none;
 }
+.elem-hidden {
+    display: none;
+}
 /*==note radius==*/
 /*-webkit-border-radius: 5px;*/
 /*-moz-border-radius: 5px;*/
@@ -208,6 +211,7 @@ body {
 .tit-tab li a {
     display: block;
     height: 20px;
+    line-height: 20px;
     color: #333;
     padding: 0px 10px;
     -webkit-border-radius: 10px;
@@ -226,8 +230,8 @@ body {
     float: left;
     padding-right: 20px;
     position: relative;
+    margin-bottom: 20px;
 }
-
 .thumbnail-newtask {
     display: block;
     width: 100%;
@@ -357,6 +361,7 @@ body {
     background: url(../img/bgw2.png);
     margin-top: 2px;
     min-height: 300px;
+    padding-left: 20px;
 }
 .task_list dt {
     font-weight: inherit;
@@ -411,13 +416,13 @@ body {
     height: auto;
     position: absolute;
     margin-left: -339px;
-    top: 117px;
+    top: 60px;
     left: 50%;
 }
 #xubox_layer2, .xubox_main {
     background-color: rgb(255, 255, 255);
     z-index: 19891016;
-    height: 480px;
+    height: 500px;
 }
 #step_one1 .tcc-tit {
     height: 33px;
@@ -492,7 +497,7 @@ body {
     padding: 10px;
 }
 .fr {
-    display: none;
+    /*display: none;*/
     float: right;
 }
 .small_button {
@@ -568,11 +573,71 @@ body {
     float: left;
     font-size: 12px;
 }
-.location_place {
+.user_em {
     padding-left: 10px;
 }
 i, em {
     font-style: normal;
+}
+/*确认用户*/
+.point_alert_base .tcc {
+    z-index: 19891016;
+    position: absolute;
+    top: -180px;
+    left: 0;
+    bottom: 0px;
+    right: 0;
+    margin: auto;
+    height: 340px;
+    width: 600px;
+    background-color: #fff;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+.tcc-tit {
+    height: 33px;
+    padding: 0px 24px;
+    background-color: #eee;
+    line-height: 33px;
+    -webkit-border-top-left-radius: 5px;
+    -moz-border-top-left-radius: 5px;
+    border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-top-right-radius: 5px;
+    border-top-right-radius: 5px;
+    position: relative;
+    font-size: 18px;
+}
+.point_alert_base .guanbi {
+    z-index: 2 !important;
+    opacity: 10!important;
+}
+.point_alert_base .jftx-dsxh p i {
+    color: #c00;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: bold;
+}
+.point_alert_base .jftx-dsxh p {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+}
+.point_alert_base .jftx-btn {
+    display: block;
+    width: 130px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    color: #fff;
+    font-size: 16px;
+    background-color: #cc3366;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    margin: 20px auto 0px auto;
+    transition: background-color 0.3s ease-out;
 }
 
 
