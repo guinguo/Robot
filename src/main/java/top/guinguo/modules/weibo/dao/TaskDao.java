@@ -56,8 +56,13 @@ public class TaskDao {
         String sql = "select * from task left join user on task.userid=user.id ";
         String countSql = "select count(*) from task ";
         if (status != null && status.length() > 0) {
-            sql += "where task.status = " + status + " ";
-            countSql += "where task.status = " + status + " ";
+            if ("100".equals(status)) {
+                sql += "where task.status = " + status + " ";
+                countSql += "where task.status = " + status + " ";
+            } else {
+                sql += "where task.status is not null and task.status <> 100 ";
+                countSql += "where task.status is not null and task.status <> 100 ";
+            }
         }
         sql += "order by task.createDate desc limit " + (num - 1) * pageSize + ", " + pageSize;
         Pager<Task> taskPager = new Pager<>();

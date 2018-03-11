@@ -23,4 +23,11 @@ public interface IWeiboService {
     void addUser(User user) throws Exception;
 
     void batchAddWeibo(List<Weibo> weibos) throws Exception;
+
+    /**
+     * 根据用户id获取他的微博数据
+     * @param uid
+     * @return
+     */
+    List<Weibo> getWeiboByUid(String uid) throws Exception;
 }

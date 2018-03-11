@@ -129,6 +129,10 @@ public class HBaseDaoImlp implements IHbaseDao {
         Table table = connection.getTable(tn);
         Scan scan = new Scan();//get by scan
         scan.setCacheBlocks(false);
+        String startKey = prefix + "_1000000000000000";
+        String endKey = prefix + "_9000000000000000";
+        scan.setStartRow(Bytes.toBytes(startKey));
+        scan.setStopRow(Bytes.toBytes(endKey));
         scan.setFilter(new PrefixFilter(prefix.getBytes()));
         ResultScanner rs = table.getScanner(scan);
         resultList = getAndPrint(rs, print, resultList);

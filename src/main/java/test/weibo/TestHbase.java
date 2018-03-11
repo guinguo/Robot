@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import top.guinguo.modules.weibo.dao.HBaseDaoImlp;
+import top.guinguo.modules.weibo.service.WeiboService;
 import top.guinguo.modules.weibo.utils.Contants;
 import top.guinguo.modules.weibo.utils.CrawleHttpFactory;
 import top.guinguo.modules.weibo.utils.RedisUtils;
@@ -43,6 +44,16 @@ public class TestHbase {
     public void test01() throws Exception {
         HBaseDaoImlp hBaseDaoImlp = HBaseDaoImlp.getInstance();
         hBaseDaoImlp.queryByColumn(Contants.T_USER, "address", "广西 南宁");
+    }
+    @Test
+    public void getUserWeibos() throws Exception {
+        WeiboService weiboService = WeiboService.getInstance();
+        weiboService.getWeiboByUid("6358542917");
+    }
+    @Test
+    public void updateDBUser() throws Exception {
+        RedisUtils redisUtils = RedisUtils.getInstance();
+        redisUtils.loadDBData();
     }
     @Test
     public void test02() throws Exception {

@@ -10,6 +10,7 @@ import top.guinguo.modules.weibo.model.Weibo;
 import top.guinguo.modules.weibo.utils.Contants;
 import top.guinguo.modules.weibo.utils.HBaseUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,5 +65,32 @@ public class WeiboService implements IWeiboService {
         log.info("[batchAddWeibo][size][" + weibos.size() + "]");
         List<Put>  list = HBaseUtils.GeneratePutSByWeibo(weibos);
         hbaseDao.batchInsert(Contants.T_WEIBO, list);
+    }
+
+    @Override
+    public List<Weibo> getWeiboByUid(String uid) throws Exception {
+        List<Map<String, Object>> weiboMaps = hbaseDao.scaneByPrefixFilter(Contants.T_WEIBO, "6358542917", false);
+        List<Weibo> list = new ArrayList<>(weiboMaps.size());
+        for (Map<String, Object> w : weiboMaps) {
+            Weibo weibo = new Weibo();
+            weibo.setId(w.get("rowkey").toString().substring(11));
+            weibo.setCommentNumber(Long.valueOf(w.get("commentNumber").toString()));
+            weibo.setForwardNumber(Long.valueOf(w.get("forwardNumber").toString()));
+            weibo.setLikeNumber(Long.valueOf(w.get("likeNumber").toString()));
+            weibo.setContent(w.get("content").toString());
+            weibo.setCreateDate(w.get("createDate").toString());
+            weibo.setForward("true".equals(w.get("forward")));
+            weibo.setNickname(w.get("nickname").toString());
+            if (w.get("picids") != null) {
+                weibo.setPicids(w.get("picids").toString());
+            }
+            if (w.get("source") != null) {
+                weibo.setSource(w.get("source").toString());
+            }
+            weibo.setTopics(w.get("topics").toString());
+            weibo.setUid(w.get("uid").toString());
+            list.add(weibo);
+        }
+        return list;
     }
 }
