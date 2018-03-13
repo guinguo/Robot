@@ -213,6 +213,7 @@ public class WeiboCrawler3 {
          */
         private List<User> getUsersFromJson(JSONObject jsonObject) {
             List<User> users = new ArrayList<>();
+            jsonObject = jsonObject.getJSONObject("data");
             JSONArray cards = jsonObject.getJSONArray("cards");
             if (cards != null && cards.size() > 0) {
                 JSONObject card = cards.getJSONObject(0);
@@ -383,7 +384,7 @@ public class WeiboCrawler3 {
                 client.close();
                 return null;
             }
-            JSONObject cardlistInfo = JSON.parseObject(respStr).getJSONObject("cardlistInfo");
+            JSONObject cardlistInfo = JSON.parseObject(respStr).getJSONObject("data").getJSONObject("cardlistInfo");
             if (cardlistInfo == null) {
                 response.close();
                 client.close();
@@ -473,6 +474,7 @@ public class WeiboCrawler3 {
          * @return
          */
         public User getUserBasic(JSONObject result) {
+            result = result.getJSONObject("data");
             User user = new User();
             JSONObject userInfo = result.getJSONObject("userInfo");
             //0. id昵称等
@@ -516,6 +518,7 @@ public class WeiboCrawler3 {
          * @return
          */
         public User getUserInfo(User user, JSONObject result) {
+            result = result.getJSONObject("data");
             JSONArray cards = result.getJSONArray("cards");
             if (cards != null) {
                 for (int i = 0; i < cards.size(); i++) {
