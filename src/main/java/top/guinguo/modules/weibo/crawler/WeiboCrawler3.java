@@ -192,7 +192,7 @@ public class WeiboCrawler3 {
                 JSONObject firstPage = getFanUser(user.getId(), i++);
                 List<User> eachPageUser = getUsersFromJson(firstPage);
                 users.addAll(eachPageUser);
-                while ("1".equals(firstPage.get("ok"))) {
+                while ("1".equals(firstPage.getString("ok"))) {
                     long tmp = (long) (sleepInterval / 2 * Contants.intervalRadio);
                     System.out.println("eachFan:===================================================" + tmp);
                     Thread.sleep(tmp);
