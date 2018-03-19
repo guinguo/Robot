@@ -1,6 +1,7 @@
 package top.guinguo.modules.weibo.model;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.Date;
 
@@ -61,10 +62,12 @@ public class User implements java.io.Serializable {
     /**
      * 生日
      */
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Date birthDate;
     /**
      * 抓取日期
      */
+    @JSONField (format="yyyy-MM-dd HH:mm:ss")
     private Date crawlDate;
     /**
      * 注册日期

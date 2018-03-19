@@ -2,7 +2,7 @@ package top.guinguo.modules.weibo.dao;
 
 import org.springframework.stereotype.Repository;
 import top.guinguo.modules.weibo.model.Task;
-import top.guinguo.modules.weibo.model.User;
+import top.guinguo.modules.weibo.model.TaskResult;
 import top.guinguo.modules.weibo.model.UserData;
 import top.guinguo.modules.weibo.utils.DBManager;
 import top.guinguo.modules.weibo.utils.ObjectUtil;
@@ -98,6 +98,23 @@ public class TaskDao {
         dbManager.getConnection();
         try {
             task.setId(dbManager.save(sql, task.getUserid(), task.getStatus(), task.getCreateDate()));
+            dbManager.close();
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return true;
+    }
+
+    /**
+     * 添加task result
+     * @param taskResult
+     * @return
+     */
+    public boolean addTaskResult(TaskResult taskResult) {
+        String sql = "insert into task_result(taskId,profile,data) value(?,?,?)";
+        dbManager.getConnection();
+        try {
+            taskResult.setId(dbManager.save(sql, taskResult.getTaskId(), taskResult.getProfile(), taskResult.getData()));
             dbManager.close();
         } catch (Exception ex){
             ex.printStackTrace();

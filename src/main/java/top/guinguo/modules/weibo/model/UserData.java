@@ -58,6 +58,22 @@ public class UserData implements java.io.Serializable {
      */
     private int member;
 
+    public UserData() {
+    }
+
+    public UserData(User user) {
+        this.id = user.getId();
+        this.nickname = user.getNickname();
+        this.address = user.getAddress();
+        this.avatar = user.getAvatar();
+        this.blogNumber = user.getBlogNumber();
+        this.fans = user.getFans();
+        this.focus = user.getFocus();
+        this.sex = user.getSex();
+        this.level = user.getLevel();
+        this.member = user.getMember();
+    }
+
     public String getId() {
         return id;
     }
