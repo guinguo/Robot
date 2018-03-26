@@ -5,6 +5,7 @@ $(function () {
     loadTasks();
     initFun();
     bindEvent();
+    setInterval("loadTasks(1, 20)", 5000);
 });
 
 Date.prototype.Format = function (fmt) { //author: meizz
