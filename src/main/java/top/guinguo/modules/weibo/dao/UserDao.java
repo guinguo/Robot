@@ -179,6 +179,7 @@ public class UserDao {
                 } else {
                     ct.put("name", resAddres);
                 }
+                ct.put("value", res.getInt("value"));
                 citys.add(ct);
             }
             dbManager.close();

@@ -105,6 +105,19 @@ public class TaskDao {
         return true;
     }
 
+    public int updateTask(Task task) {
+        String sql = "update task set status=?,finishDate=? where id=?";
+        dbManager.getConnection();
+        try {
+            int res = dbManager.updateQuery(sql, task.getStatus(), task.getFinishDate(), task.getId());
+            dbManager.close();
+            return res;
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return 0;
+    }
+
     /**
      * 添加task result
      * @param taskResult
@@ -120,5 +133,24 @@ public class TaskDao {
             ex.printStackTrace();
         }
         return true;
+    }
+
+    /**
+     * 更新task result
+     * @param data
+     * @param taskId
+     * @return
+     */
+    public int updateTaskResult(String data, int taskId) {
+        String sql = "update task_result set data=? where taskId=?";
+        dbManager.getConnection();
+        try {
+            int res = dbManager.updateQuery(sql, data, taskId);
+            dbManager.close();
+            return res;
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return 0;
     }
 }

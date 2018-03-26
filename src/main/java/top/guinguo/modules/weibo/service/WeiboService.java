@@ -69,7 +69,7 @@ public class WeiboService implements IWeiboService {
 
     @Override
     public List<Weibo> getWeiboByUid(String uid) throws Exception {
-        List<Map<String, Object>> weiboMaps = hbaseDao.scaneByPrefixFilter(Contants.T_WEIBO, "6358542917", false);
+        List<Map<String, Object>> weiboMaps = hbaseDao.scaneByPrefixFilter(Contants.T_WEIBO, uid, false);
         List<Weibo> list = new ArrayList<>(weiboMaps.size());
         for (Map<String, Object> w : weiboMaps) {
             Weibo weibo = new Weibo();

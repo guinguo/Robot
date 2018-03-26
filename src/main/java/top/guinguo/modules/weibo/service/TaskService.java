@@ -1,6 +1,7 @@
 package top.guinguo.modules.weibo.service;
 
 import com.alibaba.fastjson.JSON;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.guinguo.modules.weibo.dao.TaskDao;
 import top.guinguo.modules.weibo.dao.UserDao;
@@ -19,13 +20,24 @@ import java.util.Date;
  */
 @Service("taskService")
 public class TaskService implements ITaskService {
-    @Resource
     private TaskDao taskDao;
-    @Resource
     private UserDao userDao;
 
+    public TaskService() {
+        taskDao = TaskDao.getInstance();
+        userDao= UserDao.getInstance();
+    }
+
+    private static class DefaultInstance {
+        public static TaskService instance = new TaskService();
+    }
+
+    public static TaskService getInstance() {
+        return DefaultInstance.instance;
+    }
+    
     @Override
-    public boolean addTask(String uid) {
+    public boolean addAndRunTask(String uid) {
         Task task = new Task();
         task.setUserid(uid);
         task.setCreateDate(new Timestamp(new Date().getTime()));
@@ -48,5 +60,15 @@ public class TaskService implements ITaskService {
     @Override
     public boolean deleteTask(int id) {
         return taskDao.deleteTask(id);
+    }
+
+    @Override
+    public int updateTask(Task task) {
+        return taskDao.updateTask(task);
+    }
+
+    @Override
+    public int updateTaskResult(String data, int taskId) {
+        return taskDao.updateTaskResult(data, taskId);
     }
 }

@@ -1,23 +1,20 @@
 package top.guinguo.modules.weibo.task;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.seg.NShort.NShortSegment;
-import com.hankcs.hanlp.seg.Segment;
-import com.hankcs.hanlp.seg.Viterbi.ViterbiSegment;
-import com.hankcs.hanlp.tokenizer.NLPTokenizer;
-import com.hankcs.hanlp.tokenizer.SpeedTokenizer;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import top.guinguo.modules.weibo.dao.HBaseDaoImlp;
 import top.guinguo.modules.weibo.dao.UserDao;
 import top.guinguo.modules.weibo.model.*;
+import top.guinguo.modules.weibo.service.ITaskService;
 import top.guinguo.modules.weibo.service.IWeiboService;
+import top.guinguo.modules.weibo.service.TaskService;
 import top.guinguo.modules.weibo.service.WeiboService;
-import top.guinguo.modules.weibo.utils.Contants;
 
+import javax.annotation.Resource;
+import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -31,16 +28,17 @@ public class TaskManager {
     private ExecutorService fixedThreadPool;
     private HBaseDaoImlp hBaseDaoImlp;
     private IWeiboService weiboService;
+    private ITaskService taskService;
     private UserDao userDao;
     // 创建一个数值格式化对象
     private NumberFormat numberFormat = NumberFormat.getInstance();
-    private static String SCITY = "北京 上海 天津 重庆 香港 澳门 海外";
 
     public TaskManager(int initPoolSize) {
         this.initPoolSize = initPoolSize;
         this.hBaseDaoImlp = HBaseDaoImlp.getInstance();
         this.weiboService = WeiboService.getInstance();
         this.userDao = UserDao.getInstance();
+        this.taskService= TaskService.getInstance();
         fixedThreadPool = Executors.newFixedThreadPool(initPoolSize);
         // 设置精确到小数点后2位
         numberFormat.setMaximumFractionDigits(2);
@@ -59,6 +57,7 @@ public class TaskManager {
 
     class TaskRunner implements Runnable {
         private Task task;
+        private DecimalFormat df = new DecimalFormat("#.0");
         public TaskRunner(Task task) {
             this.task = task;
         }
@@ -66,15 +65,41 @@ public class TaskManager {
         public void run() {
             List<Weibo> weibos;
             try {
+                //status for 50%
+                task.setStatus("50");
+                updateTask(null);
                 weibos = weiboService.getWeiboByUid(task.getUserid());
+                JSONObject data = new JSONObject();
                 Map<String, List<MidleWeibo>> top5 = getTop5(weibos);
                 List<String> worldCloud = getWordCloud(weibos);
-                List<Label> getUserLabels = getUserLabels(weibos);
-                //status for 50%
-                JSONObject getAraeDatas = getAraeDatas(task.getUser().getAddress());
+                List<Label> userLabels = getUserLabels(weibos);
+                JSONObject araeDatas = getAraeDatas(task.getUser().getAddress());
+                data.put("top5", top5);
+                data.put("worldCloud", worldCloud);
+                data.put("userLabels", userLabels);
+                data.put("araeDatas", araeDatas);
+                task.setStatus("100");
+                task.setFinishDate(new Timestamp(new Date().getTime()));
+                updateTask(data.toJSONString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        private boolean updateTask(String data) {
+            int updateCount = 0;
+            if (data != null) {
+                updateCount = taskService.updateTaskResult(data, task.getId());
+            }
+            if (data == null || updateCount == 1) {
+                int res = taskService.updateTask(task);
+                if (res == 1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return false;
         }
 
         /**
@@ -165,7 +190,7 @@ public class TaskManager {
             int i = 0;
             List<Label> labels = new ArrayList<>(10);
             for (Map.Entry<String, Integer> map : list) {
-                Label label = new Label(map.getKey(), map.getValue() / sum * 1.0);
+                Label label = new Label(map.getKey(), Double.valueOf(df.format(map.getValue() * 1.0 / sum)));
                 labels.add(label);
                 if (++i == 10) {
                     break;
@@ -183,20 +208,11 @@ public class TaskManager {
             if (StringUtils.isEmpty(address)) {
                 return null;
             }
-            JSONObject areaDatas = new JSONObject();
             List<User> areaUsers = userDao.getByAddress(address);
-            //1. sex 性别
-            JSONObject sexRatio = getSexRadio(areaUsers);
-            //2. city 城市
+            JSONObject areaUserData = getAreaUserData(areaUsers);
             JSONObject citys = getCitys(address);
-            //3. level 等级
-            //4. blog age 博龄
-            //5. member level 会员等级
-            //6. fans range 用户粉丝分组
-            //7. company tag 公司分组
-            //8. school range 学校排行
-            // total
-            return null;
+            areaUserData.put("citys", citys);
+            return areaUserData;
         }
 
         /**
@@ -219,9 +235,23 @@ public class TaskManager {
          * @param users
          * @return
          */
-        private JSONObject getSexRadio(List<User> users) {
+        private JSONObject getAreaUserData(List<User> users) {
+            JSONObject areaUserData = new JSONObject();
+            //sex 性别
+            //level 等级
+            //blog age 博龄
+            //member level 会员等级
+            //fans range 粉丝数量分布
+            //company tag 公司标签
+            //school rank 学校排名
             JSONObject sexRadio = new JSONObject();
             List<Map<String, Object>> levels = new ArrayList<>();
+            Map<Integer, Integer> blogAges = new HashedMap();
+            Map<Integer, Integer> memberLevels = new HashedMap();
+            Map<String, Integer> fansRange = new HashedMap();
+            Map<String, Integer> companyTag = new HashedMap();
+            Map<String, Integer> schoolRank = new HashedMap();
+
             //sex
             int man = 0;
             int woman = 0;
@@ -233,14 +263,33 @@ public class TaskManager {
             int level31To40 = 0;
             int level41To48 = 0;
 
-            //blogAge
+            //blog age
+            Calendar cal = Calendar.getInstance();
+            int yearNow = cal.get(Calendar.YEAR);
 
+            //fans count
+
+            //level
+            int count1k = 0;
+            int count2k = 0;
+            int count5k = 0;
+            int count1w = 0;
+            int count10w = 0;
+            int count50w = 0;
+            int count100w = 0;
+            int count500w = 0;
+            int count1kw = 0;
+            int count1y = 0;
+            
             for (User user : users) {
+                //sex
                 if ("男".equals(user.getSex())) {
                     man++;
                 } else {
                     woman++;
                 }
+
+                //level
                 int level = user.getLevel();
                 if (level >= 0 && level <= 10) {
                     level0To10++;
@@ -252,6 +301,72 @@ public class TaskManager {
                     level31To40++;
                 } else if (level >= 41 && level <= 48) {
                     level41To48++;
+                }
+
+                //blog age
+                String registerDate = user.getRegistedDate();
+                if (StringUtils.isNotEmpty(registerDate)) {
+                    int year = Integer.parseInt(registerDate.substring(0, 4));
+                    if (year != 1970) {
+                        int blogAge = yearNow - year;
+                        if (blogAges.get(blogAge) != null) {
+                            blogAges.put(blogAge, blogAges.get(blogAge) + 1);
+                        } else {
+                            blogAges.put(blogAge, 1);
+                        }
+                    }
+                }
+
+                //member level
+                int memberLevel = user.getMember();
+                if (memberLevels.get(memberLevel) != null) {
+                    memberLevels.put(memberLevel, memberLevels.get(memberLevel) + 1);
+                } else {
+                    memberLevels.put(memberLevel, 1);
+                }
+                
+                //fansCount
+                long fansCount = user.getFans();
+                if (fansCount <= 1000) {
+                    count1k++;
+                } else if (fansCount <= 2000) {
+                    count2k++;
+                } else if (fansCount <= 5000) {
+                    count5k++;
+                } else if (fansCount <= 10000) {
+                    count1w++;
+                } else if (fansCount <= 100000) {
+                    count10w++;
+                } else if (fansCount <= 500000) {
+                    count50w++;
+                } else if (fansCount <= 1000000) {
+                    count100w++;
+                } else if (fansCount <= 5000000) {
+                    count500w++;
+                } else if (fansCount <= 10000000) {
+                    count1kw++;
+                } else if (fansCount <= 100000000) {
+                    count1y++;
+                }
+
+                //company
+                String company = user.getCompany();
+                if (StringUtils.isNotEmpty(company)) {
+                    if (companyTag.get(company) != null) {
+                        companyTag.put(company, companyTag.get(company) + 1);
+                    } else {
+                        companyTag.put(company, 1);
+                    }
+                }
+
+                //school
+                String school = user.getSchool();
+                if (StringUtils.isNotEmpty(school)) {
+                    if (schoolRank.get(school) != null) {
+                        schoolRank.put(school, schoolRank.get(school) + 1);
+                    } else {
+                        schoolRank.put(school, 1);
+                    }
                 }
             }
             int total = man + woman;
@@ -289,14 +404,86 @@ public class TaskManager {
             map.put("level", "41-48级");
             map.put("count", level41To48);
             levels.add(map);
+
+            //fans count
+            fansRange.put("0-1千", count1k);
+            fansRange.put("1千-2千",count2k);
+            fansRange.put("2千-5千", count5k);
+            fansRange.put("5千-1万", count1w);
+            fansRange.put("1万-10万", count10w);
+            fansRange.put("10万-50万", count50w);
+            fansRange.put("50万-1百万", count100w);
+            fansRange.put("1百万-5百万", count500w);
+            fansRange.put("5百万-1千万", count1kw);
+            fansRange.put("1千万-1亿", count1y);
+            
             Collections.sort(levels, new Comparator<Map<String, Object>>() {
                 @Override
                 public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                    return Integer.compare(Integer.parseInt(o1.get("count").toString()), Integer.parseInt(o2.get("count").toString()));
+                    return Integer.compare(Integer.parseInt(o2.get("count").toString()), Integer.parseInt(o1.get("count").toString()));
                 }
             });
 
-            return sexRadio;
+            List<Map.Entry<Integer, Integer>> blogAgesList = new ArrayList<Map.Entry<Integer, Integer>>(blogAges.entrySet());
+            Collections.sort(blogAgesList, new Comparator<Map.Entry<Integer, Integer>>() {
+                @Override
+                public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+            List<Map.Entry<Integer, Integer>> memberLevelList = new ArrayList<Map.Entry<Integer, Integer>>(memberLevels.entrySet());
+            Collections.sort(memberLevelList, new Comparator<Map.Entry<Integer, Integer>>() {
+                @Override
+                public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+            List<Map.Entry<String, Integer>> fansRangeList = new ArrayList<Map.Entry<String, Integer>>(fansRange.entrySet());
+            Collections.sort(fansRangeList, new Comparator<Map.Entry<String, Integer>>() {
+                @Override
+                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+
+            List<Map.Entry<String, Integer>> companyTagList = new ArrayList<Map.Entry<String, Integer>>(companyTag.entrySet());
+            Collections.sort(companyTagList, new Comparator<Map.Entry<String, Integer>>() {
+                @Override
+                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+            //company
+            List<Map<String, Object>> companyList = new ArrayList<>(companyTagList.size() <= 50 ? companyTagList.size() : 50);
+            Map.Entry<String, Integer> m;
+            for (int i=0;i<companyTagList.size()&&i<50;i++) {
+                m = companyTagList.get(i);
+                map = new HashedMap(2);
+                map.put("text", m.getKey());
+                map.put("size", m.getValue());
+                companyList.add(map);
+            }
+
+            List<Map.Entry<String, Integer>> schoolList = new ArrayList<Map.Entry<String, Integer>>(schoolRank.entrySet());
+            if (schoolList.size() > 10) {
+                schoolList = schoolList.subList(0, 10);
+            }
+            Collections.sort(schoolList, new Comparator<Map.Entry<String, Integer>>() {
+                @Override
+                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                    return o2.getValue().compareTo(o1.getValue());
+                }
+            });
+
+            areaUserData.put("sexRadio", sexRadio);
+            areaUserData.put("levels", levels);
+            areaUserData.put("blogAges", blogAgesList);
+            areaUserData.put("memberLevels", memberLevelList);
+            areaUserData.put("fansRange", fansRangeList);
+            areaUserData.put("companyTag", companyList);
+            areaUserData.put("schoolRank", schoolList);
+            areaUserData.put("fansNum", users.size());
+            return areaUserData;
         }
 
         /**

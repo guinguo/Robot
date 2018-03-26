@@ -1,10 +1,14 @@
 package top.guinguo.modules.weibo.service;
 
+import top.guinguo.modules.weibo.model.Task;
+
 /**
  * Created by guin_guo on 2018/3/10.
  */
 public interface ITaskService {
-    public boolean addTask(String uid);
+    public boolean addAndRunTask(String uid);
 
     boolean deleteTask(int id);
+    int updateTask(Task task);
+    int updateTaskResult(String data, int taskId);
 }
