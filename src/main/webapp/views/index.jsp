@@ -69,5 +69,6 @@
 </div>
 <div times="1" id="xubox_shade1" class="xubox_shade" style="z-index:19891015;background-color:#000;opacity:0.3;filter:alpha(opacity=30);"></div>
 <%@include file="/inc/footer.jsp"%>
+<script src="${pageContext.request.contextPath}/front/js/commons.js"></script>
 </body>
 </html>

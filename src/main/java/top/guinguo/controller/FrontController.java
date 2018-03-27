@@ -1,5 +1,6 @@
 package top.guinguo.controller;
 
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -9,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import top.guinguo.modules.weibo.dao.TaskDao;
 import top.guinguo.modules.weibo.dao.UserDao;
+import top.guinguo.modules.weibo.model.ResultDto;
 import top.guinguo.modules.weibo.model.Task;
+import top.guinguo.modules.weibo.model.TaskResult;
 import top.guinguo.modules.weibo.model.UserData;
 import top.guinguo.modules.weibo.service.TaskService;
 import top.guinguo.modules.weibo.utils.Pager;
@@ -40,6 +43,19 @@ public class FrontController {
     @RequestMapping({"/", "/index", "/index.html"})
     public String index(Model model, HttpServletRequest req){
         return "views/index";
+    }
+
+    /**
+     * 任务详情
+     *
+     * @return
+     */
+    @RequestMapping("/task/detail")
+    public String detail(Model model, int taskId) {
+        TaskResult result = taskService.getResultByTaskId(taskId);
+        ResultDto resultDto = new ResultDto(result);
+        model.addAttribute("result", resultDto);
+        return "views/detail";
     }
 
     /**

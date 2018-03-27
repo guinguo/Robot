@@ -92,7 +92,7 @@ function loadTasks(num, pageSize, status) {
                 var user = task.user;
                 var li = '<li id="taskLi" ' + taksId + ' class="thumbnail-box clearfix">' +
                             '<div class="box3">' +
-                                '<a target="_blank" href="'+ctx+'/task/detail?id='+taksId+'">' +
+                                '<a target="_blank" href="'+ctx+'/task/detail?taskId='+taksId+'">' +
                                     '<div class="thumbnail-left">' +
                                         '<div class="circle-text">' +
                                             '<img src="'+user.avatar+'">' +

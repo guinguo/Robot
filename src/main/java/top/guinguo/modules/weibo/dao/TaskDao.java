@@ -153,4 +153,24 @@ public class TaskDao {
         }
         return 0;
     }
+
+    public TaskResult getResultByTaskId(int taskId) {
+        String sql = "select * from task_result where taskId=?";
+        TaskResult result = null;
+        try {
+            dbManager.getConnection();
+            ResultSet res;
+            res = dbManager.query(sql, taskId);
+            while (res.next()) {
+                result = ObjectUtil.getObject(res, TaskResult.class);
+                if (result != null && result.getId() != null) {
+                    break;
+                }
+            }
+            dbManager.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
 }

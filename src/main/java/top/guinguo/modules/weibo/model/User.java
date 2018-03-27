@@ -93,6 +93,10 @@ public class User implements java.io.Serializable {
      */
     private String company;
     /**
+     * 信用
+     */
+    private String credit;
+    /**
      * 预留字段，json格式
      */
     private String meta;
@@ -247,6 +251,14 @@ public class User implements java.io.Serializable {
 
     public void setCompany(String company) {
         this.company = company;
+    }
+
+    public String getCredit() {
+        return credit;
+    }
+
+    public void setCredit(String credit) {
+        this.credit = credit;
     }
 
     public JSONObject getJSONMeta() {

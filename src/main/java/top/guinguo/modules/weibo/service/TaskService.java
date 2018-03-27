@@ -58,6 +58,11 @@ public class TaskService implements ITaskService {
     }
 
     @Override
+    public TaskResult getResultByTaskId(int taskId) {
+        return taskDao.getResultByTaskId(taskId);
+    }
+
+    @Override
     public boolean deleteTask(int id) {
         return taskDao.deleteTask(id);
     }

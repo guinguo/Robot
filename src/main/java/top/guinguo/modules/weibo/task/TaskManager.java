@@ -77,6 +77,8 @@ public class TaskManager {
                 data.put("top5", top5);
                 data.put("worldCloud", worldCloud);
                 data.put("userLabels", userLabels);
+                data.put("preferWordsInfo", worldCloud.subList(0, 3));
+                data.put("myInterestsInfo", userLabels.subList(0, 3));
                 data.put("araeDatas", araeDatas);
                 task.setStatus("100");
                 task.setFinishDate(new Timestamp(new Date().getTime()));
