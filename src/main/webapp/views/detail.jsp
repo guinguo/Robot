@@ -7,14 +7,15 @@
     <title>微博数据分析</title>
     <meta charset="UTF-8">
     <%@include file="/inc/header.jsp" %>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/front/css/detail.css" />
 </head>
 <body>
 <div class="home-page">
     <%@include file="/inc/top.jsp" %>
     <div class="home-content">
         <div class="mb20 clearfix">
-            <%--<div class="yhhx">
-                <div class="rwhx"><img width="400" height="550" src="/resources/images/draw/m25.gif"></div>
+            <div class="yhhx">
+                <div class="rwhx"><img width="400" height="550" src=${pageContext.request.contextPath}${result.profile.sex == '男' ? "/front/img/m25.gif":"/front/img/f25.gif"}></div>
                 <!--浮动信息层1-->
                 <div class="yhzlmk1" style="position:absolute; left:180px; top:120px;">
                     <div class="yhhxzl" ng-click="dtp.userDimensionInfo.event.clickInfoModel('preferWords')">
@@ -33,7 +34,7 @@
                             <p><a class="kolhxgd"></a></p>
                         </div>
                     </div>
-                    <div class="dian"><img src="/resources/images/dian.png" width="40" height="40" alt=""></div>
+                    <div class="dian"><img src=${pageContext.request.contextPath}/front/img/dian.png width="40" height="40" alt=""></div>
                 </div>
                 <!--浮动信息层2-->
                 <div class="yhzlmk3" style="position:absolute; left:80px; top:350px;">
@@ -53,11 +54,11 @@
                             <p class="ng-hide" ng-show="!dtp.userDimensionInfo.myFansInfo.taskHasDone"><em class="grey">小蓝鲸正在研究TA的粉丝，<a class="refresh_btn pink" onclick="location.reload(true)">刷新</a>看看好了没~</em></p>
                         </div>
                     </div>
-                    <div class="dian"><img src="/resources/images/dian.png" width="40" height="40" alt=""></div>
+                    <div class="dian"><img src=${pageContext.request.contextPath}/front/img/dian.png width="40" height="40" alt=""></div>
                 </div>
                 <!--浮动信息层3-->
                 <div class="yhzlmk4" style="position:absolute; left:550px; top:150px;">
-                    <div class="dian"><img src="/resources/images/dian.png" width="40" height="40" alt=""></div>
+                    <div class="dian"><img src=${pageContext.request.contextPath}/front/img/dian.png width="40" height="40" alt=""></div>
                     <div class="yhhxzl" ng-click="dtp.userDimensionInfo.event.clickInfoModel('myInterests')">
                         <div class="p010">
                             <div class="kolhxbt clearfix"><a class="kolhxgd"></a>我的兴趣</div>
@@ -70,24 +71,7 @@
                         </div>
                     </div>
                 </div>
-                <!--浮动信息层4-->
-                <div class="yhzlmk4" style="position:absolute; left:550px; top:300px;">
-                    <div class="dian"><img src="/resources/images/dian.png" width="40" height="40" alt=""></div>
-                    <div class="yhhxzl" ng-click="dtp.userDimensionInfo.event.clickInfoModel('socialCircle')">
-                        <div class="p010">
-                            <div class="kolhxbt clearfix"><a class="kolhxgd"></a>社交圈</div>
-                            <p class="ng-hide" ng-show="dtp.userDimensionInfo.socialCircleInfo.taskHasDone">
-                                <span class="colorcc3366 ng-binding" ng-bind="dtp.userDimensionInfo.socialCircleInfo.cutText"></span>
-                            </p>
-
-                            <p class="" ng-show="!dtp.userDimensionInfo.socialCircleInfo.taskHasDone"><em class="grey">小蓝鲸正在窥探TA的社交圈，<a class="refresh_btn pink" onclick="location.reload(true)">刷新</a>看看好了没~</em>
-                            </p>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>--%>
+            </div>
             <!--右侧用户详细资料-->
             <div class="w260 fr">
                 <div class="yhzl">
@@ -113,7 +97,8 @@
                         <tr>
                             <td class="yhzllbl" valign="top">会员等级：</td>
                             <td class="yhzllbr ng-binding" ng-bind="dtp.userPropertyAbout.about.verifiedStr">
-                                ${result.profile.member > 0 ? '会员：' + result.profile.member: '普通用户'}
+                                ${result.profile.member > 0 ? '会员V' : '普通用户'}
+                                ${result.profile.member > 0 ? result.profile.member : ''}
                             </td>
                         </tr>
                         <tr>

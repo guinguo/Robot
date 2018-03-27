@@ -1,0 +1,177 @@
+﻿.mb20 {
+    margin-bottom: 20px;
+}
+.w260 {
+    width: 260px;
+}
+/*人*/
+.yhhx {
+    width: 920px;
+    float: left;
+    position: relative;
+}
+.rwhx {
+    text-align: center;
+}
+.yhzlmk1 {
+    width: 180px;
+}
+.yhzlmk1 .yhhxzl {
+    width: 128px;
+    height: 160px;
+    float: left;
+    background: url(../img/kolcs1.png) no-repeat;
+}
+.yhhxzl {
+    cursor: pointer;
+}
+
+.p010 {
+    padding: 0px 10px;
+}
+
+.kolhxbt {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 30px;
+    padding: 10px 0px 5px 0px;
+}
+
+.yhhxzl ul {
+    font-size: 12px;
+}
+.yhzlmk1 ul {
+    color: #cc3366;
+    line-height: 24px;
+}
+
+.yhhxzl p {
+    font-size: 12px;
+}
+
+.kolhxgd {
+    display: block;
+    width: 40px;
+    height: 30px;
+    background: url(../img/bg.png) -105px -210px;
+}
+.kolhxbt .kolhxgd {
+    float: right;
+}
+
+.yhzlmk1 .dian {
+    padding-top: 15px;
+    float: right;
+}
+
+.yhzlmk3 {
+    width: 310px;
+}
+
+.yhzlmk3 .yhhxzl {
+    width: 250px;
+    padding-right: 8px;
+    height: 100px;
+    float: left;
+    background: url(../img/kolcs2.png) no-repeat;
+}
+
+.yhzlmk3 p {
+    color: #666;
+    line-height: 22px;
+}
+
+.colorcc3366 {
+    color: #cc3366;
+    margin-right: 2px;
+}
+
+.yhhxzl p i {
+    padding: 0px 5px;
+    font-style: normal;
+}
+
+
+.yhzlmk4 {
+    width: 310px;
+}
+
+.yhzlmk4 .dian {
+    padding-top: 32px;
+    float: left;
+}
+
+.yhzlmk4 .yhhxzl {
+    width: 250px;
+    padding-left: 8px;
+    height: 100px;
+    float: right;
+    background: url(../img/kolcs4.png) no-repeat;
+}
+
+
+/*用户数据*/
+.yhzl {
+    min-height: 500px;
+    padding: 20px;
+    background: url(../img/bgw2.png);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+.position_relative {
+     position: relative;
+ }
+
+.yhtx {
+    float: left;
+    margin-right: 20px;
+}
+
+.yhtx img {
+    width: 90px;
+    height: 90px;
+    border: 3px #fff solid;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+}
+
+.yhwbcs {
+    float: left;
+    padding-top: 20px;
+    font-size: 12px;
+    line-height: 24px;
+}
+
+.yhwbcs b {
+    color: #cc3366;
+}
+.yhzllb {
+    font-size: 12px;
+    line-height: 24px;
+    margin-bottom: 20px;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: inherit;
+}
+table {
+    background-color: transparent;
+}
+.yhzllb td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.yhzllbl {
+    width: 70px;
+    color: #666;
+}
+.yhzllbr {
+    max-width: 159px;
+    overflow: hidden;
+    white-space: normal;
+    text-overflow: ellipsis;
+    color: #333;
+}
