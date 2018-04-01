@@ -2,12 +2,8 @@
  * Created by guin_guo on 2018/2/28.
  */
 $(function () {
-    loadTasks();
-    initFun();
     bindEvent();
-    setInterval("loadTasks(1, 20)", 5000);
 });
-
 Date.prototype.Format = function (fmt) { //author: meizz
     var o = {
         "M+": this.getMonth() + 1, //月份
@@ -23,167 +19,19 @@ Date.prototype.Format = function (fmt) { //author: meizz
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 };
-function loadTasks(num, pageSize, status) {
-    deleteTask = function(id) {
-
-        var confirmButton = {};
-        confirmButton.confirm = {
-            label: "确认",
-            className: "btn-primary primary",
-            callback: function () {
-                newTitle = '删除任务';
-                $.ajax({
-                    type: "POST",
-                    url: ctx + "/deleteTask",
-                    data:{
-                        id:id
-                    },
-                    success: function (msg) {
-                        filterTask();
-                    },
-                    error: function (msg) {
-                        bootbox.alert('删除任务失败');
-                    }
-                });
-            }
-        };
-        confirmButton.cancel = {
-            label: "取消",
-            className: "btn-default"
-        };
-        bootbox.dialog({
-            message: "<label class='delete-font delete-font-msg text-danger text-center'>您确定要删除任务？</label>",
-            title: "<strong class='delete-font'>删除任务</strong>",
-            local: 'zh_CN',
-            onEscape: true,
-            closeButton: true,
-            buttons: confirmButton,
-            backdrop: true
-        });
-
-        /*$.ajax({
-            type: "POST",
-            url: ctx + "/deleteTask",
-            data:{
-                id:id
-            },
-            success: function(data) {
-                filterTask();
-            },
-            error:function(data) {
-                alert("删除任务失败！");
-            }
-        });*/
-    };
-    $.ajax({
-        type: "GET",
-        url: ctx + "/tasks",
-        dataType: "json",
-        data:{
-            num:num,
-            pageSize:pageSize,
-            status:status,
-        },
-        success: function(data) {
-            var tasks = data.datas;
-            var html = '';
-            tasks.forEach(function(task, idx, array){
-                var taksId = task.id;
-                var user = task.user;
-                var li = '<li id="taskLi" ' + taksId + ' class="thumbnail-box clearfix">' +
-                            '<div class="box3">' +
-                                '<a target="_blank" href="'+ctx+'/task/detail?taskId='+taksId+'">' +
-                                    '<div class="thumbnail-left">' +
-                                        '<div class="circle-text">' +
-                                            '<img src="'+user.avatar+'">' +
-                                        '</div>' +
-                                        '<p>已完成 <b class="pink">'+task.status+'%</b></p>' +
-                                    '</div>' +
-                                    '<div class="thumbnail-right">' +
-                                        '<div class="user-name clearfix">' +
-                                            '<b title="'+user.nickname+'">'+user.nickname+'' + (user.level>=24 ? '<img src="'+ctx+'/front/img/dr.png">' : '') + '</b>' +
-                                        '</div>' +
-                                        '<dl class="user-profile">' +
-                                            '<dt><span>关注：</span>'+user.focus+'</dt>' +
-                                            '<dt><span>粉丝：</span>'+user.fans+'</dt>' +
-                                            '<dt><span>地区：</span>'+user.address+'</dt>' +
-                                            '<dt>'+new Date(task.createDate).Format("yyyy-MM-dd HH:mm")+'</dt>' +
-                                        '</dl>' +
-                                    '</div>' +
-                                '</a>' +
-                                '<a tid="12868" class="guanbi" onclick="deleteTask(&quot;'+task.id+'&quot;)"></a>' +
-                            '</div>' +
-                        '</li>'
-                html+=li;
-            });
-            $('#allTaskList').html(html);
-            $('.box3').hover(function () {
-                $(this).find('a.guanbi').show();
-            },function(){
-                $(this).find('a.guanbi').hide();
-            });
-        },
-        error:function(data) {
-            alert("获取用户数据失败！");
-        }
-    });
-}
-filterTask = function (staus) {
-    $('.task-status li a').removeClass('current');
-    if(staus) {
-        if(staus == 20) {
-            $('.task-status li a.l3').addClass('current');
-        } else{
-            $('.task-status li a.l2').addClass('current');
-        }
-    } else {
-        $('.task-status li a.l1').addClass('current');
-    }
-    loadTasks(1, 20, staus);
+changeTab = function (tab) {
+    $('.tit-tab li a').removeClass('current');
+    $('.wastop table').hide();
+    $('#top-table-'+tab).show();
+    $('.tit-tab li a#top-'+tab).addClass('current');
 };
-function initFun() {
-    //选择好用户
-    goTask = function() {
-        var uid = $('#goTask').val();
-        console.log('go task id =' + uid);
-        //1.关闭窗口
-        $('#xubox_shade1, #xubox_layer2, #select-user').hide();
-        //2.发送add task 请求
-        if (uid) {
-            $.ajax({
-                type: "POST",
-                url: ctx + "/addTasks",
-                data:{
-                    uid:uid
-                },
-                success: function(data) {
-                    console.log(data);
-                    //3.重新加载任务列表
-                    filterTask()
-                },
-                error:function(data) {
-                    alert("创建任务失败！");
-                }
-            });
-        }
-    };
-    checkUser = function(user) {
-        console.log(user);
-        $('#select-user').show();//显示弹窗
-        var id = user.split(',')[0];
-        var nickname = user.split(',')[1];
-        $('#xubox_layer2').hide();//关闭用户列表
-        $('#user_nickname').html(nickname);
-        $('#goTask').val(id);
-    };
-}
 function bindEvent() {
-    $('p.common-nav-title').hover(function(){
-        $('ul.common-navs').show();
+    $('#top5-help').hover(function(){
+        $('#top5-help div.top5-help-tip').show();
     },function(){
-        $('ul.common-navs').hide();
+        $('#top5-help div.top5-help-tip').hide();
     });
-    //点击+任务
+    /*//点击+任务
     $('#newTask_add').on('click', function () {
         $('#xubox_shade1, #xubox_layer2').show();
         searchUser(1,5);
@@ -256,5 +104,5 @@ function bindEvent() {
                 alert("获取用户数据失败！");
             }
         });
-    }
+    }*/
 }

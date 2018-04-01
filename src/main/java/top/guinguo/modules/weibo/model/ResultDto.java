@@ -67,4 +67,9 @@ public class ResultDto {
     public void setData(JSONObject data) {
         this.data = data;
     }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
+    }
 }

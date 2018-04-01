@@ -10,19 +10,23 @@ public class MidleWeibo {
     private Integer forwardSize;
     private Integer likeSize;
     private String date;
+    private String id;
 
-    public MidleWeibo(String postText, Integer commentsSize, String date) {
+    public MidleWeibo(String id, String postText, Integer commentsSize, String date) {
+        this.id = id;
         this.setPostText(postText);
         this.commentsSize = commentsSize;
         this.date = date;
     }
 
-    public MidleWeibo(String postText, Integer forwardSize) {
+    public MidleWeibo(String id, String postText, Integer forwardSize) {
+        this.id = id;
         this.setPostText(postText);
         this.forwardSize = forwardSize;
     }
 
-    public MidleWeibo(Integer likeSize, String postText) {
+    public MidleWeibo(String id, Integer likeSize, String postText) {
+        this.id = id;
         this.setPostText(postText);
         this.likeSize = likeSize;
     }
@@ -34,7 +38,7 @@ public class MidleWeibo {
     public void setPostText(String postText) {
         this.postText = postText;
         if (postText != null && postText.length() > 0) {
-            this.postCutText = postText.length() < 30 ? postText : postText.substring(0, 30);
+            this.postCutText = postText.length() < 30 ? postText : postText.substring(0, 30) + "...";
         }
     }
 
@@ -76,5 +80,13 @@ public class MidleWeibo {
 
     public void setLikeSize(Integer likeSize) {
         this.likeSize = likeSize;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

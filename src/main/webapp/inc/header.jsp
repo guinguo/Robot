@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!-- bootstrap & fontawesome -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/front/assets/css/bootstrap.css" />
+<link rel="stylesheet" href="${pageContext.request.contextPath}/front/assets/css/bootstrap.min.css" />
 <link rel="stylesheet" href="${pageContext.request.contextPath}/front/css/commons.css" />
 <link id="font" rel="stylesheet" href="${pageContext.request.contextPath}/front/assets/css/font-awesome.css" />
 <!-- text fonts -->

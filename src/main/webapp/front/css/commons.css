@@ -1,7 +1,7 @@
 ﻿* {
     margin: 0px;
     padding: 0px;
-    font-size: 12px;
+    /*font-size: 12px;*/
 }
 ul, li {
     list-style: none;
@@ -266,9 +266,6 @@ body {
     -moz-border-radius: 5px;
     border-radius: 5px;
     position: relative;
-}
-.box3:hover {
-    background: url(../img/bgw6.png);
 }
 .thumbnail-list .thumbnail-box .box3 {
     padding: 10px 10px 10px 114px;

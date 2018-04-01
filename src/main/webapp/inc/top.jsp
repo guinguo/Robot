@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <div class="common-top">
     <div class="common-logo">
-        <a href="/index.jsp">
+        <a href="${pageContext.request.contextPath}/">
             <img src="${pageContext.request.contextPath}/front/img/logo.png">
         </a>
     </div>

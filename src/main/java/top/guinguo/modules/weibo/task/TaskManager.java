@@ -1,5 +1,6 @@
 package top.guinguo.modules.weibo.task;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
 import org.apache.commons.collections.map.HashedMap;
@@ -77,9 +78,10 @@ public class TaskManager {
                 data.put("top5", top5);
                 data.put("worldCloud", worldCloud);
                 data.put("userLabels", userLabels);
+                data.put("araeDatas", araeDatas);
+                //画像任务小窗数据
                 data.put("preferWordsInfo", worldCloud.subList(0, 3));
                 data.put("myInterestsInfo", userLabels.subList(0, 3));
-                data.put("araeDatas", araeDatas);
                 task.setStatus("100");
                 task.setFinishDate(new Timestamp(new Date().getTime()));
                 updateTask(data.toJSONString());
@@ -115,7 +117,7 @@ public class TaskManager {
             //latest 5
             for (int i=0;i<5;i++) {
                 Weibo weibo = weiboList.get(i);
-                MidleWeibo midleWeibo = new MidleWeibo(weibo.getContent(), weibo.getCommentNumber().intValue(), weibo.getCreateDate());
+                MidleWeibo midleWeibo = new MidleWeibo(weibo.getId(), weibo.getContent(), weibo.getCommentNumber().intValue(), weibo.getCreateDate());
                 latest.add(midleWeibo);
             }
             //mostComments 5
@@ -123,7 +125,7 @@ public class TaskManager {
             List<MidleWeibo> mostComments = new ArrayList<>(5);
             for (int i=0;i<5;i++) {
                 Weibo weibo = weiboList.get(i);
-                MidleWeibo midleWeibo = new MidleWeibo(weibo.getContent(), weibo.getCommentNumber().intValue(), weibo.getCreateDate());
+                MidleWeibo midleWeibo = new MidleWeibo(weibo.getId(), weibo.getContent(), weibo.getCommentNumber().intValue(), weibo.getCreateDate());
                 mostComments.add(midleWeibo);
             }
             //mostForwards
@@ -131,7 +133,7 @@ public class TaskManager {
             List<MidleWeibo> mostForwards = new ArrayList<>(5);
             for (int i=0;i<5;i++) {
                 Weibo weibo = weiboList.get(i);
-                MidleWeibo midleWeibo = new MidleWeibo(weibo.getContent(), weibo.getForwardNumber().intValue());
+                MidleWeibo midleWeibo = new MidleWeibo(weibo.getId(), weibo.getContent(), weibo.getForwardNumber().intValue());
                 mostForwards.add(midleWeibo);
             }
             //mostLikes
@@ -139,7 +141,7 @@ public class TaskManager {
             List<MidleWeibo> mostLikes = new ArrayList<>(5);
             for (int i=0;i<5;i++) {
                 Weibo weibo = weiboList.get(i);
-                MidleWeibo midleWeibo = new MidleWeibo(weibo.getLikeNumber().intValue(), weibo.getContent());
+                MidleWeibo midleWeibo = new MidleWeibo(weibo.getId(), weibo.getLikeNumber().intValue(), weibo.getContent());
                 mostLikes.add(midleWeibo);
             }
             Map<String, List<MidleWeibo>> top5 = new HashMap<>(4);
@@ -213,6 +215,14 @@ public class TaskManager {
             List<User> areaUsers = userDao.getByAddress(address);
             JSONObject areaUserData = getAreaUserData(areaUsers);
             JSONObject citys = getCitys(address);
+            JSONObject cutData = new JSONObject();
+            JSONArray jsonArray  = citys.getJSONArray("city");
+            if (jsonArray != null && jsonArray.size() > 0) {
+                cutData.put("gather", jsonArray.getJSONObject(0).getString("name"));
+            }
+            cutData.put("mostGender", areaUserData.getJSONObject("sexRadio").getString("most"));
+            cutData.put("areaCount", areaUsers.size());
+            areaUserData.put("cutData", cutData);
             areaUserData.put("citys", citys);
             return areaUserData;
         }
@@ -385,6 +395,7 @@ public class TaskManager {
             }
             sexRadio.put("man", manMap);
             sexRadio.put("woman", womanMap);
+            sexRadio.put("most", man > woman ? "男" : "女");
 
             Map<String, Object> map = new HashedMap(2);
             map.put("level", "0-10级");

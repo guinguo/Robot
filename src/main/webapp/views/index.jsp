@@ -7,6 +7,7 @@
     <title>微博数据分析</title>
     <meta charset="UTF-8">
     <%@include file="/inc/header.jsp" %>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/front/css/index.css" />
 </head>
 <body>
 <div class="home-page">

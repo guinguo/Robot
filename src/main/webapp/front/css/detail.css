@@ -1,177 +1,115 @@
-﻿.mb20 {
-    margin-bottom: 20px;
-}
-.w260 {
-    width: 260px;
-}
-/*人*/
-.yhhx {
-    width: 920px;
-    float: left;
-    position: relative;
-}
-.rwhx {
-    text-align: center;
-}
-.yhzlmk1 {
-    width: 180px;
-}
-.yhzlmk1 .yhhxzl {
-    width: 128px;
-    height: 160px;
-    float: left;
-    background: url(../img/kolcs1.png) no-repeat;
-}
-.yhhxzl {
-    cursor: pointer;
-}
-
-.p010 {
-    padding: 0px 10px;
-}
-
-.kolhxbt {
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 30px;
-    padding: 10px 0px 5px 0px;
-}
-
-.yhhxzl ul {
-    font-size: 12px;
-}
-.yhzlmk1 ul {
-    color: #cc3366;
-    line-height: 24px;
-}
-
-.yhhxzl p {
-    font-size: 12px;
-}
-
-.kolhxgd {
-    display: block;
-    width: 40px;
-    height: 30px;
-    background: url(../img/bg.png) -105px -210px;
-}
-.kolhxbt .kolhxgd {
-    float: right;
-}
-
-.yhzlmk1 .dian {
-    padding-top: 15px;
-    float: right;
-}
-
-.yhzlmk3 {
-    width: 310px;
-}
-
-.yhzlmk3 .yhhxzl {
-    width: 250px;
-    padding-right: 8px;
-    height: 100px;
-    float: left;
-    background: url(../img/kolcs2.png) no-repeat;
-}
-
-.yhzlmk3 p {
-    color: #666;
-    line-height: 22px;
-}
-
-.colorcc3366 {
-    color: #cc3366;
-    margin-right: 2px;
-}
-
-.yhhxzl p i {
-    padding: 0px 5px;
-    font-style: normal;
-}
-
-
-.yhzlmk4 {
-    width: 310px;
-}
-
-.yhzlmk4 .dian {
-    padding-top: 32px;
-    float: left;
-}
-
-.yhzlmk4 .yhhxzl {
-    width: 250px;
-    padding-left: 8px;
-    height: 100px;
-    float: right;
-    background: url(../img/kolcs4.png) no-repeat;
-}
-
-
-/*用户数据*/
-.yhzl {
-    min-height: 500px;
-    padding: 20px;
-    background: url(../img/bgw2.png);
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-}
-.position_relative {
-     position: relative;
- }
-
-.yhtx {
-    float: left;
-    margin-right: 20px;
-}
-
-.yhtx img {
-    width: 90px;
-    height: 90px;
-    border: 3px #fff solid;
-    -webkit-border-radius: 50px;
-    -moz-border-radius: 50px;
-    border-radius: 50px;
-}
-
-.yhwbcs {
-    float: left;
-    padding-top: 20px;
-    font-size: 12px;
-    line-height: 24px;
-}
-
-.yhwbcs b {
-    color: #cc3366;
-}
-.yhzllb {
-    font-size: 12px;
-    line-height: 24px;
-    margin-bottom: 20px;
+﻿* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: inherit;
 }
 
 table {
     border-spacing: 0;
     border-collapse: inherit;
 }
-table {
-    background-color: transparent;
+
+body {
 }
-.yhzllb td {
-    padding-top: 5px;
-    padding-bottom: 5px;
+
+a {
+    text-decoration: none
 }
-.yhzllbl {
-    width: 70px;
-    color: #666;
+
+a:hover{
+    text-decoration: none;
 }
-.yhzllbr {
+
+a:visited{
+    text-decoration: none;
+}
+
+a:active{
+    text-decoration: none;
+}
+
+a:link{
+    text-decoration: none;
+}
+
+.h1, .h2, .h3, h1, h2, h3 {
+    margin: auto;
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    margin: auto;
+    line-height: inherit;
+}
+
+dd, dt {
+    line-height: inherit;
+}
+
+dt {
+    font-weight: normal;
+}
+
+/*隐藏图表模块*/
+#myInterests, #socialCircle, #preferWords, #myFans {
+    display: none;
+}
+
+/*手型*/
+.yhhxzl {
+    cursor: pointer;
+}
+.yhzllbr{
     max-width: 159px;
     overflow: hidden;
     white-space: normal;
     text-overflow: ellipsis;
-    color: #333;
+}
+/*3月15日季珊改*/
+.grey {
+    color: #6b6b6b;
+}
+
+.refresh_btn {
+    padding-right: 5px;
+}
+.dyfb dl {
+    margin-bottom: 10px;
+}
+.hide_new_chart{
+    display: block;
+}
+
+.old_djfb_width {
+    width: 45.5%;
+}
+body{
+    font-family : "微软雅黑";
+}
+
+
+.detail-page .detail-content {
+    padding: 20px 20px 20px 20px !important;
+    position: relative;
+    width: 1200px;
+    margin: 0 auto;
+    min-height: 940px;
+}
+.top5-help-tip {
+    display: none;
+    position: absolute;
+    background: #f7dede8c;
+    color: #000;
+    width: 330px;
+    padding: 5px;
+    top: -55px;
+    right: -130px;
+    -webkit-box-shadow: 0 5px 15px rgba(0,0,0,.5);
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+    border-radius: 7px;
+}
+.top-table {
+    display: none;
+}
+.latest_table {
+    display: block;
 }
