@@ -5,9 +5,9 @@ package top.guinguo.modules.weibo.model;
  */
 public class Label {
     private String text;
-    private Double score;
+    private Integer score;
 
-    public Label(String text, Double score) {
+    public Label(String text, Integer score) {
         this.text = text;
         this.score = score;
     }
@@ -20,11 +20,11 @@ public class Label {
         this.text = text;
     }
 
-    public Double getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(Double score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 }

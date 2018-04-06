@@ -26,7 +26,7 @@
                             <div class="kolhxbt clearfix">我最爱说</div>
                             <ul>
                                 <c:forEach items="${result.data.preferWordsInfo}" var="word">
-                                    <li>${word}</li>
+                                    <li>${word.text}</li>
                                 </c:forEach>
                             </ul>
                             <p><a class="kolhxgd"></a></p>
@@ -122,8 +122,7 @@
         <div class="charts">
             <%--我最爱说--%>
             <div class="box mb20 p020" id="preferWords" style="display: block;">
-                <a class="close" ng-click="dtp.userDimensionChart.event.clickRemoveBtn('preferWords')"></a>
-
+                <%--<a class="close" ng-click="dtp.userDimensionChart.event.clickRemoveBtn('preferWords')"></a>--%>
                 <div class="tit nobd clearfix">
                     <h2 class="tit-name">我最爱说</h2>
                 </div>
@@ -159,7 +158,7 @@
                                                 <td class="wzasc">
                                                     <a target="_blank" title="${blog.postText}">${blog.postCutText}</a>
                                                 </td>
-                                                <td><a class="wzasxx" target="_blank" title="评论并转发" href="https://m.weibo.cn/compose/repost?id="${blog.id}></a></td>
+                                                <td><a class="wzasxx" target="_blank" title="评论并转发" href="https://m.weibo.cn/compose/repost?id=${blog.id}"></a></td>
                                             </tr>
                                         </c:forEach>
                                     </tbody></table>
@@ -174,7 +173,7 @@
                                                 <td class="wzasc">
                                                     <a target="_blank" title="${blog.postText}" >${blog.postCutText}</a>
                                                 </td>
-                                                <td><a class="wzasxx" title="评论并转发" target="_blank" href="https://m.weibo.cn/compose/repost?id="${blog.id}></a></td>
+                                                <td><a class="wzasxx" title="评论并转发" target="_blank" href="https://m.weibo.cn/compose/repost?id=${blog.id}"></a></td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
@@ -191,7 +190,7 @@
                                                 <a target="_blank" title="${blog.postText}">${blog.postCutText}</a>
                                             </td>
                                             <td>
-                                                <a class="wzasxx" title="评论并转发" target="_blank" href="https://m.weibo.cn/compose/repost?id="${blog.id}></a>
+                                                <a class="wzasxx" title="评论并转发" target="_blank" href="https://m.weibo.cn/compose/repost?id=${blog.id}"></a>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -209,7 +208,7 @@
                                                 <a target="_blank" title="${blog.postText}">${blog.postCutText}</a>
                                             </td>
                                             <td><a class="wzasxx" title="评论并转发" target="_blank"
-                                                   href="https://m.weibo.cn/compose/repost?id="${blog.id}></a>
+                                                   href="https://m.weibo.cn/compose/repost?id=${blog.id}"></a>
                                         </tr>
                                     </c:forEach>
                                     </tbody>
@@ -231,11 +230,61 @@
                             <div class="tit_box box6 pb40 height_456">
                                 <div class="wastop">
                                     <div class="tab_box p020">
-                                        <p class="tab_box_list weibo_map" id="wordCloud" style="width:630px;height:456px"><svg width="630" height="456"><g transform="translate(315,228)"><text text-anchor="middle" transform="translate(-108,-113)rotate(90)" style="font-size: 80px; font-family: 微软雅黑; fill: rgb(31, 119, 180);">转发</text><text text-anchor="middle" transform="translate(-67,14)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(174, 199, 232);">谁看</text><text text-anchor="middle" transform="translate(-13,39)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(255, 127, 14);">可能</text><text text-anchor="middle" transform="translate(18,41)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(255, 187, 120);">见了</text><text text-anchor="middle" transform="translate(-59,66)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(44, 160, 44);">成功</text><text text-anchor="middle" transform="translate(-90,46)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(152, 223, 138);">r2wizqe</text><text text-anchor="middle" transform="translate(64,-87)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(214, 39, 40);">双眼皮</text><text text-anchor="middle" transform="translate(92,44)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(255, 152, 150);">变成</text><text text-anchor="middle" transform="translate(97,-103)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(148, 103, 189);">rx1o9mp</text><text text-anchor="middle" transform="translate(-86,-106)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(197, 176, 213);">翰林</text><text text-anchor="middle" transform="translate(-26,-85)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(140, 86, 75);">大家</text><text text-anchor="middle" transform="translate(-43,84)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(196, 156, 148);">不行</text><text text-anchor="middle" transform="translate(-157,78)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(227, 119, 194);">熬夜</text><text text-anchor="middle" transform="translate(-22,-43)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(247, 182, 210);">美得</text><text text-anchor="middle" transform="translate(143,95)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(127, 127, 127);">坚持</text></g></svg></p>
+                                        <p class="tab_box_list weibo_map" id="wordCloud" style="width:630px;height:456px">
+                                            <%--<svg width="630" height="456">
+                                                <g transform="translate(315,228)">
+                                                    <text text-anchor="middle" transform="translate(-108,-113)rotate(90)" style="font-size: 80px; font-family: 微软雅黑; fill: rgb(31, 119, 180);">转发</text><text text-anchor="middle" transform="translate(-67,14)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(174, 199, 232);">谁看</text><text text-anchor="middle" transform="translate(-13,39)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(255, 127, 14);">可能</text><text text-anchor="middle" transform="translate(18,41)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(255, 187, 120);">见了</text><text text-anchor="middle" transform="translate(-59,66)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(44, 160, 44);">成功</text><text text-anchor="middle" transform="translate(-90,46)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(152, 223, 138);">r2wizqe</text><text text-anchor="middle" transform="translate(64,-87)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(214, 39, 40);">双眼皮</text><text text-anchor="middle" transform="translate(92,44)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(255, 152, 150);">变成</text><text text-anchor="middle" transform="translate(97,-103)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(148, 103, 189);">rx1o9mp</text><text text-anchor="middle" transform="translate(-86,-106)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(197, 176, 213);">翰林</text><text text-anchor="middle" transform="translate(-26,-85)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(140, 86, 75);">大家</text><text text-anchor="middle" transform="translate(-43,84)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(196, 156, 148);">不行</text><text text-anchor="middle" transform="translate(-157,78)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(227, 119, 194);">熬夜</text><text text-anchor="middle" transform="translate(-22,-43)rotate(0)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(247, 182, 210);">美得</text><text text-anchor="middle" transform="translate(143,95)rotate(90)" style="font-size: 10px; font-family: 微软雅黑; fill: rgb(127, 127, 127);">坚持</text>
+                                                </g>
+                                            </svg>--%>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <p class="p10"></p>
+            </div>
+
+            <%--文档兴趣--%>
+            <div class="box mb20 p020" id="myInterests" style="display: block;">
+                <%--<a class="close" ng-click="dtp.userDimensionChart.event.clickRemoveBtn('myInterests')"></a>--%>
+                <div class="tit nobd clearfix">
+                    <h2 class="tit-name">我的兴趣</h2>
+                    <ul class="tit-btn clearfix">
+                        <li>
+                            <a class="help btn-help ng-isolate-scope" ng-click="showBangzhuwendangModel()"
+                               title="我的兴趣" content="被分析用户的兴趣是通过TA的关注关系，计算出TA在每个兴趣标签的分值，分值越高，表示该用户更倾向于有这个兴趣。"></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="box3 clearfix height_415 div_wdxq">
+                    <div class="w340 fl">
+                        <div class="p020">
+                            <table class="wdxq" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <!-- <span class="wdxqjt"></span> -->
+                                <tbody>
+                                <tr class="wdxqtit">
+                                    <td class="wdxql">兴趣标签</td>
+                                    <td class="wdxqc">分数</td>
+                                    <td class="wdxqr"><!-- <a class="help"></a> --></td>
+                                </tr>
+                                <c:forEach items="${result.data.userLabels}" var="word">
+                                    <tr>
+                                        <td class="wdxql ng-binding" ng-bind="myInterests.text">${word.text}</td>
+                                        <td class="wdxqc"><b class="ng-binding">${word.score}</b></td>
+                                        <td class="wdxqr"></td>
+                                    </tr>
+                                </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="w800 blue_map fr p20" style="text-align:center;">
+                        <p id="interest"
+                           style="width: 800px; height: 350px; -webkit-tap-highlight-color: transparent; user-select: none; background-color: rgba(0, 0, 0, 0); cursor: default;"
+                           _echarts_instance_="1523016051766">
+                        </p>
                     </div>
                 </div>
                 <p class="p10"></p>
@@ -245,6 +294,11 @@
     <%@include file="/inc/bottom.jsp" %>
 </div>
 <%@include file="/inc/footer.jsp"%>
+<script src="${pageContext.request.contextPath}/front/js/d3/d3.min.js"></script>
+<script src="${pageContext.request.contextPath}/front/js/echarts-all.js"></script>
+<script src="${pageContext.request.contextPath}/front/js/d3/d3.layout.cloud.js"></script>
+<script src="${pageContext.request.contextPath}/front/js/kolEcharts.js"></script>
+<script src="${pageContext.request.contextPath}/front/js/formatData.js"></script>
 <script src="${pageContext.request.contextPath}/front/js/detail.js"></script>
 <script>
     var result = ${result}

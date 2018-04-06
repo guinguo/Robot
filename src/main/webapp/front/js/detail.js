@@ -3,6 +3,7 @@
  */
 $(function () {
     bindEvent();
+    run();
 });
 Date.prototype.Format = function (fmt) { //author: meizz
     var o = {
@@ -105,4 +106,23 @@ function bindEvent() {
             }
         });
     }*/
+}
+function run() {
+    // var result = result;
+    //画词云
+    kolEchart.drawWordCloud("wordCloud", result.data.wordCloud);
+    //画兴趣雷达
+    dradMyInterests();
+
+}
+function dradMyInterests() {
+    //加载数据
+    var myInterests = result.data.userLabels;
+    //显示图表
+    try {
+        kolEchart.drawRadar(kolEchart.getChart("interest"), formatData.formatInterest(myInterests));
+    } catch (e) {
+        console.error(e)
+    }
+
 }

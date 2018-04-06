@@ -59,6 +59,19 @@ public class FrontController {
     }
 
     /**
+     * 任务详情
+     *
+     * @return
+     */
+    @RequestMapping("/task/detail.json")
+    @ResponseBody
+    public ResultDto detailJson(int taskId) {
+        TaskResult result = taskService.getResultByTaskId(taskId);
+        ResultDto resultDto = new ResultDto(result);
+        return resultDto;
+    }
+
+    /**
      * 用户列表
      * @param num
      * @param pageSize

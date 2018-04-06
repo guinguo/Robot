@@ -25,7 +25,7 @@
             <em></em>
         </div>
         <a href="${pageContext.request.contextPath}/user_profile" class="common-top-messages">
-            <span class="common-top-messages-namber">${resultCount}11</span>
+            <%--<span class="common-top-messages-namber">${resultCount}</span>--%>
         </a>
     </div>
 </div>

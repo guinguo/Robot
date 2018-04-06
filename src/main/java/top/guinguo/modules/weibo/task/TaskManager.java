@@ -3,6 +3,9 @@ package top.guinguo.modules.weibo.task;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
+import com.kennycason.kumo.WordFrequency;
+import com.kennycason.kumo.nlp.FrequencyAnalyzer;
+import com.kennycason.kumo.nlp.tokenizers.ChineseWordTokenizer;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import top.guinguo.modules.weibo.dao.HBaseDaoImlp;
@@ -58,7 +61,7 @@ public class TaskManager {
 
     class TaskRunner implements Runnable {
         private Task task;
-        private DecimalFormat df = new DecimalFormat("#.0");
+        private DecimalFormat df = new DecimalFormat("#.00");
         public TaskRunner(Task task) {
             this.task = task;
         }
@@ -72,16 +75,15 @@ public class TaskManager {
                 weibos = weiboService.getWeiboByUid(task.getUserid());
                 JSONObject data = new JSONObject();
                 Map<String, List<MidleWeibo>> top5 = getTop5(weibos);
-                List<String> worldCloud = getWordCloud(weibos);
+                List<CloudWord> wordCloud = getWordCloud(weibos);
                 List<Label> userLabels = getUserLabels(weibos);
                 JSONObject araeDatas = getAraeDatas(task.getUser().getAddress());
                 data.put("top5", top5);
-                data.put("worldCloud", worldCloud);
+                data.put("wordCloud", wordCloud);
                 data.put("userLabels", userLabels);
                 data.put("araeDatas", araeDatas);
                 //画像任务小窗数据
-                data.put("preferWordsInfo", worldCloud.subList(0, 3));
-                data.put("myInterestsInfo", userLabels.subList(0, 3));
+                setWindowsData(data, wordCloud, userLabels);
                 task.setStatus("100");
                 task.setFinishDate(new Timestamp(new Date().getTime()));
                 updateTask(data.toJSONString());
@@ -157,13 +159,24 @@ public class TaskManager {
          * @param weiboList
          * @return
          */
-        private List<String> getWordCloud(List<Weibo> weiboList) {
-            StringBuilder sb = new StringBuilder("");
+        private List<CloudWord> getWordCloud(List<Weibo> weiboList) {
+            List<String> texts = new ArrayList<>();
             for (Weibo weibo : weiboList) {
-                sb.append(weibo.getContent()).append("。");
+//                sb.append(weibo.getContent()).append("。");
+                texts.add(weibo.getContent());
             }
-            List<String> kws2 = HanLP.extractKeyword(sb.toString(), 50);
-            return kws2;
+            /*StringBuilder sb = new StringBuilder("");
+            List<String> kws2 = HanLP.extractKeyword(sb.toString(), 50);*/
+            final FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
+            frequencyAnalyzer.setWordFrequenciesToReturn(100);
+            frequencyAnalyzer.setMinWordLength(2);
+            frequencyAnalyzer.setWordTokenizer(new ChineseWordTokenizer());
+            final List<WordFrequency> wordFrequencies = frequencyAnalyzer.load(texts);
+            List<CloudWord> cloudWords = new ArrayList<>(wordFrequencies.size());
+            for (WordFrequency wf : wordFrequencies) {
+                cloudWords.add(new CloudWord(wf));
+            }
+            return cloudWords;
         }
         /**
          * 标签
@@ -180,6 +193,9 @@ public class TaskManager {
                     String[] ts = topics.split("#");
                     for (String t : ts) {
                         sum++;
+                        if (t.length() > 10) {
+                            t = t.substring(0, 10);
+                        }
                         texts.add(t);
                         if (textMap.get(t) != null) {
                             textMap.put(t, textMap.get(t) + 1);
@@ -194,7 +210,7 @@ public class TaskManager {
             int i = 0;
             List<Label> labels = new ArrayList<>(10);
             for (Map.Entry<String, Integer> map : list) {
-                Label label = new Label(map.getKey(), Double.valueOf(df.format(map.getValue() * 1.0 / sum)));
+                Label label = new Label(map.getKey(), Double.valueOf((map.getValue() * 1.0 / sum)*100).intValue());
                 labels.add(label);
                 if (++i == 10) {
                     break;
@@ -515,5 +531,19 @@ public class TaskManager {
             res.put("total", city.size());
             return res;
         }
+    }
+
+    private void setWindowsData(JSONObject data, List<CloudWord> wordCloud, List<Label> userLabels) {
+        List<CloudWord> preferWordsInfo = new ArrayList<>(3);
+        for (int i=0;i<3 && i<wordCloud.size();i++) {
+            preferWordsInfo.add(new CloudWord(wordCloud.get(i).getText(), wordCloud.get(i).getSize()));
+        }
+        data.put("preferWordsInfo", preferWordsInfo);
+        List<Label> myInterestsInfo = new ArrayList<>(3);
+        for (int i=0;i<3 && i<userLabels.size();i++) {
+            myInterestsInfo.add(new Label(userLabels.get(i).getText(), userLabels.get(i).getScore()));
+        }
+        data.put("preferWordsInfo", preferWordsInfo);
+        data.put("myInterestsInfo", myInterestsInfo);
     }
 }
