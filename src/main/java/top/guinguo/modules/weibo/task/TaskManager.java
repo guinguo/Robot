@@ -77,11 +77,11 @@ public class TaskManager {
                 Map<String, List<MidleWeibo>> top5 = getTop5(weibos);
                 List<CloudWord> wordCloud = getWordCloud(weibos);
                 List<Label> userLabels = getUserLabels(weibos);
-                JSONObject araeDatas = getAraeDatas(task.getUser().getAddress());
+                JSONObject areaDatas = getAraeDatas(task.getUser().getAddress());
                 data.put("top5", top5);
                 data.put("wordCloud", wordCloud);
                 data.put("userLabels", userLabels);
-                data.put("araeDatas", araeDatas);
+                data.put("areaDatas", areaDatas);
                 //画像任务小窗数据
                 setWindowsData(data, wordCloud, userLabels);
                 task.setStatus("100");

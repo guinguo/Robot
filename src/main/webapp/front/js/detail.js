@@ -26,6 +26,21 @@ changeTab = function (tab) {
     $('#top-table-'+tab).show();
     $('.tit-tab li a#top-'+tab).addClass('current');
 };
+changeCity = function (tab) {
+    $('.city_area .tit-tab li a').removeClass('current');
+    $('.city_box_list .city-data').hide();
+    $('.city_box_list .city-data-'+tab).show();
+    $('.city_area .tit-tab li a#tab-area-'+tab).addClass('current');
+    var mapData = result.data.areaDatas.citys.city;
+    if (tab == 'province') {
+        mapData = [{name: result.data.areaDatas.citys.provice, value: result.data.areaDatas.fansNum}];
+    }
+    try {
+        kolEchart.drawMap(kolEchart.getChart("fansArealDistribution"), mapData);
+    } catch (e) {
+        console.error(e)
+    }
+};
 function bindEvent() {
     $('#top5-help').hover(function(){
         $('#top5-help div.top5-help-tip').show();
@@ -113,8 +128,24 @@ function run() {
     kolEchart.drawWordCloud("wordCloud", result.data.wordCloud);
     //画兴趣雷达
     dradMyInterests();
-
+    //画地图
+    changeCity('province');
+    //画博龄
+    drawBlogAge();
+    //画学校排行
+    drawSchoolRank();
+    //画会员等级
+    drawMember();
+    //画公司标签词云
+    drawCompanyTag();
+    //画等级分布
+    drawLevel();
+    //画粉丝区间
+    drawFansRank();
 }
+/**
+ * 画兴趣图
+ */
 function dradMyInterests() {
     //加载数据
     var myInterests = result.data.userLabels;
@@ -124,5 +155,94 @@ function dradMyInterests() {
     } catch (e) {
         console.error(e)
     }
-
+}
+/**
+ * 博龄
+ */
+function drawBlogAge() {
+    var blogAges = result.data.areaDatas.blogAges;
+    var blogAgesData = {};
+    for (var i=0;i<blogAges.length;i++) {
+        var age = blogAges[i];
+        blogAgesData[age.key + '年'] = age.value;
+    }
+    try {
+        kolEchart.drawAgePie(kolEchart.getChart("age"), formatData.formatAgeData(blogAgesData));
+    } catch (e) {
+        console.error(e)
+    }
+}
+/**
+ * 学校
+ */
+function drawSchoolRank() {
+    var schoolRank = result.data.areaDatas.schoolRank;
+    var schoolRankData = {};
+    for (var i=0;i<schoolRank.length;i++) {
+        var age = schoolRank[i];
+        schoolRankData[age.key] = age.value;
+    }
+    try {
+        kolEchart.drawBar1(kolEchart.getChart("school_rank"), formatData.formatSchoolData(schoolRankData));
+    } catch (e) {
+        console.error(e)
+    }
+}
+/**
+ * 会员
+ */
+function drawMember() {
+    var memberLevel = result.data.areaDatas.memberLevels;
+    var memberLevelData = {};
+    for (var i=0;i<memberLevel.length;i++) {
+        var member = memberLevel[i];
+        if (member.key == 0) {
+            memberLevelData['非会员'] = member.value;
+        } else {
+            memberLevelData[member.key + '级会员'] = member.value;
+        }
+    }
+    try {
+        kolEchart.drawAgePie(kolEchart.getChart("user_type"), formatData.formatAgeData(memberLevelData));
+    } catch (e) {
+        console.error(e)
+    }
+}
+/**
+ * 公司标签
+ */
+function drawCompanyTag() {
+    try {
+        kolEchart.drawWordCloud("jobTag", result.data.areaDatas.companyTag);
+    } catch (e) {
+        console.error(e)
+    }
+}
+/**
+ * 等级
+ */
+function drawLevel() {
+    try { //格式化图表
+        var data = formatData.formatLevelData(result.data.areaDatas.levels);
+        //画图
+        kolEchart.drawBar(kolEchart.getChart("level"), data.lvchartData, data.xData);
+    } catch (e) {
+        console.error(e)
+    }
+}
+/**
+ * 粉丝区间
+ */
+function drawFansRank() {
+    var fansRank = result.data.areaDatas.fansRange;
+    var fansRankData = {};
+    for (var i=0;i<fansRank.length;i++) {
+        var fans = fansRank[i];
+        fansRankData[fans.key] = fans.value;
+    }
+    try {
+        kolEchart.drawBar1(kolEchart.getChart("fans_range"), formatData.formatFansRangeData(fansRankData));
+    } catch (e) {
+        console.error(e)
+    }
 }
