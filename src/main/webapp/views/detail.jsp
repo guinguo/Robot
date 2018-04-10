@@ -133,8 +133,8 @@
                                 <h2 class="tit-name">TOP 5</h2>
                                 <ul class="tit-btn clearfix">
                                     <li>
-                                        <a id="top5-help" class="help btn-help" title="我最爱说TOP5">
-                                            <div class="top5-help-tip">被分析用户近期的微博（约200条），分别按发布时间、评论数、转发数、点赞数排序，图表显示TOP5微博</div>
+                                        <a id="top5-help" class="help btn-help">
+                                            <div class="top5-help-tip help-tip">被分析用户近期的微博（约200条），分别按发布时间、评论数、转发数、点赞数排序，图表显示TOP5微博</div>
                                         </a>
                                     </li>
                                 </ul>
@@ -224,7 +224,13 @@
                                     </li>
                                 </ul>
                                 <ul class="tit-btn clearfix">
-                                    <li><a class="help btn-help" title="高频词云" content="被分析用户最近90/30天的微博，统计其中每个词出现的频次，频次越大，词显示越大，表示该用户在自己所发的微博中，更喜欢提到这个词。"></a></li>
+                                    <li>
+                                        <a id="word-cloud-help" class="help btn-help">
+                                            <div class="word-cloud-help-tip help-tip">
+                                                被分析用户最近的微博（大约240条记录），统计其中每个词出现的频次，频次越大，词显示越大，表示该用户在自己所发的微博中，更喜欢提到这个词。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="tit_box box6 pb40 height_456">
@@ -247,8 +253,11 @@
                     <h2 class="tit-name">我的兴趣</h2>
                     <ul class="tit-btn clearfix">
                         <li>
-                            <a class="help btn-help"
-                               title="我的兴趣" content="被分析用户的兴趣是通过TA的关注关系，计算出TA在每个兴趣标签的分值，分值越高，表示该用户更倾向于有这个兴趣。"></a>
+                            <a id="my-interest-help" class="help btn-help">
+                                <div class="my-interest-help-tip help-tip">
+                                    被分析用户的兴趣是通过TA的关注关系，计算出TA在每个兴趣标签的分值，分值越高，表示该用户更倾向于有这个兴趣。
+                                </div>
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -297,7 +306,13 @@
                             <div class="tit nobd clearfix">
                                 <h2 class="tit-name">男女比例</h2>
                                 <ul class="tit-btn clearfix">
-                                    <li><a class="help btn-help" title="男女比例" content="基于新浪微博公开的信息，统计与该用户相同地区的性别分布。"></a></li>
+                                    <li>
+                                        <a id="sex-radio-help" class="help btn-help">
+                                            <div class="sex-radio-help-tip help-tip">
+                                                基于新浪微博公开的信息，统计与该用户相同地区的性别分布。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="xbfb div_xbfb">
@@ -333,7 +348,13 @@
                                     </li>
                                 </ul>
                                 <ul class="tit-btn clearfix fr">
-                                    <li><a class="help btn-help" title="地域分布" content="基于用户在新浪微博公开的信息，统计该KOL粉丝所在省份及城市分布。"></a></li>
+                                    <li>
+                                        <a id="citys-help" class="help btn-help">
+                                            <div class="citys-help-tip help-tip">
+                                                基于用户在新浪微博公开的信息，统计该地区用户所在省份及城市分布。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="clearfix">
@@ -384,7 +405,13 @@
                             <div class="tit nobd clearfix">
                                 <h2 class="tit-name">博龄分布</h2>
                                 <ul class="tit-btn clearfix">
-                                    <li><a class="help btn-help" title="年龄分布" content="基于用户在新浪微博公开的信息，统计该KOL粉丝的年龄分布。"></a></li>
+                                    <li>
+                                        <a id="blog-age-help" class="help btn-help">
+                                            <div class="blog-age-help-tip help-tip">
+                                                基于用户在新浪微博公开的信息，统计该地区用户的微博年龄分布。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="wastop div_nlfb">
@@ -395,7 +422,13 @@
                             <div class="tit nobd clearfix">
                                 <h2 class="tit-name">学校排名</h2>
                                 <ul class="tit-btn clearfix">
-                                    <li><a class="help btn-help" title="学校排名" content="基于用户在新浪微博公开的信息，统计该KOL粉丝的学校排名。"></a></li>
+                                    <li>
+                                        <a id="school-rank-help" class="help btn-help">
+                                            <div class="school-rank-help-tip help-tip">
+                                                基于用户在新浪微博公开的信息，统计该地区用户的学校排名。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
 
@@ -412,7 +445,13 @@
                             <div class="tit nobd clearfix">
                                 <h2 class="tit-name">微博会员</h2>
                                 <ul class="tit-btn clearfix">
-                                    <li><a class="help btn-help" title="微博会员" content="每个新浪微博的用户都对应一个微博身份，包括普通身份、微博达人、个人认证（黄V）、企业认证（蓝V）、微博女郎等，图表统计的是该KOL粉丝的身份分布。"></a></li>
+                                    <li>
+                                        <a id="member-help" class="help btn-help">
+                                            <div class="member-help-tip help-tip">
+                                                新浪微博有会员等级机制，图表统计的是该地区用户的微博会员分布。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="wastop div_wbsf">
@@ -423,7 +462,13 @@
                             <div class="tit nobd clearfix">
                                 <h2 class="tit-name">公司标签</h2>
                                 <ul class="tit-btn clearfix fr">
-                                    <li><a class="help btn-help" title="职业标签" content="基于用户在新浪微博公开的信息，统计该KOL粉丝的职业标签。"></a></li>
+                                    <li>
+                                        <a id="company-help" class="help btn-help">
+                                            <div class="company-help-tip help-tip">
+                                                基于用户在新浪微博公开的信息，统计该地区用户的公司信息。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="clearfix">
@@ -442,7 +487,13 @@
                             <div class="tit nobd clearfix">
                                 <h2 class="tit-name">等级分布</h2>
                                 <ul class="tit-btn clearfix">
-                                    <li><a class="help btn-help" title="等级分布" content="基于用户在新浪微博的等级，统计该KOL粉丝的等级分布区间。"></a></li>
+                                    <li>
+                                        <a id="level-help" class="help btn-help">
+                                            <div class="level-help-tip help-tip">
+                                                基于用户在新浪微博的等级，统计该地区用户的等级分布区间。
+                                            </div>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="wastop div_djfb">
@@ -455,7 +506,11 @@
                                 <h2 class="tit-name">粉丝区间</h2>
                                 <ul class="tit-btn clearfix fr">
                                     <li>
-                                        <a class="help btn-help" title="粉丝区间" content="基于BlueMC Data的数据，统计该KOL粉丝的粉丝分布区间"></a>
+                                        <a id="fans-help" class="help btn-help">
+                                            <div class="fans-help-tip help-tip">
+                                                基于爬虫模块的数据，统计该地区用户的粉丝分布
+                                            </div>
+                                        </a>
                                     </li>
                                 </ul>
                             </div>

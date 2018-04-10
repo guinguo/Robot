@@ -94,18 +94,30 @@ body{
     margin: 0 auto;
     min-height: 940px;
 }
-.top5-help-tip {
+.help-tip {
     display: none;
     position: absolute;
     background: #f7dede8c;
     color: #000;
     width: 330px;
     padding: 5px;
-    top: -90px;
-    right: -130px;
+    top: -68px;
+    right: -120px;
     -webkit-box-shadow: 0 5px 15px rgba(0,0,0,.5);
     box-shadow: 0 5px 15px rgba(0,0,0,.5);
     border-radius: 7px;
+}
+.top5-help-tip {
+    top: -98px;
+    right: -130px;
+}
+.word-cloud-help-tip {
+    top: -20px;
+    right: -100px;
+}
+.my-interest-help-tip {
+    top: -98px;
+    right: -100px;
 }
 .top-table {
     display: none;
